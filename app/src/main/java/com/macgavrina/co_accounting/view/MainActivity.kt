@@ -30,6 +30,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 val supportFragmentManager = supportFragmentManager
                 supportFragmentManager.beginTransaction()
                         .replace(R.id.content_main_constraint_layout, LoginFragment())
+                        //ToDo Продумать как не добавлять пачку одинаковых фрагментов в стек
                         .addToBackStack("loginFragment")
                         .commit()
         }

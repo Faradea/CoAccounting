@@ -1,5 +1,6 @@
 package com.macgavrina.co_accounting.view
 
+import android.content.Context
 import android.support.v4.app.Fragment
 import android.os.Bundle
 import android.util.Log
@@ -15,6 +16,15 @@ import kotlinx.android.synthetic.main.login_fragment.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import android.view.inputmethod.InputMethodManager.HIDE_NOT_ALWAYS
+import android.content.Context.INPUT_METHOD_SERVICE
+import android.os.Build
+import android.support.v4.content.ContextCompat.getSystemService
+import android.view.inputmethod.InputMethodManager
+import android.content.Context.INPUT_METHOD_SERVICE
+import android.support.v4.content.ContextCompat.getSystemService
+
+
 
 
 class LoginFragment:Fragment() {
@@ -25,7 +35,11 @@ class LoginFragment:Fragment() {
 
             val checkIfInputIsNotEmpty: Boolean = (login_fragment_login_et.text.length != 0) and (login_fragment_password_et.text.length != 0)
             if (checkIfInputIsNotEmpty) {
+
+                hideKeyboard()
+
                 val login: String = login_fragment_login_et.text.toString()
+                //ToDo Передавать пароль на сервер в зашифрованном виде
                 val pass: String = login_fragment_password_et.text.toString()
 
                 val authService: AuthService = AuthService.create()
@@ -36,9 +50,10 @@ class LoginFragment:Fragment() {
                         val authResult:AuthResult? = response.body()
                         if (authResult != null) {
                             Log.d("InDebtApp", authResult.userToken)
-                        } else
+                        } else {
                             Log.d("InDebtApp", "userToken = null")
                             Toast.makeText(context, "Wrong login or password", Toast.LENGTH_SHORT).show()
+                        }
                     }
 
                     override fun onFailure(call: Call<AuthResult>, t: Throwable) {
@@ -49,6 +64,11 @@ class LoginFragment:Fragment() {
             }
 
         }
+    }
+
+    private fun hideKeyboard() {
+        val inputMethodManager:InputMethodManager = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(view?.windowToken, 0)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
