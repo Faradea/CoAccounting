@@ -22,9 +22,14 @@ import android.os.Build
 import android.support.v4.content.ContextCompat.getSystemService
 import android.view.inputmethod.InputMethodManager
 import android.content.Context.INPUT_METHOD_SERVICE
+import android.drm.DrmStore
 import android.support.v4.content.ContextCompat.getSystemService
-
-
+import com.macgavrina.co_accounting.rxjava.LoginInputObserver
+import com.macgavrina.co_accounting.rxjava.LoginInputObserver.LoginInputObserver.getTextWatcherObservable
+import io.reactivex.Observable
+import io.reactivex.functions.BiFunction
+import org.reactivestreams.Subscriber
+import java.util.*
 
 
 class LoginFragment:Fragment() {
@@ -64,6 +69,26 @@ class LoginFragment:Fragment() {
             }
 
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        login_fragment_login_button.isEnabled = false
+
+        val emailObservable: Observable<String> = getTextWatcherObservable(login_fragment_login_et)
+        val passwordObservable:Observable<String> = getTextWatcherObservable(login_fragment_password_et)
+
+
+        val isSignInEnabled: Observable<Boolean> = Observable.combineLatest(
+                emailObservable,
+                passwordObservable,
+                BiFunction { u, p -> u.isNotEmpty() && p.isNotEmpty() })
+
+        isSignInEnabled.subscribe {it ->
+            login_fragment_login_button.isEnabled = it
+        }
+
     }
 
     private fun hideKeyboard() {
