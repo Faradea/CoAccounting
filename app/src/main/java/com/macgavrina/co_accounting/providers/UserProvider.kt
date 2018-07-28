@@ -10,23 +10,19 @@ import android.widget.Toast
 import android.content.Context.MODE_PRIVATE
 import android.content.Context.MODE_PRIVATE
 import android.os.AsyncTask.execute
+import android.util.Log
 import com.macgavrina.co_accounting.MainApplication
 
 class UserProvider() {
 
-    lateinit var sharedPreferences:SharedPreferences
-    var user:User? = null
-
-    init {
-        val sharedPreferences = MainApplication.applicationContext().getSharedPreferences(PREF_FILENAME, 0)
-    }
+    val sharedPreferences:SharedPreferences = MainApplication.applicationContext().getSharedPreferences(PREF_FILENAME, 0)
 
     fun saveUserData(user:User) {
         val sharedPreferencesEditor = sharedPreferences.edit()
         sharedPreferencesEditor.putString(PREF_LOGIN, user.login)
         sharedPreferencesEditor.putString(PREF_TOKEN, user.token)
         sharedPreferencesEditor.apply()
-        this.user = user
+        Log.d("InDebtApp", "User login and token are saved in shared preferences")
     }
 
 

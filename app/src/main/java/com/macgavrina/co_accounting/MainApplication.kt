@@ -3,31 +3,24 @@ package com.macgavrina.co_accounting
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
+import android.util.Log
 
 
 //This class is necessary to get application context - MainApplication.applicationContext()
 
-@SuppressLint("Registered")
-class MainApplication : Application() {
+class MainApplication: Application() {
 
-    init {
+    override fun onCreate() {
+        super.onCreate()
         instance = this
     }
 
     companion object {
-        private var instance: MainApplication? = null
+        lateinit var instance: MainApplication
+            private set
 
         fun applicationContext() : Context {
-            return instance!!.applicationContext
+            return instance.applicationContext
         }
-    }
-
-    override fun onCreate() {
-        super.onCreate()
-        // initialize for any
-
-        // Use ApplicationContext.
-        // example: SharedPreferences etc...
-        val context: Context = MainApplication.applicationContext()
     }
 }
