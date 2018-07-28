@@ -30,6 +30,12 @@ import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 import org.reactivestreams.Subscriber
 import java.util.*
+import android.service.autofill.UserData
+import android.app.ProgressDialog
+
+
+
+
 
 
 class LoginFragment:Fragment() {
@@ -44,7 +50,6 @@ class LoginFragment:Fragment() {
                 hideKeyboard()
 
                 val login: String = login_fragment_login_et.text.toString()
-                //ToDo Передавать пароль на сервер в зашифрованном виде
                 val pass: String = login_fragment_password_et.text.toString()
 
                 val authService: AuthService = AuthService.create()
@@ -101,6 +106,26 @@ class LoginFragment:Fragment() {
 
         return inflater.inflate(R.layout.login_fragment, container,
                 false)
+    }
+
+    fun getLoginFromEditText(): String {
+        return login_fragment_login_et.text.toString()
+    }
+
+    fun getPasswordFromEditText(): String {
+        return login_fragment_password_et.text.toString()
+    }
+
+    fun setLoginButtonEnabled(isLoginButtonEnabled: Boolean) {
+        login_fragment_login_button.isEnabled = isLoginButtonEnabled
+    }
+
+    fun showProgress() {
+        //ToDo дописать отображение прогресс-бара
+    }
+
+    fun hideProgress() {
+        //ToDo дописать скрывание прогресс-бара
     }
 
 }
