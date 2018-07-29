@@ -7,18 +7,50 @@ import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
-import android.view.View
 import com.macgavrina.co_accounting.R
+import com.macgavrina.co_accounting.interfaces.MainActivityContract
+import com.macgavrina.co_accounting.presenters.MainActivityPresenter
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.nav_header_main.view.*
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+
+
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, MainActivityContract.View {
+
+    override fun showProgress() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun hideProgress() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    lateinit var mainActivityPresenter: MainActivityPresenter
+
+    override fun hideMenu() {
+        drawer_layout.closeDrawer(GravityCompat.START)
+    }
+
+    override fun displayLoginFragment() {
+
+        val supportFragmentManager = supportFragmentManager
+        supportFragmentManager.beginTransaction()
+                .replace(R.id.content_main_constraint_layout, LoginFragment())
+                //ToDo Продумать как не добавлять пачку одинаковых фрагментов в стек
+                .addToBackStack("loginFragment")
+                .commit()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+
+        initView()
+
+        mainActivityPresenter = MainActivityPresenter()
+        mainActivityPresenter.attachView(this)
 
         fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -26,13 +58,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         nav_view.getHeaderView(0).nav_header_main_iv.setOnClickListener {view ->
-            drawer_layout.closeDrawer(GravityCompat.START)
-                val supportFragmentManager = supportFragmentManager
-                supportFragmentManager.beginTransaction()
-                        .replace(R.id.content_main_constraint_layout, LoginFragment())
-                        //ToDo Продумать как не добавлять пачку одинаковых фрагментов в стек
-                        .addToBackStack("loginFragment")
-                        .commit()
+            mainActivityPresenter.headerIsClicked()
         }
 
         val toggle = ActionBarDrawerToggle(
@@ -82,5 +108,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mainActivityPresenter.detachView()
+    }
+
+    fun initView() {
+        //ToDo Здесь должно быть DI или что-то типа того, например:
+        //ButterKnife.bind(this);
     }
 }

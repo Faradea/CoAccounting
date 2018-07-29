@@ -11,7 +11,7 @@ const val PREF_TOKEN = "token"
 
 const val PREF_LOGIN = "login"
 
-class SharedPreferences(context: Context) {
+class MySharedPreferences(context: Context) {
 
     private val preferences: SharedPreferences
 

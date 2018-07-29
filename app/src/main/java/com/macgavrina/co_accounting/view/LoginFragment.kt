@@ -16,13 +16,13 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import android.view.inputmethod.InputMethodManager
-import com.macgavrina.co_accounting.interfaces.LoginContractView
+import com.macgavrina.co_accounting.interfaces.LoginContract
 import com.macgavrina.co_accounting.rxjava.LoginInputObserver.LoginInputObserver.getTextWatcherObservable
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 import com.macgavrina.co_accounting.presenters.LoginPresenter
 
-class LoginFragment:Fragment(), LoginContractView {
+class LoginFragment:Fragment(), LoginContract.View {
 
     lateinit var loginPresenter: LoginPresenter
 

@@ -5,12 +5,11 @@ import com.macgavrina.co_accounting.providers.UserProvider.LoadUserCallback
 import android.os.AsyncTask
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.model.User
+import com.macgavrina.co_accounting.preferences.MySharedPreferences
 import java.util.concurrent.TimeUnit
 
 
-const val PREF_TOKEN = "token"
-const val PREF_LOGIN = "login"
-const val PREF_FILENAME = "preferences"
+
 
 class LoadUsersTask(callback: LoadUserCallback) : AsyncTask<Void, Void, User>() {
 
@@ -21,9 +20,9 @@ class LoadUsersTask(callback: LoadUserCallback) : AsyncTask<Void, Void, User>() 
     }
 
     override fun doInBackground(vararg params: Void): User? {
-        val sharedPreferences:SharedPreferences = MainApplication.applicationContext().getSharedPreferences(PREF_FILENAME, 0)
-        val login: String = sharedPreferences.getString(PREF_LOGIN, "")
-        val token: String = sharedPreferences.getString(PREF_TOKEN, "")
+        val mySharedPreferences: MySharedPreferences = MySharedPreferences(MainApplication.applicationContext())
+        val login = mySharedPreferences.login
+        val token = mySharedPreferences.token
         TimeUnit.SECONDS.sleep(3);
             if (login.isEmpty() or token.isEmpty()) {
                 return null
