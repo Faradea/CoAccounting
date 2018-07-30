@@ -15,15 +15,31 @@ import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.nav_header_main.view.*
 
 
-
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, MainActivityContract.View {
-
-    override fun showProgress() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, MainActivityContract.View, LoginFragment.OnLoginFinishedListener, ProfileFragment.OnLogoutFinishedListener {
+    override fun updateLoginText(login: String) {
+        nav_view.getHeaderView(0).nav_header_main_tv.text = login
     }
 
-    override fun hideProgress() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun logoutFinished() {
+        mainActivityPresenter.logoutFinished()
+    }
+
+    override fun displayProfileFragment() {
+        val supportFragmentManager = supportFragmentManager
+        supportFragmentManager.beginTransaction()
+                .replace(R.id.content_main_constraint_layout, ProfileFragment())
+                .commit()
+    }
+
+    override fun loginFinished() {
+        mainActivityPresenter.loginFinished()
+    }
+
+    override fun showProgress() {
+        val supportFragmentManager = supportFragmentManager
+        supportFragmentManager.beginTransaction()
+                .replace(R.id.content_main_constraint_layout, ProgressBarFragment())
+                .commit()
     }
 
     lateinit var mainActivityPresenter: MainActivityPresenter
@@ -37,8 +53,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val supportFragmentManager = supportFragmentManager
         supportFragmentManager.beginTransaction()
                 .replace(R.id.content_main_constraint_layout, LoginFragment())
-                //ToDo Продумать как не добавлять пачку одинаковых фрагментов в стек
-                .addToBackStack("loginFragment")
+                //ToDo Продумать про добавление в backstack
+                .commit()
+    }
+
+    override fun displayMainFragment() {
+        val supportFragmentManager = supportFragmentManager
+        supportFragmentManager.beginTransaction()
+                .replace(R.id.content_main_constraint_layout, MainFragment())
                 .commit()
     }
 
@@ -67,13 +89,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         toggle.syncState()
 
         nav_view.setNavigationItemSelectedListener(this)
+
+        displayMainFragment()
     }
 
-    //ToDo Менять имя и иконку для авторизованного пользователя
-/*    override fun onResume() {
+    override fun onResume() {
         super.onResume()
-        nav_view.getHeaderView(0).nav_header_main_tv.text = "?"
-    }*/
+        mainActivityPresenter.viewIsReady()
+    }
 
     override fun onBackPressed() {
         if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
@@ -116,7 +139,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     fun initView() {
-        //ToDo Здесь должно быть DI или что-то типа того, например:
+        //ToDo Здесь должно быть DI или что-то типа того, например (без этого - приложение падает при повороте экрана во время запроса по сети):
         //ButterKnife.bind(this);
     }
 }

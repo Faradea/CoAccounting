@@ -17,6 +17,8 @@ public interface LoginContract {
         fun showProgress()
 
         fun hideProgress()
+
+        fun finishSelf()
     }
 
     interface Presenter:BasePresenterContract<View> {

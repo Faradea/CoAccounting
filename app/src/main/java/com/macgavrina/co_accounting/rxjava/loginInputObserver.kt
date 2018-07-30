@@ -7,7 +7,7 @@ import android.widget.EditText
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 
-public class LoginInputObserver() {
+public class LoginInputObserver {
 
     public companion object LoginInputObserver {
 

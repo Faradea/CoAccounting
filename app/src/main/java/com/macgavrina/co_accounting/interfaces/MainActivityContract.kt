@@ -6,17 +6,25 @@ interface MainActivityContract {
 
         fun displayLoginFragment()
 
+        fun displayMainFragment()
+
         fun hideMenu()
 
         fun showProgress()
 
-        fun hideProgress()
+        fun displayProfileFragment()
+
+        fun updateLoginText(login:String)
 
     }
 
     interface Presenter:BasePresenterContract<View> {
 
         fun headerIsClicked()
+
+        fun logoutFinished()
+
+        fun loginFinished()
 
     }
 

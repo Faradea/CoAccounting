@@ -9,7 +9,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
 import com.macgavrina.co_accounting.R
-import com.macgavrina.co_accounting.model.AuthResult
 import com.macgavrina.co_accounting.services.AuthService
 import kotlinx.android.synthetic.main.login_fragment.*
 import retrofit2.Call
@@ -25,6 +24,22 @@ import com.macgavrina.co_accounting.presenters.LoginPresenter
 class LoginFragment:Fragment(), LoginContract.View {
 
     lateinit var loginPresenter: LoginPresenter
+
+    interface OnLoginFinishedListener {
+        fun loginFinished()
+    }
+
+    lateinit var onLoginFinishedListener: OnLoginFinishedListener
+
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+        try {
+            onLoginFinishedListener = activity as OnLoginFinishedListener
+        } catch (e: ClassCastException) {
+            throw ClassCastException(activity.toString() + " must implement OnLoginFinishedListener")
+        }
+
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -86,15 +101,18 @@ class LoginFragment:Fragment(), LoginContract.View {
     }
 
     override fun showProgress() {
-        //ToDo дописать отображение прогресс-бара
+        login_fragment_progressBar.visibility = View.VISIBLE
     }
 
     override fun hideProgress() {
-        //ToDo дописать скрывание прогресс-бара
+        login_fragment_progressBar.visibility = View.INVISIBLE
     }
 
     override fun displayToast(text:String) {
-        Toast.makeText(context, "Wrong login or password", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
     }
 
+    override fun finishSelf() {
+        onLoginFinishedListener.loginFinished()
+    }
 }

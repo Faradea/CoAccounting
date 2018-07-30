@@ -1,19 +1,37 @@
 package com.macgavrina.co_accounting.presenters
 
 import android.util.Log
-import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.interfaces.MainActivityContract
-import com.macgavrina.co_accounting.preferences.MySharedPreferences
-import com.macgavrina.co_accounting.providers.LoadUsersTask
-import com.macgavrina.co_accounting.providers.UserProvider
 import com.macgavrina.co_accounting.model.User
-import com.macgavrina.co_accounting.providers.UserProvider.LoadUserCallback
+import com.macgavrina.co_accounting.providers.UserProvider
 
 
+class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActivityContract.Presenter, UserProvider.LoadUserCallback, UserProvider.CheckIfUserTokenExistCallback {
 
-class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActivityContract.Presenter, UserProvider.LoadUserCallback {
+    override fun onLoad(user:User) {
+        Log.d("InDebtApp", "Login is loaded")
+        if (user.login.length != 0) {
+            getView()!!.updateLoginText(user.login)
+        }
+        else {
+            getView()!!.updateLoginText("Anonymous")
+        }
+
+    }
+
+    override fun logoutFinished() {
+        UserProvider().loadUser(this)
+        getView()!!.displayLoginFragment()
+    }
+
+    override fun loginFinished() {
+        UserProvider().loadUser(this)
+        getView()!!.displayMainFragment()
+    }
 
     override fun viewIsReady() {
+        Log.d("InDebtApp", "MainActivity view id ready")
+        UserProvider().loadUser(this)
     }
 
     override fun headerIsClicked() {
@@ -21,17 +39,17 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
         getView()!!.hideMenu()
 
         getView()!!.showProgress()
-        UserProvider().loadUser(this)
-        getView()!!.hideProgress()
+        UserProvider().checkIfUserTokenExist(this)
 
     }
 
     //Выполняется после получения callback с данными о пользователе от UserProvider
-    override fun onLoad(user: User) {
-        if (user.token.length !=0 ) {
-            Log.d("InDebtApp", "User is already logined, token = ${user.token}")
-        } else {
-            getView()!!.displayLoginFragment()
-        }
+    override fun onLoad(ifExist:Boolean) {
+            if (ifExist) {
+                Log.d("InDebtApp", "User is already logined")
+                getView()!!.displayProfileFragment()
+            } else {
+                getView()!!.displayLoginFragment()
+            }
     }
 }

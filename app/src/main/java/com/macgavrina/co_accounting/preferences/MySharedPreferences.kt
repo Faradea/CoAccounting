@@ -22,6 +22,7 @@ class MySharedPreferences(context: Context) {
         get() = preferences.getString(PREF_TOKEN, "")
         set(data) {
             editor.putString(PREF_TOKEN, data).commit()
+
         }
 
     var login: String
@@ -29,6 +30,10 @@ class MySharedPreferences(context: Context) {
         set(data) {
             editor.putString(PREF_LOGIN, data).commit()
         }
+
+    fun clear() {
+        editor.remove(PREF_TOKEN).remove(PREF_LOGIN).commit()
+    }
 
     init {
         preferences = context.getSharedPreferences(FILE_NAME, 0)
