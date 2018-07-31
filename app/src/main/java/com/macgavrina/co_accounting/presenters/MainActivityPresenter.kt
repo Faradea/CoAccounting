@@ -11,22 +11,22 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
     override fun onLoad(user:User) {
         Log.d("InDebtApp", "Login is loaded")
         if (user.login.length != 0) {
-            getView()!!.updateLoginText(user.login)
+            getView()?.updateLoginText(user.login)
         }
         else {
-            getView()!!.updateLoginText("Anonymous")
+            getView()?.updateLoginText("Anonymous")
         }
 
     }
 
     override fun logoutFinished() {
         UserProvider().loadUser(this)
-        getView()!!.displayLoginFragment()
+        getView()?.displayLoginFragment()
     }
 
     override fun loginFinished() {
         UserProvider().loadUser(this)
-        getView()!!.displayMainFragment()
+        getView()?.displayMainFragment()
     }
 
     override fun viewIsReady() {
@@ -36,9 +36,9 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
 
     override fun headerIsClicked() {
 
-        getView()!!.hideMenu()
+        getView()?.hideMenu()
 
-        getView()!!.showProgress()
+        getView()?.showProgress()
         UserProvider().checkIfUserTokenExist(this)
 
     }

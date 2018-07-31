@@ -25,5 +25,7 @@ public interface LoginContract {
 
         fun loginButtonIsPressed()
 
+        fun inputTextFieldsAreEmpty(areFilled:Boolean)
+
     }
 }

@@ -17,52 +17,66 @@ import com.macgavrina.co_accounting.model.AuthResponse
 import io.reactivex.observers.DisposableSingleObserver
 
 
-
+//ToDo При повороте экрана приложение не падает, но результат логина "теряется" (а хорошо бы продолжить отображать прогресс-бар и продолжить процесс)
 class LoginPresenter: BasePresenter<LoginContract.View>(), LoginContract.Presenter {
+    override fun inputTextFieldsAreEmpty(areFilled: Boolean) {
+        loginButtonEnabled = areFilled
+        getView()?.setLoginButtonEnabled(loginButtonEnabled)
+    }
 
+    //ToDo BUG Что-то не так с активностью кнопки Login при повороте экрана
+    var loginButtonEnabled: Boolean = false
 
     override fun viewIsReady() {
-        getView()!!.setLoginButtonEnabled(false)
-        getView()!!.hideProgress()
+        getView()?.setLoginButtonEnabled(loginButtonEnabled)
+        getView()?.hideProgress()
     }
 
     override fun loginButtonIsPressed() {
 
-        getView()!!.setLoginButtonEnabled(false)
-        getView()!!.hideKeyboard()
-        getView()!!.showProgress()
-        val login:String = getView()!!.getLoginFromEditText()
-        val pass:String = getView()!!.getPasswordFromEditText()
+        loginButtonEnabled = false
+        getView()?.setLoginButtonEnabled(loginButtonEnabled)
+        getView()?.hideKeyboard()
+        getView()?.showProgress()
+        val login: String? = getView()?.getLoginFromEditText()
+        val pass: String? = getView()?.getPasswordFromEditText()
 
-        val checkIfInputIsNotEmpty: Boolean = (login.length != 0) and (pass.length != 0)
+        var checkIfInputIsNotEmpty: Boolean = false
+        if (login != null) {
+            if (pass != null) {
+                checkIfInputIsNotEmpty = (login.length != 0) and (pass.length != 0)
+            }
+        }
+
         if (checkIfInputIsNotEmpty) {
 
             val authService: AuthService = AuthService.create()
 
-            authService.performPostCallWithQuery(login, pass)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeWith(object : DisposableSingleObserver<AuthResponse>() {
-                        override fun onSuccess(t: AuthResponse) {
-                            getView()!!.setLoginButtonEnabled(true)
-                            getView()!!.hideProgress()
-                            Log.d("InDebtApp", "Pass is ok, token = ${t.userToken}")
-                            UserProvider().saveUserData(User(login, t.userToken))
-                            getView()!!.finishSelf()
-                        }
+                    authService.performPostCallWithQuery(login!!, pass!!)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribeWith(object : DisposableSingleObserver<AuthResponse>() {
+                                override fun onSuccess(t: AuthResponse) {
+                                    loginButtonEnabled = true
+                                    getView()?.setLoginButtonEnabled(loginButtonEnabled)
+                                    getView()?.hideProgress()
+                                    Log.d("InDebtApp", "Pass is ok, token = ${t.userToken}")
+                                    UserProvider().saveUserData(User(login, t.userToken))
+                                    getView()?.finishSelf()
+                                }
 
-                        override fun onError(e: Throwable) {
-                            getView()!!.setLoginButtonEnabled(true)
-                            getView()!!.hideProgress()
-                            Log.d("InDebtApp", "Pass is NOK, error = ${e.message}")
+                                override fun onError(e: Throwable) {
+                                    loginButtonEnabled = true
+                                    getView()?.setLoginButtonEnabled(loginButtonEnabled)
+                                    getView()?.hideProgress()
+                                    getView()?.displayToast(e.message!!)
+                                    Log.d("InDebtApp", "Pass is NOK, error = ${e.message}")
 
-                            getView()!!.displayToast(e.message!!)
-
-                        }
-                    })
+                                }
+                            })
+            }
 
         }
 
     }
-}
 

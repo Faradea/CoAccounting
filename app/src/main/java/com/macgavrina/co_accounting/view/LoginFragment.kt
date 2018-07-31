@@ -54,8 +54,6 @@ class LoginFragment:Fragment(), LoginContract.View {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        loginPresenter.viewIsReady()
-
         login_fragment_login_button.setOnClickListener { view ->
             loginPresenter.loginButtonIsPressed()
         }
@@ -63,6 +61,8 @@ class LoginFragment:Fragment(), LoginContract.View {
 
     override fun onResume() {
         super.onResume()
+
+        loginPresenter.viewIsReady()
 
         val emailObservable: Observable<String> = getTextWatcherObservable(login_fragment_login_et)
         val passwordObservable:Observable<String> = getTextWatcherObservable(login_fragment_password_et)
@@ -73,7 +73,7 @@ class LoginFragment:Fragment(), LoginContract.View {
                 BiFunction { u, p -> u.isNotEmpty() && p.isNotEmpty() })
 
         isSignInEnabled.subscribe {it ->
-            setLoginButtonEnabled(it)
+            loginPresenter.inputTextFieldsAreEmpty(it)
         }
 
     }
@@ -115,4 +115,5 @@ class LoginFragment:Fragment(), LoginContract.View {
     override fun finishSelf() {
         onLoginFinishedListener.loginFinished()
     }
+
 }

@@ -28,6 +28,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val supportFragmentManager = supportFragmentManager
         supportFragmentManager.beginTransaction()
                 .replace(R.id.content_main_constraint_layout, ProfileFragment())
+                .addToBackStack("ProfileFragment")
                 .commit()
     }
 
@@ -53,6 +54,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val supportFragmentManager = supportFragmentManager
         supportFragmentManager.beginTransaction()
                 .replace(R.id.content_main_constraint_layout, LoginFragment())
+                .addToBackStack("LoginFragment")
                 //ToDo Продумать про добавление в backstack
                 .commit()
     }
@@ -90,7 +92,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         nav_view.setNavigationItemSelectedListener(this)
 
-        displayMainFragment()
     }
 
     override fun onResume() {
