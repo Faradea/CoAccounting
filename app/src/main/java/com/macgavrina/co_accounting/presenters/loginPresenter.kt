@@ -1,6 +1,5 @@
 package com.macgavrina.co_accounting.presenters
 
-import android.util.Log
 import com.macgavrina.co_accounting.interfaces.LoginContract
 import com.macgavrina.co_accounting.model.User
 import com.macgavrina.co_accounting.providers.UserProvider
@@ -13,6 +12,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.util.concurrent.TimeUnit
 import android.provider.ContactsContract.CommonDataKinds.Note
+import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.model.AuthResponse
 import io.reactivex.observers.DisposableSingleObserver
 
@@ -60,7 +60,7 @@ class LoginPresenter: BasePresenter<LoginContract.View>(), LoginContract.Present
                                     loginButtonEnabled = true
                                     getView()?.setLoginButtonEnabled(loginButtonEnabled)
                                     getView()?.hideProgress()
-                                    Log.d("InDebtApp", "Pass is ok, token = ${t.userToken}")
+                                    Log.d("Pass is ok, token = ${t.userToken}")
                                     UserProvider().saveUserData(User(login, t.userToken))
                                     getView()?.finishSelf()
                                 }
@@ -70,7 +70,7 @@ class LoginPresenter: BasePresenter<LoginContract.View>(), LoginContract.Present
                                     getView()?.setLoginButtonEnabled(loginButtonEnabled)
                                     getView()?.hideProgress()
                                     getView()?.displayToast(e.message!!)
-                                    Log.d("InDebtApp", "Pass is NOK, error = ${e.message}")
+                                    Log.d("Pass is NOK, error = ${e.message}")
 
                                 }
                             })

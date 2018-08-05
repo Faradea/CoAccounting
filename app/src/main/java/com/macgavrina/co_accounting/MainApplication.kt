@@ -10,6 +10,8 @@ import android.util.Log
 
 class MainApplication: Application() {
 
+    //ToDo добавить акру
+
     override fun onCreate() {
         super.onCreate()
         instance = this

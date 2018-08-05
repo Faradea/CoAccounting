@@ -140,7 +140,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     fun initView() {
-        //ToDo Здесь должно быть DI или что-то типа того, например (без этого - приложение падает при повороте экрана во время запроса по сети):
+        //ToDo Здесь должно быть DI или что-то типа того, например:
         //ButterKnife.bind(this);
     }
 }
