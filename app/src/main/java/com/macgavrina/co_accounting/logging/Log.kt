@@ -4,7 +4,7 @@ import android.text.TextUtils
 
 object Log {
 
-    private var mLoggingEnabled = false
+    private var mLoggingEnabled = true
     private val LOG_TAG = "InDebtApp"
 
     private val logPrefix: String

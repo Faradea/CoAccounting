@@ -3,19 +3,15 @@ package com.macgavrina.co_accounting.view
 import android.content.Context
 import android.support.v4.app.Fragment
 import android.os.Bundle
-import android.util.Log
 import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
 import com.macgavrina.co_accounting.R
-import com.macgavrina.co_accounting.services.AuthService
 import kotlinx.android.synthetic.main.login_fragment.*
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import android.view.inputmethod.InputMethodManager
 import com.macgavrina.co_accounting.interfaces.LoginContract
+import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.rxjava.LoginInputObserver.LoginInputObserver.getTextWatcherObservable
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
@@ -26,7 +22,7 @@ class LoginFragment:Fragment(), LoginContract.View {
     lateinit var loginPresenter: LoginPresenter
 
     interface OnLoginFinishedListener {
-        fun loginFinished()
+        fun loginFinished(nextFragment: LoginPresenter.nextFragment)
     }
 
     lateinit var onLoginFinishedListener: OnLoginFinishedListener
@@ -56,6 +52,11 @@ class LoginFragment:Fragment(), LoginContract.View {
 
         login_fragment_login_button.setOnClickListener { view ->
             loginPresenter.loginButtonIsPressed()
+        }
+
+        login_fragment_recover_password_tv.setOnClickListener {view ->
+            Log.d("Recover password button is pressed")
+            loginPresenter.recoverPassButtonIsPressed()
         }
     }
 
@@ -112,8 +113,8 @@ class LoginFragment:Fragment(), LoginContract.View {
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
     }
 
-    override fun finishSelf() {
-        onLoginFinishedListener.loginFinished()
+    override fun finishSelf(nextFragment: LoginPresenter.nextFragment) {
+        onLoginFinishedListener.loginFinished(nextFragment)
     }
 
 }

@@ -7,6 +7,9 @@ import com.macgavrina.co_accounting.providers.UserProvider
 
 
 class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActivityContract.Presenter, UserProvider.LoadUserCallback, UserProvider.CheckIfUserTokenExistCallback {
+    override fun passRecoverIsSuccessfull() {
+        getView()?.displayDialog("Instruction has been sent to your email")
+    }
 
     override fun onLoad(user:User) {
         Log.d("Login is loaded")
@@ -24,9 +27,15 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
         getView()?.displayLoginFragment()
     }
 
-    override fun loginFinished() {
+    override fun loginFinished(nextFragment: LoginPresenter.nextFragment) {
         UserProvider().loadUser(this)
-        getView()?.displayMainFragment()
+        when (nextFragment) {
+            LoginPresenter.nextFragment.MAIN ->
+                getView()?.displayMainFragment()
+            LoginPresenter.nextFragment.RECOVER_PASS ->
+                getView()?.displayRecoverPassFragment()
+        }
+
     }
 
     override fun viewIsReady() {
@@ -46,7 +55,7 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
     //Выполняется после получения callback с данными о пользователе от UserProvider
     override fun onLoad(ifExist:Boolean) {
             if (ifExist) {
-                Log.d("User is already logined")
+                Log.d("User is already loggined")
                 getView()!!.displayProfileFragment()
             } else {
                 getView()!!.displayLoginFragment()

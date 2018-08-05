@@ -1,5 +1,7 @@
 package com.macgavrina.co_accounting.interfaces
 
+import com.macgavrina.co_accounting.presenters.LoginPresenter
+
 public interface LoginContract {
 
     interface View:BaseViewContract {
@@ -18,7 +20,7 @@ public interface LoginContract {
 
         fun hideProgress()
 
-        fun finishSelf()
+        fun finishSelf(recoveR_PASS: LoginPresenter.nextFragment)
     }
 
     interface Presenter:BasePresenterContract<View> {
@@ -26,6 +28,8 @@ public interface LoginContract {
         fun loginButtonIsPressed()
 
         fun inputTextFieldsAreEmpty(areFilled:Boolean)
+
+        fun recoverPassButtonIsPressed()
 
     }
 }

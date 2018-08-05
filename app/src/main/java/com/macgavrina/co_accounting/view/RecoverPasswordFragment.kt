@@ -1,12 +1,16 @@
 package com.macgavrina.co_accounting.view
 
 import android.content.Context
+import android.content.DialogInterface
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.app.AlertDialog
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
+import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.interfaces.RecoverPasswordContract
 import com.macgavrina.co_accounting.presenters.LoginPresenter
@@ -15,10 +19,29 @@ import com.macgavrina.co_accounting.rxjava.LoginInputObserver.LoginInputObserver
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.recover_password_fragment.*
 import kotlinx.android.synthetic.main.recover_password_fragment.view.*
+import android.R.string.ok
+import com.macgavrina.co_accounting.logging.Log
+import kotlinx.android.synthetic.main.login_fragment.*
+
 
 class RecoverPasswordFragment: Fragment(), RecoverPasswordContract.View {
 
+    interface OnRecoverPasswordEventsListener {
+        fun recoverIsSuccessfull()
+    }
+
     lateinit var presenter: RecoverPasswordPresenter
+    lateinit var onRecoverPasswordEventsListener: OnRecoverPasswordEventsListener
+
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+        try {
+            onRecoverPasswordEventsListener = activity as OnRecoverPasswordEventsListener
+        } catch (e: ClassCastException) {
+            throw ClassCastException(activity.toString() + " must implement OnRecoverPasswordEventsListener")
+        }
+
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -44,15 +67,10 @@ class RecoverPasswordFragment: Fragment(), RecoverPasswordContract.View {
         presenter.viewIsReady()
 
         val emailObservable: Observable<String> = getTextWatcherObservable(recover_password_fragment_edit_text)
-
-/*        val isNextButtonShouldBeEnabled: Observable<Boolean> = Observable.combineLatest(
-                emailObservable,
-                passwordObservable,
-                BiFunction { u -> u.isNotEmpty() && p.isNotEmpty() })
-
-        isSignInEnabled.subscribe {it ->
-            loginPresenter.inputTextFieldsAreEmpty(it)*/
+        emailObservable.subscribe { it ->
+            presenter.inputTextFieldsAreEmpty(it.isNotEmpty())
         }
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -77,7 +95,15 @@ class RecoverPasswordFragment: Fragment(), RecoverPasswordContract.View {
     }
 
     override fun displayDialog(text: String) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        onRecoverPasswordEventsListener.recoverIsSuccessfull()
+    }
+
+    override fun displayToast(text:String) {
+        Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun setNextButtonEnabled(isNextButtonEnabled: Boolean) {
+        recover_password_fragment_next_button.isEnabled = isNextButtonEnabled
     }
 
 }

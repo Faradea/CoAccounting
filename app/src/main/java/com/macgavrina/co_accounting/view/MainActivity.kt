@@ -1,21 +1,31 @@
 package com.macgavrina.co_accounting.view
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
+import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.interfaces.MainActivityContract
+import com.macgavrina.co_accounting.logging.Log
+import com.macgavrina.co_accounting.presenters.LoginPresenter
 import com.macgavrina.co_accounting.presenters.MainActivityPresenter
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.nav_header_main.view.*
 
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, MainActivityContract.View, LoginFragment.OnLoginFinishedListener, ProfileFragment.OnLogoutFinishedListener {
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, MainActivityContract.View, LoginFragment.OnLoginFinishedListener, ProfileFragment.OnLogoutFinishedListener, RecoverPasswordFragment.OnRecoverPasswordEventsListener {
+
+    override fun recoverIsSuccessfull() {
+        mainActivityPresenter.passRecoverIsSuccessfull()
+    }
+
     override fun updateLoginText(login: String) {
         nav_view.getHeaderView(0).nav_header_main_tv.text = login
     }
@@ -32,8 +42,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .commit()
     }
 
-    override fun loginFinished() {
-        mainActivityPresenter.loginFinished()
+    override fun loginFinished(nextFragment: LoginPresenter.nextFragment) {
+        mainActivityPresenter.loginFinished(nextFragment)
     }
 
     override fun showProgress() {
@@ -57,6 +67,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .addToBackStack("LoginFragment")
                 //ToDo Продумать про добавление в backstack
                 .commit()
+    }
+
+    override fun displayRecoverPassFragment() {
+        val supportFragmentManager = supportFragmentManager
+        supportFragmentManager.beginTransaction()
+                .replace(R.id.content_main_constraint_layout, RecoverPasswordFragment())
+                .addToBackStack("RecoverPasswordFragment")
+                .commit()
+    }
+
+    override fun displayDialog(text: String) {
+        val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
+        alertDialogBuilder.setMessage(text)
+                .setTitle("Password recovering is ok")
+        alertDialogBuilder.setPositiveButton("Ok", DialogInterface.OnClickListener { dialog, id ->
+            Log.d("ok button")
+            displayLoginFragment()
+        })
+        val alertDialog: AlertDialog = alertDialogBuilder.create()
+        alertDialog.show()
     }
 
     override fun displayMainFragment() {

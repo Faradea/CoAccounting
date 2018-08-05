@@ -1,5 +1,7 @@
 package com.macgavrina.co_accounting.interfaces
 
+import com.macgavrina.co_accounting.presenters.LoginPresenter
+
 interface MainActivityContract {
 
     interface View:BaseViewContract {
@@ -14,7 +16,11 @@ interface MainActivityContract {
 
         fun displayProfileFragment()
 
+        fun displayRecoverPassFragment()
+
         fun updateLoginText(login:String)
+
+        fun displayDialog(text: String)
 
     }
 
@@ -24,7 +30,9 @@ interface MainActivityContract {
 
         fun logoutFinished()
 
-        fun loginFinished()
+        fun loginFinished(nextFragment: LoginPresenter.nextFragment)
+
+        fun passRecoverIsSuccessfull()
 
     }
 

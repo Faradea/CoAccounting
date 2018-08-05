@@ -4,14 +4,8 @@ import com.macgavrina.co_accounting.interfaces.LoginContract
 import com.macgavrina.co_accounting.model.User
 import com.macgavrina.co_accounting.providers.UserProvider
 import com.macgavrina.co_accounting.services.AuthService
-import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import java.util.concurrent.TimeUnit
-import android.provider.ContactsContract.CommonDataKinds.Note
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.model.AuthResponse
 import io.reactivex.observers.DisposableSingleObserver
@@ -19,17 +13,34 @@ import io.reactivex.observers.DisposableSingleObserver
 
 //ToDo При повороте экрана приложение не падает, но результат логина "теряется" (а хорошо бы продолжить отображать прогресс-бар и продолжить процесс)
 class LoginPresenter: BasePresenter<LoginContract.View>(), LoginContract.Presenter {
+
+    enum class nextFragment(i: Int) {
+        MAIN(0),
+        RECOVER_PASS(0)
+    }
+
     override fun inputTextFieldsAreEmpty(areFilled: Boolean) {
         loginButtonEnabled = areFilled
         getView()?.setLoginButtonEnabled(loginButtonEnabled)
     }
 
-    //ToDo BUG Что-то не так с активностью кнопки Login при повороте экрана
+    //ToDo BUG Что-то не так с активностью кнопки Login
+
     var loginButtonEnabled: Boolean = false
 
     override fun viewIsReady() {
+        if (getView()?.getLoginFromEditText()?.length!! > 0) {
+            if (getView()?.getPasswordFromEditText()?.length!! > 0) {
+                loginButtonEnabled = true
+            }
+            //loginButtonEnabled = false
+        } else {
+            loginButtonEnabled = false
+        }
+
         getView()?.setLoginButtonEnabled(loginButtonEnabled)
         getView()?.hideProgress()
+
     }
 
     override fun loginButtonIsPressed() {
@@ -52,7 +63,7 @@ class LoginPresenter: BasePresenter<LoginContract.View>(), LoginContract.Present
 
             val authService: AuthService = AuthService.create()
 
-                    authService.performPostCallWithQuery(login!!, pass!!)
+                    authService.authCall(login!!, pass!!)
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribeWith(object : DisposableSingleObserver<AuthResponse>() {
@@ -62,7 +73,7 @@ class LoginPresenter: BasePresenter<LoginContract.View>(), LoginContract.Present
                                     getView()?.hideProgress()
                                     Log.d("Pass is ok, token = ${t.userToken}")
                                     UserProvider().saveUserData(User(login, t.userToken))
-                                    getView()?.finishSelf()
+                                    getView()?.finishSelf(nextFragment.MAIN)
                                 }
 
                                 override fun onError(e: Throwable) {
@@ -78,5 +89,10 @@ class LoginPresenter: BasePresenter<LoginContract.View>(), LoginContract.Present
 
         }
 
+    override fun recoverPassButtonIsPressed() {
+        getView()?.finishSelf(nextFragment.RECOVER_PASS)
+        Log.d("nextFragment.RECOVER_PASS = ${nextFragment.RECOVER_PASS}")
     }
+
+}
 

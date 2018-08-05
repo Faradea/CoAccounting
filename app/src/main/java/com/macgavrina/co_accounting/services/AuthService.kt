@@ -2,6 +2,7 @@ package com.macgavrina.co_accounting.services
 
 import com.google.gson.GsonBuilder
 import com.macgavrina.co_accounting.model.AuthResponse
+import com.macgavrina.co_accounting.model.RecoverPassResponse
 import io.reactivex.Observable
 import io.reactivex.Single
 import retrofit2.Call
@@ -18,7 +19,11 @@ const val SERVER_URL:String = "http://in-debt.ru/vi_api/"
 interface AuthService {
     @FormUrlEncoded
     @POST("auth")
-    fun performPostCallWithQuery(@Field("email") email:String, @Field("pass") pass:String): Single<AuthResponse>
+    fun authCall(@Field("email") email:String, @Field("pass") pass:String): Single<AuthResponse>
+
+    @FormUrlEncoded
+    @POST("recover")
+    fun recoverPassCall(@Field("email") email:String): Single<RecoverPassResponse>
 
     companion object ApiFactory{
         fun create():AuthService{
