@@ -16,7 +16,8 @@ class LoginPresenter: BasePresenter<LoginContract.View>(), LoginContract.Present
 
     enum class nextFragment(i: Int) {
         MAIN(0),
-        RECOVER_PASS(0)
+        RECOVER_PASS(1),
+        REGISTER(2)
     }
 
     override fun inputTextFieldsAreEmpty(areFilled: Boolean) {
@@ -94,5 +95,8 @@ class LoginPresenter: BasePresenter<LoginContract.View>(), LoginContract.Present
         Log.d("nextFragment.RECOVER_PASS = ${nextFragment.RECOVER_PASS}")
     }
 
+    override fun registerButtonIsPressed() {
+        getView()?.finishSelf(nextFragment.REGISTER)
+    }
 }
 

@@ -31,5 +31,7 @@ public interface LoginContract {
 
         fun recoverPassButtonIsPressed()
 
+        fun registerButtonIsPressed()
+
     }
 }

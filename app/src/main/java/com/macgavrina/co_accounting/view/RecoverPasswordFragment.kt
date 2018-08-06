@@ -27,7 +27,7 @@ import kotlinx.android.synthetic.main.login_fragment.*
 class RecoverPasswordFragment: Fragment(), RecoverPasswordContract.View {
 
     interface OnRecoverPasswordEventsListener {
-        fun recoverIsSuccessfull()
+        fun recoverIsSuccessfull(title: String, text: String)
     }
 
     lateinit var presenter: RecoverPasswordPresenter
@@ -94,8 +94,8 @@ class RecoverPasswordFragment: Fragment(), RecoverPasswordContract.View {
         recover_password_fragment_progress_bar.visibility = View.INVISIBLE
     }
 
-    override fun displayDialog(text: String) {
-        onRecoverPasswordEventsListener.recoverIsSuccessfull()
+    override fun displayDialog(title: String, text: String) {
+        onRecoverPasswordEventsListener.recoverIsSuccessfull(title, text)
     }
 
     override fun displayToast(text:String) {

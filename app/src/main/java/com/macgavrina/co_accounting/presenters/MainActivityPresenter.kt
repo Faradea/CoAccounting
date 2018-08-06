@@ -7,8 +7,17 @@ import com.macgavrina.co_accounting.providers.UserProvider
 
 
 class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActivityContract.Presenter, UserProvider.LoadUserCallback, UserProvider.CheckIfUserTokenExistCallback {
-    override fun passRecoverIsSuccessfull() {
-        getView()?.displayDialog("Instruction has been sent to your email")
+    override fun passRecoverIsSuccessfull(title: String, text: String) {
+        getView()?.displayRecoverPassSuccessDialog(title, text)
+    }
+
+    override fun registrationIsSuccessfull(title: String, text: String) {
+        UserProvider().loadUser(this)
+        getView()?.displayRegisterSuccessDialog(title, text)
+    }
+
+    override fun gotoLoginEvent() {
+        getView()?.displayLoginFragment()
     }
 
     override fun onLoad(user:User) {
@@ -34,6 +43,8 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
                 getView()?.displayMainFragment()
             LoginPresenter.nextFragment.RECOVER_PASS ->
                 getView()?.displayRecoverPassFragment()
+            LoginPresenter.nextFragment.REGISTER ->
+                getView()?.displayRegisterFragment()
         }
 
     }

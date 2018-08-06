@@ -58,6 +58,10 @@ class LoginFragment:Fragment(), LoginContract.View {
             Log.d("Recover password button is pressed")
             loginPresenter.recoverPassButtonIsPressed()
         }
+
+        login_fragment_register_tv.setOnClickListener { view ->
+            loginPresenter.registerButtonIsPressed()
+        }
     }
 
     override fun onResume() {

@@ -18,9 +18,13 @@ interface MainActivityContract {
 
         fun displayRecoverPassFragment()
 
+        fun displayRegisterFragment()
+
         fun updateLoginText(login:String)
 
-        fun displayDialog(text: String)
+        fun displayRegisterSuccessDialog(title: String, text: String)
+
+        fun displayRecoverPassSuccessDialog(title: String, text: String)
 
     }
 
@@ -32,7 +36,11 @@ interface MainActivityContract {
 
         fun loginFinished(nextFragment: LoginPresenter.nextFragment)
 
-        fun passRecoverIsSuccessfull()
+        fun passRecoverIsSuccessfull(title: String, text: String)
+
+        fun registrationIsSuccessfull(title: String, text: String)
+
+        fun gotoLoginEvent()
 
     }
 

@@ -1,6 +1,6 @@
 package com.macgavrina.co_accounting.interfaces
 
-public interface RecoverPasswordContract {
+public interface RegisterContract {
 
     interface View:BaseViewContract {
 
@@ -8,23 +8,29 @@ public interface RecoverPasswordContract {
 
         fun getEmailFromEditText(): String
 
+        fun getPassFromEditText(): String
+
         fun displayDialog(title: String, text:String)
 
         fun showProgress()
 
         fun hideProgress()
 
-        fun displayToast(text:String)
+        fun displayToast(text: String)
 
-        fun setNextButtonEnabled(isNextButonEnabled: Boolean)
+        fun setRegisterButtonEnabled(isNextButonEnabled: Boolean)
+
+        fun finishSelf()
 
     }
 
     interface Presenter:BasePresenterContract<View> {
 
-        fun nextButtonIsPressed()
+        fun registerButtonIsPressed()
 
         fun inputTextFieldsAreEmpty(isEmpty: Boolean)
+
+        fun gotoLoginButtonIsPressed()
 
     }
 }

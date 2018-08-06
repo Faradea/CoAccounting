@@ -20,10 +20,17 @@ import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.nav_header_main.view.*
 
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, MainActivityContract.View, LoginFragment.OnLoginFinishedListener, ProfileFragment.OnLogoutFinishedListener, RecoverPasswordFragment.OnRecoverPasswordEventsListener {
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, MainActivityContract.View, LoginFragment.OnLoginFinishedListener, ProfileFragment.OnLogoutFinishedListener, RecoverPasswordFragment.OnRecoverPasswordEventsListener, RegisterFragment.OnRegisterEventsListener {
+    override fun finishSelf() {
+        mainActivityPresenter.gotoLoginEvent()
+    }
 
-    override fun recoverIsSuccessfull() {
-        mainActivityPresenter.passRecoverIsSuccessfull()
+    override fun recoverIsSuccessfull(title: String, text: String) {
+        mainActivityPresenter.passRecoverIsSuccessfull(title, text)
+    }
+
+    override fun registrationIsSuccessful(title: String, text: String) {
+        mainActivityPresenter.registrationIsSuccessfull(title, text)
     }
 
     override fun updateLoginText(login: String) {
@@ -39,6 +46,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         supportFragmentManager.beginTransaction()
                 .replace(R.id.content_main_constraint_layout, ProfileFragment())
                 .addToBackStack("ProfileFragment")
+                .commit()
+    }
+
+    override fun displayRegisterFragment() {
+        val supportFragmentManager = supportFragmentManager
+        supportFragmentManager.beginTransaction()
+                .replace(R.id.content_main_constraint_layout, RegisterFragment())
+                .addToBackStack("RegisterFragment")
                 .commit()
     }
 
@@ -77,13 +92,25 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .commit()
     }
 
-    override fun displayDialog(text: String) {
+    override fun displayRecoverPassSuccessDialog(title: String, text: String) {
         val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
         alertDialogBuilder.setMessage(text)
-                .setTitle("Password recovering is ok")
+                .setTitle(title)
         alertDialogBuilder.setPositiveButton("Ok", DialogInterface.OnClickListener { dialog, id ->
             Log.d("ok button")
             displayLoginFragment()
+        })
+        val alertDialog: AlertDialog = alertDialogBuilder.create()
+        alertDialog.show()
+    }
+
+    override fun displayRegisterSuccessDialog(title: String, text: String) {
+        val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
+        alertDialogBuilder.setMessage(text)
+                .setTitle(title)
+        alertDialogBuilder.setPositiveButton("Ok", DialogInterface.OnClickListener { dialog, id ->
+            Log.d("ok button")
+            displayMainFragment()
         })
         val alertDialog: AlertDialog = alertDialogBuilder.create()
         alertDialog.show()
@@ -106,10 +133,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mainActivityPresenter = MainActivityPresenter()
         mainActivityPresenter.attachView(this)
 
-        fab.setOnClickListener { view ->
+/*        fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
-        }
+        }*/
 
         nav_view.getHeaderView(0).nav_header_main_iv.setOnClickListener {view ->
             mainActivityPresenter.headerIsClicked()

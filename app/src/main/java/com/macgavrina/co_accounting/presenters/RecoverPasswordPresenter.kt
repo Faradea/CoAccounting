@@ -56,7 +56,7 @@ class RecoverPasswordPresenter: BasePresenter<RecoverPasswordContract.View>(), R
                         override fun onSuccess(t: RecoverPassResponse) {
                             getView()?.hideProgress()
                             Log.d("Recover pass is ok")
-                            getView()?.displayDialog("Link to recover password is sent to your email")
+                            getView()?.displayDialog("Pass recovering is ok", "Link to recover password is sent to your email")
                             //getView()?.finishSelf(LoginPresenter.nextFragment.MAIN)
                         }
 

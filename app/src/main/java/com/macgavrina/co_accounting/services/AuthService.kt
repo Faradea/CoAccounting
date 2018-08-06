@@ -3,6 +3,7 @@ package com.macgavrina.co_accounting.services
 import com.google.gson.GsonBuilder
 import com.macgavrina.co_accounting.model.AuthResponse
 import com.macgavrina.co_accounting.model.RecoverPassResponse
+import com.macgavrina.co_accounting.model.RegisterResponse
 import io.reactivex.Observable
 import io.reactivex.Single
 import retrofit2.Call
@@ -24,6 +25,10 @@ interface AuthService {
     @FormUrlEncoded
     @POST("recover")
     fun recoverPassCall(@Field("email") email:String): Single<RecoverPassResponse>
+
+    @FormUrlEncoded
+    @POST("register")
+    fun registerPostCall(@Field("email") email:String, @Field("pass") pass:String): Single<RegisterResponse>
 
     companion object ApiFactory{
         fun create():AuthService{
