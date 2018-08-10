@@ -10,18 +10,15 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
-import com.macgavrina.co_accounting.interfaces.LoginContract
 import com.macgavrina.co_accounting.interfaces.RegisterContract
 import com.macgavrina.co_accounting.logging.Log
-import com.macgavrina.co_accounting.presenters.LoginPresenter
 import com.macgavrina.co_accounting.presenters.RegisterPresenter
 import com.macgavrina.co_accounting.rxjava.LoginInputObserver
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
-import kotlinx.android.synthetic.main.login_fragment.*
 import kotlinx.android.synthetic.main.register_fragment.*
 
-class RegisterFragment: Fragment(), RegisterContract.View {
+class RegisterFragment() : Fragment(), RegisterContract.View {
     override fun finishSelf() {
         onRegisterEventsListener.finishSelf()
     }
@@ -64,6 +61,7 @@ class RegisterFragment: Fragment(), RegisterContract.View {
         register_fragment_goto_login_tv.setOnClickListener { view ->
             presenter.gotoLoginButtonIsPressed()
         }
+
     }
 
     override fun onResume() {
@@ -82,6 +80,9 @@ class RegisterFragment: Fragment(), RegisterContract.View {
         }
 
         presenter.viewIsReady()
+
+        val enteredLogin:String? = this.arguments?.getString("enteredLogin")
+        register_fragment_email_edit_text.setText("${enteredLogin}")
 
     }
 

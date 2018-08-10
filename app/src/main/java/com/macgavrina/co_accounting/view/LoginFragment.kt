@@ -22,7 +22,7 @@ class LoginFragment:Fragment(), LoginContract.View {
     lateinit var loginPresenter: LoginPresenter
 
     interface OnLoginFinishedListener {
-        fun loginFinished(nextFragment: LoginPresenter.nextFragment)
+        fun loginFinished(nextFragment: LoginPresenter.nextFragment, enteredLogin: String?)
     }
 
     lateinit var onLoginFinishedListener: OnLoginFinishedListener
@@ -117,8 +117,8 @@ class LoginFragment:Fragment(), LoginContract.View {
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
     }
 
-    override fun finishSelf(nextFragment: LoginPresenter.nextFragment) {
-        onLoginFinishedListener.loginFinished(nextFragment)
+    override fun finishSelf(nextFragment: LoginPresenter.nextFragment, enteredLogin: String?) {
+        onLoginFinishedListener.loginFinished(nextFragment, enteredLogin)
     }
 
 }

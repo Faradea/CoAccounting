@@ -18,7 +18,7 @@ interface MainActivityContract {
 
         fun displayRecoverPassFragment()
 
-        fun displayRegisterFragment()
+        fun displayRegisterFragment(enteredLogin: String?)
 
         fun updateLoginText(login:String)
 
@@ -34,7 +34,7 @@ interface MainActivityContract {
 
         fun logoutFinished()
 
-        fun loginFinished(nextFragment: LoginPresenter.nextFragment)
+        fun loginFinished(nextFragment: LoginPresenter.nextFragment, enteredLogin: String?)
 
         fun passRecoverIsSuccessfull(title: String, text: String)
 

@@ -10,7 +10,6 @@ import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.model.AuthResponse
 import io.reactivex.observers.DisposableSingleObserver
 
-
 //ToDo При повороте экрана приложение не падает, но результат логина "теряется" (а хорошо бы продолжить отображать прогресс-бар и продолжить процесс)
 class LoginPresenter: BasePresenter<LoginContract.View>(), LoginContract.Presenter {
 
@@ -74,7 +73,7 @@ class LoginPresenter: BasePresenter<LoginContract.View>(), LoginContract.Present
                                     getView()?.hideProgress()
                                     Log.d("Pass is ok, token = ${t.userToken}")
                                     UserProvider().saveUserData(User(login, t.userToken))
-                                    getView()?.finishSelf(nextFragment.MAIN)
+                                    getView()?.finishSelf(nextFragment.MAIN, null)
                                 }
 
                                 override fun onError(e: Throwable) {
@@ -91,12 +90,13 @@ class LoginPresenter: BasePresenter<LoginContract.View>(), LoginContract.Present
         }
 
     override fun recoverPassButtonIsPressed() {
-        getView()?.finishSelf(nextFragment.RECOVER_PASS)
+        getView()?.finishSelf(nextFragment.RECOVER_PASS, null)
         Log.d("nextFragment.RECOVER_PASS = ${nextFragment.RECOVER_PASS}")
     }
 
     override fun registerButtonIsPressed() {
-        getView()?.finishSelf(nextFragment.REGISTER)
+        val enteredLogin:String? = getView()?.getLoginFromEditText()
+        getView()?.finishSelf(nextFragment.REGISTER, enteredLogin)
     }
 }
 

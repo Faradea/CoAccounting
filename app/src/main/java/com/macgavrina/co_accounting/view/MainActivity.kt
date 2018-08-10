@@ -2,14 +2,12 @@ package com.macgavrina.co_accounting.view
 
 import android.content.DialogInterface
 import android.os.Bundle
-import android.support.design.widget.Snackbar
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
-import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.interfaces.MainActivityContract
 import com.macgavrina.co_accounting.logging.Log
@@ -49,16 +47,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .commit()
     }
 
-    override fun displayRegisterFragment() {
+    override fun displayRegisterFragment(enteredLogin: String?) {
         val supportFragmentManager = supportFragmentManager
+        val registerFragment:RegisterFragment = RegisterFragment()
+        val bundle:Bundle = Bundle()
+        bundle.putString("enteredLogin", enteredLogin)
+        Log.d("enteredLogin = ${enteredLogin}")
+        registerFragment.arguments = bundle
         supportFragmentManager.beginTransaction()
-                .replace(R.id.content_main_constraint_layout, RegisterFragment())
+                .replace(R.id.content_main_constraint_layout, registerFragment)
                 .addToBackStack("RegisterFragment")
                 .commit()
     }
 
-    override fun loginFinished(nextFragment: LoginPresenter.nextFragment) {
-        mainActivityPresenter.loginFinished(nextFragment)
+    override fun loginFinished(nextFragment: LoginPresenter.nextFragment, enteredLogin: String?) {
+        mainActivityPresenter.loginFinished(nextFragment, enteredLogin)
     }
 
     override fun showProgress() {

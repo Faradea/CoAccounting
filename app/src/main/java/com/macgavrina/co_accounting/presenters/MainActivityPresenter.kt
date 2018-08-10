@@ -36,7 +36,7 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
         getView()?.displayLoginFragment()
     }
 
-    override fun loginFinished(nextFragment: LoginPresenter.nextFragment) {
+    override fun loginFinished(nextFragment: LoginPresenter.nextFragment, enteredLogin: String?) {
         UserProvider().loadUser(this)
         when (nextFragment) {
             LoginPresenter.nextFragment.MAIN ->
@@ -44,7 +44,7 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
             LoginPresenter.nextFragment.RECOVER_PASS ->
                 getView()?.displayRecoverPassFragment()
             LoginPresenter.nextFragment.REGISTER ->
-                getView()?.displayRegisterFragment()
+                getView()?.displayRegisterFragment(enteredLogin)
         }
 
     }
