@@ -16,8 +16,8 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
         getView()?.displayRegisterSuccessDialog(title, text)
     }
 
-    override fun gotoLoginEvent() {
-        getView()?.displayLoginFragment()
+    override fun gotoLoginEvent(enteredLogin: String?) {
+        getView()?.displayLoginFragment(enteredLogin)
     }
 
     override fun onLoad(user:User) {
@@ -33,7 +33,7 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
 
     override fun logoutFinished() {
         UserProvider().loadUser(this)
-        getView()?.displayLoginFragment()
+        getView()?.displayLoginFragment(null)
     }
 
     override fun loginFinished(nextFragment: LoginPresenter.nextFragment, enteredLogin: String?) {
@@ -42,7 +42,7 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
             LoginPresenter.nextFragment.MAIN ->
                 getView()?.displayMainFragment()
             LoginPresenter.nextFragment.RECOVER_PASS ->
-                getView()?.displayRecoverPassFragment()
+                getView()?.displayRecoverPassFragment(enteredLogin)
             LoginPresenter.nextFragment.REGISTER ->
                 getView()?.displayRegisterFragment(enteredLogin)
         }
@@ -69,7 +69,7 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
                 Log.d("User is already loggined")
                 getView()!!.displayProfileFragment()
             } else {
-                getView()!!.displayLoginFragment()
+                getView()!!.displayLoginFragment(null)
             }
     }
 }

@@ -20,7 +20,7 @@ public interface RegisterContract {
 
         fun setRegisterButtonEnabled(isNextButonEnabled: Boolean)
 
-        fun finishSelf()
+        fun finishSelf(enteredLogin: String?)
 
     }
 

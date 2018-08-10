@@ -1,10 +1,8 @@
 package com.macgavrina.co_accounting.presenters
 
-import com.macgavrina.co_accounting.interfaces.RecoverPasswordContract
 import com.macgavrina.co_accounting.interfaces.RegisterContract
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.model.AuthResponse
-import com.macgavrina.co_accounting.model.RecoverPassResponse
 import com.macgavrina.co_accounting.model.RegisterResponse
 import com.macgavrina.co_accounting.model.User
 import com.macgavrina.co_accounting.providers.UserProvider
@@ -15,7 +13,8 @@ import io.reactivex.schedulers.Schedulers
 
 class RegisterPresenter: BasePresenter<RegisterContract.View>(), RegisterContract.Presenter {
     override fun gotoLoginButtonIsPressed() {
-        getView()?.finishSelf()
+        val enteredLogin = getView()?.getEmailFromEditText()
+        getView()?.finishSelf(enteredLogin)
     }
 
     var isRegisterButtonEnabled:Boolean = false
@@ -75,6 +74,8 @@ class RegisterPresenter: BasePresenter<RegisterContract.View>(), RegisterContrac
                                             Log.d("Auth after register is ok, token = ${t.userToken}")
                                             UserProvider().saveUserData(User(login, t.userToken))
                                             getView()?.displayDialog("Registration is ok", "Account is created in inactive mode. Please activate your account by link sent to your email.")
+                                            isRegisterButtonEnabled = true
+                                            getView()?.setRegisterButtonEnabled(isRegisterButtonEnabled)
                                         }
 
                                         override fun onError(e: Throwable) {

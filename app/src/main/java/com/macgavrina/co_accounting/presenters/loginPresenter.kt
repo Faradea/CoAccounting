@@ -24,7 +24,7 @@ class LoginPresenter: BasePresenter<LoginContract.View>(), LoginContract.Present
         getView()?.setLoginButtonEnabled(loginButtonEnabled)
     }
 
-    //ToDo BUG Что-то не так с активностью кнопки Login
+    //ToDo BUG Что-то не так с активностью кнопки Login и остальные
 
     var loginButtonEnabled: Boolean = false
 
@@ -38,6 +38,7 @@ class LoginPresenter: BasePresenter<LoginContract.View>(), LoginContract.Present
             loginButtonEnabled = false
         }
 
+        Log.d("loginButtonIsEnabled = ${loginButtonEnabled}")
         getView()?.setLoginButtonEnabled(loginButtonEnabled)
         getView()?.hideProgress()
 
@@ -90,7 +91,8 @@ class LoginPresenter: BasePresenter<LoginContract.View>(), LoginContract.Present
         }
 
     override fun recoverPassButtonIsPressed() {
-        getView()?.finishSelf(nextFragment.RECOVER_PASS, null)
+        val enteredLogin = getView()?.getLoginFromEditText()
+        getView()?.finishSelf(nextFragment.RECOVER_PASS, enteredLogin)
         Log.d("nextFragment.RECOVER_PASS = ${nextFragment.RECOVER_PASS}")
     }
 

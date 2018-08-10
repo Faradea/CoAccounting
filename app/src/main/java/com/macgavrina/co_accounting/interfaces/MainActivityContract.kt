@@ -6,7 +6,7 @@ interface MainActivityContract {
 
     interface View:BaseViewContract {
 
-        fun displayLoginFragment()
+        fun displayLoginFragment(enteredLogin: String?)
 
         fun displayMainFragment()
 
@@ -16,7 +16,7 @@ interface MainActivityContract {
 
         fun displayProfileFragment()
 
-        fun displayRecoverPassFragment()
+        fun displayRecoverPassFragment(enteredLogin: String?)
 
         fun displayRegisterFragment(enteredLogin: String?)
 
@@ -40,7 +40,7 @@ interface MainActivityContract {
 
         fun registrationIsSuccessfull(title: String, text: String)
 
-        fun gotoLoginEvent()
+        fun gotoLoginEvent(enteredLogin: String?)
 
     }
 

@@ -16,6 +16,7 @@ import com.macgavrina.co_accounting.rxjava.LoginInputObserver.LoginInputObserver
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 import com.macgavrina.co_accounting.presenters.LoginPresenter
+import kotlinx.android.synthetic.main.register_fragment.*
 
 class LoginFragment:Fragment(), LoginContract.View {
 
@@ -67,8 +68,6 @@ class LoginFragment:Fragment(), LoginContract.View {
     override fun onResume() {
         super.onResume()
 
-        loginPresenter.viewIsReady()
-
         val emailObservable: Observable<String> = getTextWatcherObservable(login_fragment_login_et)
         val passwordObservable:Observable<String> = getTextWatcherObservable(login_fragment_password_et)
 
@@ -80,6 +79,14 @@ class LoginFragment:Fragment(), LoginContract.View {
         isSignInEnabled.subscribe {it ->
             loginPresenter.inputTextFieldsAreEmpty(it)
         }
+
+
+        val enteredLogin:String? = this.arguments?.getString("enteredLogin")
+        if (enteredLogin != null) {
+            login_fragment_login_et.setText("${enteredLogin}")
+        }
+
+        loginPresenter.viewIsReady()
 
     }
 

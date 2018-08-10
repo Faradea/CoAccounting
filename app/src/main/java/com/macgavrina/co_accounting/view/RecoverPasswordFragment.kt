@@ -66,10 +66,16 @@ class RecoverPasswordFragment: Fragment(), RecoverPasswordContract.View {
 
         presenter.viewIsReady()
 
+        val enteredLogin:String? = this.arguments?.getString("enteredLogin")
+        if (enteredLogin != null) {
+            recover_password_fragment_edit_text.setText("${enteredLogin}")
+        }
+
         val emailObservable: Observable<String> = getTextWatcherObservable(recover_password_fragment_edit_text)
         emailObservable.subscribe { it ->
             presenter.inputTextFieldsAreEmpty(it.isNotEmpty())
         }
+
     }
 
     override fun onDestroyView() {

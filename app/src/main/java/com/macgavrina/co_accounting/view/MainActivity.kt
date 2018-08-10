@@ -19,8 +19,8 @@ import kotlinx.android.synthetic.main.nav_header_main.view.*
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, MainActivityContract.View, LoginFragment.OnLoginFinishedListener, ProfileFragment.OnLogoutFinishedListener, RecoverPasswordFragment.OnRecoverPasswordEventsListener, RegisterFragment.OnRegisterEventsListener {
-    override fun finishSelf() {
-        mainActivityPresenter.gotoLoginEvent()
+    override fun finishSelf(enteredLogin: String?) {
+        mainActivityPresenter.gotoLoginEvent(enteredLogin)
     }
 
     override fun recoverIsSuccessfull(title: String, text: String) {
@@ -77,20 +77,31 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         drawer_layout.closeDrawer(GravityCompat.START)
     }
 
-    override fun displayLoginFragment() {
+    override fun displayLoginFragment(enteredLogin: String?) {
+
+        val loginFragment = LoginFragment()
+        val bundle:Bundle = Bundle()
+        bundle.putString("enteredLogin", enteredLogin)
+        loginFragment.arguments = bundle
 
         val supportFragmentManager = supportFragmentManager
         supportFragmentManager.beginTransaction()
-                .replace(R.id.content_main_constraint_layout, LoginFragment())
+                .replace(R.id.content_main_constraint_layout, loginFragment)
                 .addToBackStack("LoginFragment")
                 //ToDo Продумать про добавление в backstack
                 .commit()
     }
 
-    override fun displayRecoverPassFragment() {
+    override fun displayRecoverPassFragment(enteredLogin: String?) {
+
+        val recoverPasswordFragment = RecoverPasswordFragment()
+        val bundle:Bundle = Bundle()
+        bundle.putString("enteredLogin", enteredLogin)
+        recoverPasswordFragment.arguments = bundle
+
         val supportFragmentManager = supportFragmentManager
         supportFragmentManager.beginTransaction()
-                .replace(R.id.content_main_constraint_layout, RecoverPasswordFragment())
+                .replace(R.id.content_main_constraint_layout, recoverPasswordFragment)
                 .addToBackStack("RecoverPasswordFragment")
                 .commit()
     }
@@ -101,7 +112,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .setTitle(title)
         alertDialogBuilder.setPositiveButton("Ok", DialogInterface.OnClickListener { dialog, id ->
             Log.d("ok button")
-            displayLoginFragment()
+            //ToDo вот сюда тоже передовать email
+            displayLoginFragment(null)
         })
         val alertDialog: AlertDialog = alertDialogBuilder.create()
         alertDialog.show()
