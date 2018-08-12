@@ -63,6 +63,12 @@ class LoginFragment:Fragment(), LoginContract.View {
         login_fragment_register_tv.setOnClickListener { view ->
             loginPresenter.registerButtonIsPressed()
         }
+
+        val enteredLogin:String? = this.arguments?.getString("enteredLogin")
+        if (enteredLogin != null) {
+            login_fragment_login_et.setText("${enteredLogin}")
+        }
+
     }
 
     override fun onResume() {
@@ -71,6 +77,33 @@ class LoginFragment:Fragment(), LoginContract.View {
         val emailObservable: Observable<String> = getTextWatcherObservable(login_fragment_login_et)
         val passwordObservable:Observable<String> = getTextWatcherObservable(login_fragment_password_et)
 
+        emailObservable.subscribe {it ->
+            if (login_fragment_login_et.text.length != 0) {
+                if (login_fragment_password_et.text.length != 0) {
+                    loginPresenter.inputTextFieldsAreEmpty(true)
+                }
+                else {
+                    loginPresenter.inputTextFieldsAreEmpty(false)
+                }
+            } else {
+                loginPresenter.inputTextFieldsAreEmpty(false)
+            }
+        }
+
+        passwordObservable.subscribe {it ->
+            if (login_fragment_login_et.text.length != 0) {
+                if (login_fragment_password_et.text.length != 0) {
+                    loginPresenter.inputTextFieldsAreEmpty(true)
+                }
+                else {
+                    loginPresenter.inputTextFieldsAreEmpty(false)
+                }
+            } else {
+                loginPresenter.inputTextFieldsAreEmpty(false)
+            }
+        }
+
+/*
         val isSignInEnabled: Observable<Boolean> = Observable.combineLatest(
                 emailObservable,
                 passwordObservable,
@@ -78,14 +111,11 @@ class LoginFragment:Fragment(), LoginContract.View {
 
         isSignInEnabled.subscribe {it ->
             loginPresenter.inputTextFieldsAreEmpty(it)
+            Log.d("inputTextFieldsAreEmpty = ${it}")
         }
 
-
-        val enteredLogin:String? = this.arguments?.getString("enteredLogin")
-        if (enteredLogin != null) {
-            login_fragment_login_et.setText("${enteredLogin}")
-        }
-
+*/
+        Log.d("viewIsReady")
         loginPresenter.viewIsReady()
 
     }

@@ -23,8 +23,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mainActivityPresenter.gotoLoginEvent(enteredLogin)
     }
 
-    override fun recoverIsSuccessfull(title: String, text: String) {
-        mainActivityPresenter.passRecoverIsSuccessfull(title, text)
+    override fun recoverIsSuccessfull(title: String, text: String, enteredLogin: String?) {
+        mainActivityPresenter.passRecoverIsSuccessfull(title, text, enteredLogin)
     }
 
     override fun registrationIsSuccessful(title: String, text: String) {
@@ -106,14 +106,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .commit()
     }
 
-    override fun displayRecoverPassSuccessDialog(title: String, text: String) {
+    override fun displayRecoverPassSuccessDialog(title: String, text: String, enteredLogin: String?) {
         val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
         alertDialogBuilder.setMessage(text)
                 .setTitle(title)
         alertDialogBuilder.setPositiveButton("Ok", DialogInterface.OnClickListener { dialog, id ->
             Log.d("ok button")
-            //ToDo вот сюда тоже передовать email
-            displayLoginFragment(null)
+            displayLoginFragment(enteredLogin)
         })
         val alertDialog: AlertDialog = alertDialogBuilder.create()
         alertDialog.show()

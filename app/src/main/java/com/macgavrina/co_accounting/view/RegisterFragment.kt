@@ -15,6 +15,7 @@ import com.macgavrina.co_accounting.presenters.RegisterPresenter
 import com.macgavrina.co_accounting.rxjava.LoginInputObserver
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
+import kotlinx.android.synthetic.main.login_fragment.*
 import kotlinx.android.synthetic.main.register_fragment.*
 
 class RegisterFragment() : Fragment(), RegisterContract.View {
@@ -61,6 +62,11 @@ class RegisterFragment() : Fragment(), RegisterContract.View {
             presenter.gotoLoginButtonIsPressed()
         }
 
+        val enteredLogin:String? = this.arguments?.getString("enteredLogin")
+        if (enteredLogin != null) {
+            register_fragment_email_edit_text.setText("${enteredLogin}")
+        }
+
     }
 
     override fun onResume() {
@@ -69,19 +75,42 @@ class RegisterFragment() : Fragment(), RegisterContract.View {
         val emailObservable: Observable<String> = LoginInputObserver.getTextWatcherObservable(register_fragment_email_edit_text)
         val passwordObservable: Observable<String> = LoginInputObserver.getTextWatcherObservable(register_fragment_pass_edit_text)
 
-        val isRegisterEnabled: Observable<Boolean> = Observable.combineLatest(
+
+        emailObservable.subscribe {it ->
+            if (register_fragment_email_edit_text.text.length != 0) {
+                if (register_fragment_pass_edit_text.text.length != 0) {
+                    presenter.inputTextFieldsAreEmpty(true)
+                }
+                else {
+                    presenter.inputTextFieldsAreEmpty(false)
+                }
+            } else {
+                presenter.inputTextFieldsAreEmpty(false)
+            }
+        }
+
+        passwordObservable.subscribe {it ->
+            if (register_fragment_email_edit_text.text.length != 0) {
+                if (register_fragment_pass_edit_text.text.length != 0) {
+                    presenter.inputTextFieldsAreEmpty(true)
+                }
+                else {
+                    presenter.inputTextFieldsAreEmpty(false)
+                }
+            } else {
+                presenter.inputTextFieldsAreEmpty(false)
+            }
+        }
+
+
+/*        val isRegisterEnabled: Observable<Boolean> = Observable.combineLatest(
                 emailObservable,
                 passwordObservable,
                 BiFunction { u, p -> u.isNotEmpty() && p.isNotEmpty() })
 
         isRegisterEnabled.subscribe {it ->
             presenter.inputTextFieldsAreEmpty(it)
-        }
-
-        val enteredLogin:String? = this.arguments?.getString("enteredLogin")
-        if (enteredLogin != null) {
-            register_fragment_email_edit_text.setText("${enteredLogin}")
-        }
+        }*/
 
         presenter.viewIsReady()
 

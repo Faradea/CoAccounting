@@ -1,33 +1,25 @@
 package com.macgavrina.co_accounting.view
 
 import android.content.Context
-import android.content.DialogInterface
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.support.v7.app.AlertDialog
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.interfaces.RecoverPasswordContract
-import com.macgavrina.co_accounting.presenters.LoginPresenter
 import com.macgavrina.co_accounting.presenters.RecoverPasswordPresenter
 import com.macgavrina.co_accounting.rxjava.LoginInputObserver.LoginInputObserver.getTextWatcherObservable
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.recover_password_fragment.*
-import kotlinx.android.synthetic.main.recover_password_fragment.view.*
-import android.R.string.ok
-import com.macgavrina.co_accounting.logging.Log
-import kotlinx.android.synthetic.main.login_fragment.*
 
 
 class RecoverPasswordFragment: Fragment(), RecoverPasswordContract.View {
 
     interface OnRecoverPasswordEventsListener {
-        fun recoverIsSuccessfull(title: String, text: String)
+        fun recoverIsSuccessfull(title: String, text: String, enteredLogin: String?)
     }
 
     lateinit var presenter: RecoverPasswordPresenter
@@ -59,22 +51,22 @@ class RecoverPasswordFragment: Fragment(), RecoverPasswordContract.View {
         recover_password_fragment_next_button.setOnClickListener { view ->
             presenter.nextButtonIsPressed()
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        presenter.viewIsReady()
 
         val enteredLogin:String? = this.arguments?.getString("enteredLogin")
         if (enteredLogin != null) {
             recover_password_fragment_edit_text.setText("${enteredLogin}")
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
 
         val emailObservable: Observable<String> = getTextWatcherObservable(recover_password_fragment_edit_text)
         emailObservable.subscribe { it ->
             presenter.inputTextFieldsAreEmpty(it.isNotEmpty())
         }
+
+        presenter.viewIsReady()
 
     }
 
@@ -101,7 +93,8 @@ class RecoverPasswordFragment: Fragment(), RecoverPasswordContract.View {
     }
 
     override fun displayDialog(title: String, text: String) {
-        onRecoverPasswordEventsListener.recoverIsSuccessfull(title, text)
+        val enteredLogin: String? = recover_password_fragment_edit_text.text.toString()
+        onRecoverPasswordEventsListener.recoverIsSuccessfull(title, text, enteredLogin)
     }
 
     override fun displayToast(text:String) {

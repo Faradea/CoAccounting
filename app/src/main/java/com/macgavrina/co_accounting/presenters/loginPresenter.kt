@@ -21,19 +21,15 @@ class LoginPresenter: BasePresenter<LoginContract.View>(), LoginContract.Present
 
     override fun inputTextFieldsAreEmpty(areFilled: Boolean) {
         loginButtonEnabled = areFilled
-        getView()?.setLoginButtonEnabled(loginButtonEnabled)
+        getView()?.setLoginButtonEnabled(areFilled)
+        Log.d("loginButtonIsEnabled = ${loginButtonEnabled}")
     }
-
-    //ToDo BUG Что-то не так с активностью кнопки Login и остальные
 
     var loginButtonEnabled: Boolean = false
 
     override fun viewIsReady() {
         if (getView()?.getLoginFromEditText()?.length!! > 0) {
-            if (getView()?.getPasswordFromEditText()?.length!! > 0) {
-                loginButtonEnabled = true
-            }
-            //loginButtonEnabled = false
+            loginButtonEnabled = getView()?.getPasswordFromEditText()?.length!! > 0
         } else {
             loginButtonEnabled = false
         }
@@ -48,6 +44,7 @@ class LoginPresenter: BasePresenter<LoginContract.View>(), LoginContract.Present
 
         loginButtonEnabled = false
         getView()?.setLoginButtonEnabled(loginButtonEnabled)
+        Log.d("loginButtonIsEnabled = ${loginButtonEnabled}")
         getView()?.hideKeyboard()
         getView()?.showProgress()
         val login: String? = getView()?.getLoginFromEditText()
@@ -71,6 +68,7 @@ class LoginPresenter: BasePresenter<LoginContract.View>(), LoginContract.Present
                                 override fun onSuccess(t: AuthResponse) {
                                     loginButtonEnabled = true
                                     getView()?.setLoginButtonEnabled(loginButtonEnabled)
+                                    Log.d("loginButtonIsEnabled = ${loginButtonEnabled}")
                                     getView()?.hideProgress()
                                     Log.d("Pass is ok, token = ${t.userToken}")
                                     UserProvider().saveUserData(User(login, t.userToken))
@@ -80,6 +78,7 @@ class LoginPresenter: BasePresenter<LoginContract.View>(), LoginContract.Present
                                 override fun onError(e: Throwable) {
                                     loginButtonEnabled = true
                                     getView()?.setLoginButtonEnabled(loginButtonEnabled)
+                                    Log.d("loginButtonIsEnabled = ${loginButtonEnabled}")
                                     getView()?.hideProgress()
                                     getView()?.displayToast(e.message!!)
                                     Log.d("Pass is NOK, error = ${e.message}")

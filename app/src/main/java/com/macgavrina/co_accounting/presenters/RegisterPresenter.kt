@@ -26,7 +26,11 @@ class RegisterPresenter: BasePresenter<RegisterContract.View>(), RegisterContrac
 
     override fun viewIsReady() {
         if (getView()?.getEmailFromEditText()?.length!! > 0) {
-            isRegisterButtonEnabled = true
+            if (getView()?.getPassFromEditText()?.length!! > 0) {
+                isRegisterButtonEnabled = true
+            } else {
+                isRegisterButtonEnabled = false
+            }
         } else {
             isRegisterButtonEnabled = false
         }
