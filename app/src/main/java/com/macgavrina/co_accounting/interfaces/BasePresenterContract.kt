@@ -13,4 +13,5 @@ public interface BasePresenterContract<V : BaseViewContract> {
     fun detachView()
 
     fun destroy()
+
 }
