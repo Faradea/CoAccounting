@@ -14,5 +14,4 @@ public interface BasePresenterContract<V : BaseViewContract> {
 
     fun destroy()
 
-
 }
