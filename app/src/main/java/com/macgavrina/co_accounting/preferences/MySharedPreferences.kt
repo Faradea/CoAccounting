@@ -1,6 +1,5 @@
 package com.macgavrina.co_accounting.preferences
 
-import android.R.id.edit
 import android.content.Context
 import android.content.SharedPreferences
 
@@ -18,14 +17,14 @@ class MySharedPreferences(context: Context) {
     private val editor: SharedPreferences.Editor
         get() = preferences.edit()
 
-    var token: String
+    var token: String?
         get() = preferences.getString(PREF_TOKEN, "")
         set(data) {
             editor.putString(PREF_TOKEN, data).commit()
 
         }
 
-    var login: String
+    var login: String?
         get() = preferences.getString(PREF_LOGIN, "")
         set(data) {
             editor.putString(PREF_LOGIN, data).commit()

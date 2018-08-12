@@ -11,4 +11,5 @@
     <string name="login_fragment_register_tv_text">Have no account? <u>Register</u></string>
     <string name="logout_button_text"><u>Logout</u></string>
     <string name="register_fragment_goto_login_tv">Already registered? <u>Log-in</u></string>
+    <string name="default_user_name">Anonymous</string>
 </resources>

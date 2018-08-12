@@ -15,13 +15,45 @@ import android.content.Context
 
 class ProfileFragment: Fragment(), ProfileContract.View {
 
-    lateinit var profilePresenter: ProfilePresenter
+    lateinit var presenter: ProfilePresenter
+
+    lateinit var onLogoutFinishedListener: OnLogoutFinishedListener
 
     interface OnLogoutFinishedListener {
         fun logoutFinished()
     }
 
-    lateinit var onLogoutFinishedListener: OnLogoutFinishedListener
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+        try {
+            onLogoutFinishedListener = activity as OnLogoutFinishedListener
+        } catch (e: ClassCastException) {
+            throw ClassCastException(activity!!.toString() + " must implement onLogoutFinishedListener")
+        }
+    }
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View? {
+
+        presenter = ProfilePresenter()
+        presenter.attachView(this)
+
+        return inflater.inflate(R.layout.profile_fragment, container,
+                false)
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        presenter.viewIsReady()
+
+        profile_fragment_logout_tv.setOnClickListener { view ->
+            presenter.logoutButtonIsPressed()
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        presenter.detachView()
+    }
 
     override fun updateUserData(login: String?) {
         profile_fragment_login_tv.text = login
@@ -37,39 +69,6 @@ class ProfileFragment: Fragment(), ProfileContract.View {
 
     override fun hideProgress() {
         profile_fragment_progress_bar.visibility = View.INVISIBLE
-    }
-
-
-    override fun onAttach(context: Context?) {
-        super.onAttach(context)
-        try {
-            onLogoutFinishedListener = activity as OnLogoutFinishedListener
-        } catch (e: ClassCastException) {
-            throw ClassCastException(activity!!.toString() + " must implement onLogoutFinishedListener")
-        }
-    }
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-
-        profilePresenter = ProfilePresenter()
-        profilePresenter.attachView(this)
-
-        return inflater.inflate(R.layout.profile_fragment, container,
-                false)
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        profilePresenter.viewIsReady()
-
-        profile_fragment_logout_tv.setOnClickListener { view ->
-            profilePresenter.logoutButtonIsPressed()
-        }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        profilePresenter.detachView()
     }
 
 }

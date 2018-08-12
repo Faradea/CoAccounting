@@ -1,6 +1,6 @@
 package com.macgavrina.co_accounting.interfaces
 
-public interface RecoverPasswordContract {
+interface RecoverPasswordContract {
 
     interface View:BaseViewContract {
 

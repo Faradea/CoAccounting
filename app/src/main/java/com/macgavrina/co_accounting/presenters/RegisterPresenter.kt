@@ -12,12 +12,13 @@ import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.schedulers.Schedulers
 
 class RegisterPresenter: BasePresenter<RegisterContract.View>(), RegisterContract.Presenter {
+
+    var isRegisterButtonEnabled:Boolean = false
+
     override fun gotoLoginButtonIsPressed() {
         val enteredLogin = getView()?.getEmailFromEditText()
         getView()?.finishSelf(enteredLogin)
     }
-
-    var isRegisterButtonEnabled:Boolean = false
 
     override fun inputTextFieldsAreEmpty(isEmpty: Boolean) {
         isRegisterButtonEnabled = isEmpty
@@ -26,11 +27,7 @@ class RegisterPresenter: BasePresenter<RegisterContract.View>(), RegisterContrac
 
     override fun viewIsReady() {
         if (getView()?.getEmailFromEditText()?.length!! > 0) {
-            if (getView()?.getPassFromEditText()?.length!! > 0) {
-                isRegisterButtonEnabled = true
-            } else {
-                isRegisterButtonEnabled = false
-            }
+            isRegisterButtonEnabled = getView()?.getPassFromEditText()?.length!! > 0
         } else {
             isRegisterButtonEnabled = false
         }
@@ -40,9 +37,6 @@ class RegisterPresenter: BasePresenter<RegisterContract.View>(), RegisterContrac
 
 
     override fun registerButtonIsPressed() {
-
-        Log.d("Register button is pressed")
-
         getView()?.hideKeyboard()
         getView()?.showProgress()
         isRegisterButtonEnabled = false
@@ -54,7 +48,7 @@ class RegisterPresenter: BasePresenter<RegisterContract.View>(), RegisterContrac
         var checkIfInputIsNotEmpty: Boolean = false
         if (login != null) {
             if (pass != null) {
-                checkIfInputIsNotEmpty = (login.length != 0) and (pass.length != 0)
+                checkIfInputIsNotEmpty = (login.isNotEmpty()) and (pass.isNotEmpty())
             }
         }
 
@@ -69,7 +63,7 @@ class RegisterPresenter: BasePresenter<RegisterContract.View>(), RegisterContrac
                         override fun onSuccess(t: RegisterResponse) {
                             Log.d("Register is ok")
 
-                            authService.authCall(login!!, pass!!)
+                            authService.authCall(login, pass)
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribeWith(object : DisposableSingleObserver<AuthResponse>() {

@@ -19,123 +19,8 @@ import kotlinx.android.synthetic.main.nav_header_main.view.*
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, MainActivityContract.View, LoginFragment.OnLoginFinishedListener, ProfileFragment.OnLogoutFinishedListener, RecoverPasswordFragment.OnRecoverPasswordEventsListener, RegisterFragment.OnRegisterEventsListener {
-    override fun finishSelf(enteredLogin: String?) {
-        mainActivityPresenter.gotoLoginEvent(enteredLogin)
-    }
 
-    override fun recoverIsSuccessfull(title: String, text: String, enteredLogin: String?) {
-        mainActivityPresenter.passRecoverIsSuccessfull(title, text, enteredLogin)
-    }
-
-    override fun registrationIsSuccessful(title: String, text: String) {
-        mainActivityPresenter.registrationIsSuccessfull(title, text)
-    }
-
-    override fun updateLoginText(login: String) {
-        nav_view.getHeaderView(0).nav_header_main_tv.text = login
-    }
-
-    override fun logoutFinished() {
-        mainActivityPresenter.logoutFinished()
-    }
-
-    override fun displayProfileFragment() {
-        val supportFragmentManager = supportFragmentManager
-        supportFragmentManager.beginTransaction()
-                .replace(R.id.content_main_constraint_layout, ProfileFragment())
-                .addToBackStack("ProfileFragment")
-                .commit()
-    }
-
-    override fun displayRegisterFragment(enteredLogin: String?) {
-        val supportFragmentManager = supportFragmentManager
-        val registerFragment:RegisterFragment = RegisterFragment()
-        val bundle:Bundle = Bundle()
-        bundle.putString("enteredLogin", enteredLogin)
-        Log.d("enteredLogin = ${enteredLogin}")
-        registerFragment.arguments = bundle
-        supportFragmentManager.beginTransaction()
-                .replace(R.id.content_main_constraint_layout, registerFragment)
-                .addToBackStack("RegisterFragment")
-                .commit()
-    }
-
-    override fun loginFinished(nextFragment: LoginPresenter.nextFragment, enteredLogin: String?) {
-        mainActivityPresenter.loginFinished(nextFragment, enteredLogin)
-    }
-
-    override fun showProgress() {
-        val supportFragmentManager = supportFragmentManager
-        supportFragmentManager.beginTransaction()
-                .replace(R.id.content_main_constraint_layout, ProgressBarFragment())
-                .commit()
-    }
-
-    lateinit var mainActivityPresenter: MainActivityPresenter
-
-    override fun hideMenu() {
-        drawer_layout.closeDrawer(GravityCompat.START)
-    }
-
-    override fun displayLoginFragment(enteredLogin: String?) {
-
-        val loginFragment = LoginFragment()
-        val bundle:Bundle = Bundle()
-        bundle.putString("enteredLogin", enteredLogin)
-        loginFragment.arguments = bundle
-
-        val supportFragmentManager = supportFragmentManager
-        supportFragmentManager.beginTransaction()
-                .replace(R.id.content_main_constraint_layout, loginFragment)
-                .addToBackStack("LoginFragment")
-                //ToDo Продумать про добавление в backstack
-                .commit()
-    }
-
-    override fun displayRecoverPassFragment(enteredLogin: String?) {
-
-        val recoverPasswordFragment = RecoverPasswordFragment()
-        val bundle:Bundle = Bundle()
-        bundle.putString("enteredLogin", enteredLogin)
-        recoverPasswordFragment.arguments = bundle
-
-        val supportFragmentManager = supportFragmentManager
-        supportFragmentManager.beginTransaction()
-                .replace(R.id.content_main_constraint_layout, recoverPasswordFragment)
-                .addToBackStack("RecoverPasswordFragment")
-                .commit()
-    }
-
-    override fun displayRecoverPassSuccessDialog(title: String, text: String, enteredLogin: String?) {
-        val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
-        alertDialogBuilder.setMessage(text)
-                .setTitle(title)
-        alertDialogBuilder.setPositiveButton("Ok", DialogInterface.OnClickListener { dialog, id ->
-            Log.d("ok button")
-            displayLoginFragment(enteredLogin)
-        })
-        val alertDialog: AlertDialog = alertDialogBuilder.create()
-        alertDialog.show()
-    }
-
-    override fun displayRegisterSuccessDialog(title: String, text: String) {
-        val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
-        alertDialogBuilder.setMessage(text)
-                .setTitle(title)
-        alertDialogBuilder.setPositiveButton("Ok", DialogInterface.OnClickListener { dialog, id ->
-            Log.d("ok button")
-            displayMainFragment()
-        })
-        val alertDialog: AlertDialog = alertDialogBuilder.create()
-        alertDialog.show()
-    }
-
-    override fun displayMainFragment() {
-        val supportFragmentManager = supportFragmentManager
-        supportFragmentManager.beginTransaction()
-                .replace(R.id.content_main_constraint_layout, MainFragment())
-                .commit()
-    }
+    lateinit var presenter: MainActivityPresenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -144,8 +29,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         initView()
 
-        mainActivityPresenter = MainActivityPresenter()
-        mainActivityPresenter.attachView(this)
+        presenter = MainActivityPresenter()
+        presenter.attachView(this)
 
 /*        fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -153,7 +38,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }*/
 
         nav_view.getHeaderView(0).nav_header_main_iv.setOnClickListener {view ->
-            mainActivityPresenter.headerIsClicked()
+            presenter.headerIsClicked()
         }
 
         val toggle = ActionBarDrawerToggle(
@@ -167,7 +52,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onResume() {
         super.onResume()
-        mainActivityPresenter.viewIsReady()
+        presenter.viewIsReady()
     }
 
     override fun onBackPressed() {
@@ -207,11 +92,128 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onDestroy() {
         super.onDestroy()
-        mainActivityPresenter.detachView()
+        presenter.detachView()
     }
 
     fun initView() {
         //ToDo Здесь должно быть DI или что-то типа того, например:
         //ButterKnife.bind(this);
+    }
+
+    override fun finishSelf(enteredLogin: String?) {
+        presenter.gotoLoginEvent(enteredLogin)
+    }
+
+    override fun recoverIsSuccessfull(title: String, text: String, enteredLogin: String?) {
+        presenter.passRecoverIsSuccessfull(title, text, enteredLogin)
+    }
+
+    override fun registrationIsSuccessful(title: String, text: String) {
+        presenter.registrationIsSuccessfull(title, text)
+    }
+
+    override fun updateLoginText(login: String) {
+        nav_view.getHeaderView(0).nav_header_main_tv.text = login
+    }
+
+    override fun logoutFinished() {
+        presenter.logoutFinished()
+    }
+
+    override fun displayProfileFragment() {
+        val supportFragmentManager = supportFragmentManager
+        supportFragmentManager.beginTransaction()
+                .replace(R.id.content_main_constraint_layout, ProfileFragment())
+                .addToBackStack("ProfileFragment")
+                .commit()
+    }
+
+    override fun displayRegisterFragment(enteredLogin: String?) {
+        val supportFragmentManager = supportFragmentManager
+        val registerFragment:RegisterFragment = RegisterFragment()
+        val bundle:Bundle = Bundle()
+        bundle.putString(LoginFragment.ENTERED_LOGIN_KEY, enteredLogin)
+        Log.d("enteredLogin = ${enteredLogin}")
+        registerFragment.arguments = bundle
+        supportFragmentManager.beginTransaction()
+                .replace(R.id.content_main_constraint_layout, registerFragment)
+                .addToBackStack("RegisterFragment")
+                .commit()
+    }
+
+    override fun loginFinished(nextFragment: LoginPresenter.nextFragment, enteredLogin: String?) {
+        presenter.loginFinished(nextFragment, enteredLogin)
+    }
+
+    override fun showProgress() {
+        val supportFragmentManager = supportFragmentManager
+        supportFragmentManager.beginTransaction()
+                .replace(R.id.content_main_constraint_layout, ProgressBarFragment())
+                .commit()
+    }
+
+
+    override fun hideMenu() {
+        drawer_layout.closeDrawer(GravityCompat.START)
+    }
+
+    override fun displayLoginFragment(enteredLogin: String?) {
+
+        val loginFragment = LoginFragment()
+        val bundle:Bundle = Bundle()
+        bundle.putString(LoginFragment.ENTERED_LOGIN_KEY, enteredLogin)
+        loginFragment.arguments = bundle
+
+        val supportFragmentManager = supportFragmentManager
+        supportFragmentManager.beginTransaction()
+                .replace(R.id.content_main_constraint_layout, loginFragment)
+                .addToBackStack("LoginFragment")
+                //ToDo Продумать про добавление в backstack
+                .commit()
+    }
+
+    override fun displayRecoverPassFragment(enteredLogin: String?) {
+
+        val recoverPasswordFragment = RecoverPasswordFragment()
+        val bundle:Bundle = Bundle()
+        bundle.putString(LoginFragment.ENTERED_LOGIN_KEY, enteredLogin)
+        recoverPasswordFragment.arguments = bundle
+
+        val supportFragmentManager = supportFragmentManager
+        supportFragmentManager.beginTransaction()
+                .replace(R.id.content_main_constraint_layout, recoverPasswordFragment)
+                .addToBackStack("RecoverPasswordFragment")
+                .commit()
+    }
+
+    override fun displayRecoverPassSuccessDialog(title: String, text: String, enteredLogin: String?) {
+        val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
+        alertDialogBuilder.setMessage(text)
+                .setTitle(title)
+        alertDialogBuilder.setPositiveButton("Ok", DialogInterface.OnClickListener { dialog, id ->
+            Log.d("ok button")
+            displayLoginFragment(enteredLogin)
+        })
+        val alertDialog: AlertDialog = alertDialogBuilder.create()
+        alertDialog.show()
+    }
+
+    override fun displayRegisterSuccessDialog(title: String, text: String) {
+        val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
+        alertDialogBuilder.setMessage(text)
+                .setTitle(title)
+        alertDialogBuilder.setPositiveButton("Ok", DialogInterface.OnClickListener { dialog, id ->
+            Log.d("ok button")
+            displayMainFragment()
+        })
+        val alertDialog: AlertDialog = alertDialogBuilder.create()
+        alertDialog.show()
+    }
+
+    override fun displayMainFragment() {
+        val supportFragmentManager = supportFragmentManager
+        supportFragmentManager.beginTransaction()
+                .replace(R.id.content_main_constraint_layout, MainFragment())
+                .commit()
     }
 }

@@ -18,12 +18,12 @@ import kotlinx.android.synthetic.main.recover_password_fragment.*
 
 class RecoverPasswordFragment: Fragment(), RecoverPasswordContract.View {
 
+    lateinit var presenter: RecoverPasswordPresenter
+    lateinit var onRecoverPasswordEventsListener: OnRecoverPasswordEventsListener
+
     interface OnRecoverPasswordEventsListener {
         fun recoverIsSuccessfull(title: String, text: String, enteredLogin: String?)
     }
-
-    lateinit var presenter: RecoverPasswordPresenter
-    lateinit var onRecoverPasswordEventsListener: OnRecoverPasswordEventsListener
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)

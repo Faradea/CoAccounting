@@ -6,6 +6,7 @@ import com.macgavrina.co_accounting.providers.UserProvider
 
 class ProfilePresenter: BasePresenter<ProfileContract.View>(), ProfileContract.Presenter, UserProvider.LoadUserCallback {
 
+    //Обработка callback от UserProvider().loadUser
     override fun onLoad(user: User) {
         getView()?.hideProgress()
         getView()?.updateUserData(user.login)

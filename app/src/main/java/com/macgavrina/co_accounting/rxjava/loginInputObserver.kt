@@ -2,14 +2,13 @@ package com.macgavrina.co_accounting.rxjava
 
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.widget.EditText
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 
-public class LoginInputObserver {
+class LoginInputObserver {
 
-    public companion object LoginInputObserver {
+    companion object LoginInputObserver {
 
         fun getTextWatcherObservable(editText: EditText): Observable<String> {
 

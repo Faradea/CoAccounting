@@ -1,6 +1,6 @@
 package com.macgavrina.co_accounting.interfaces
 
-public interface RegisterContract {
+interface RegisterContract {
 
     interface View:BaseViewContract {
 

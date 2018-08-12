@@ -2,29 +2,23 @@ package com.macgavrina.co_accounting.presenters
 
 import com.macgavrina.co_accounting.interfaces.RecoverPasswordContract
 import com.macgavrina.co_accounting.logging.Log
-import com.macgavrina.co_accounting.model.AuthResponse
 import com.macgavrina.co_accounting.model.RecoverPassResponse
-import com.macgavrina.co_accounting.model.User
-import com.macgavrina.co_accounting.providers.UserProvider
 import com.macgavrina.co_accounting.services.AuthService
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.schedulers.Schedulers
 
 class RecoverPasswordPresenter: BasePresenter<RecoverPasswordContract.View>(), RecoverPasswordContract.Presenter {
+
+    var isNextButtonEnabled:Boolean = false
+
     override fun inputTextFieldsAreEmpty(isEmpty: Boolean) {
         isNextButtonEnabled = isEmpty
         getView()?.setNextButtonEnabled(isNextButtonEnabled)
     }
 
-    var isNextButtonEnabled:Boolean = false
-
     override fun viewIsReady() {
-        if (getView()?.getEmailFromEditText()?.length!! > 0) {
-            isNextButtonEnabled = true
-        } else {
-            isNextButtonEnabled = false
-        }
+        isNextButtonEnabled = getView()?.getEmailFromEditText()?.length!! > 0
         getView()?.hideProgress()
         getView()?.setNextButtonEnabled(isNextButtonEnabled)
     }
@@ -32,8 +26,6 @@ class RecoverPasswordPresenter: BasePresenter<RecoverPasswordContract.View>(), R
 
 
     override fun nextButtonIsPressed() {
-        Log.d("Next button is pressed")
-
         getView()?.hideKeyboard()
         getView()?.showProgress()
         isNextButtonEnabled = false
@@ -42,7 +34,7 @@ class RecoverPasswordPresenter: BasePresenter<RecoverPasswordContract.View>(), R
 
         var checkIfInputIsNotEmpty: Boolean = false
         if (email != null) {
-                checkIfInputIsNotEmpty = email.length != 0
+                checkIfInputIsNotEmpty = email.isNotEmpty()
         }
 
         if (checkIfInputIsNotEmpty) {
@@ -57,7 +49,6 @@ class RecoverPasswordPresenter: BasePresenter<RecoverPasswordContract.View>(), R
                             getView()?.hideProgress()
                             Log.d("Recover pass is ok")
                             getView()?.displayDialog("Pass recovering is ok", "Link to recover password is sent to your email")
-                            //getView()?.finishSelf(LoginPresenter.nextFragment.MAIN)
                         }
 
                         override fun onError(e: Throwable) {

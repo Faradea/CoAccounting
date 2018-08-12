@@ -13,6 +13,8 @@ import io.reactivex.observers.DisposableSingleObserver
 //ToDo При повороте экрана приложение не падает, но результат логина "теряется" (а хорошо бы продолжить отображать прогресс-бар и продолжить процесс)
 class LoginPresenter: BasePresenter<LoginContract.View>(), LoginContract.Presenter {
 
+    var loginButtonEnabled: Boolean = false
+
     enum class nextFragment(i: Int) {
         MAIN(0),
         RECOVER_PASS(1),
@@ -22,10 +24,7 @@ class LoginPresenter: BasePresenter<LoginContract.View>(), LoginContract.Present
     override fun inputTextFieldsAreEmpty(areFilled: Boolean) {
         loginButtonEnabled = areFilled
         getView()?.setLoginButtonEnabled(areFilled)
-        Log.d("loginButtonIsEnabled = ${loginButtonEnabled}")
     }
-
-    var loginButtonEnabled: Boolean = false
 
     override fun viewIsReady() {
         if (getView()?.getLoginFromEditText()?.length!! > 0) {
@@ -34,7 +33,6 @@ class LoginPresenter: BasePresenter<LoginContract.View>(), LoginContract.Present
             loginButtonEnabled = false
         }
 
-        Log.d("loginButtonIsEnabled = ${loginButtonEnabled}")
         getView()?.setLoginButtonEnabled(loginButtonEnabled)
         getView()?.hideProgress()
 
@@ -44,16 +42,16 @@ class LoginPresenter: BasePresenter<LoginContract.View>(), LoginContract.Present
 
         loginButtonEnabled = false
         getView()?.setLoginButtonEnabled(loginButtonEnabled)
-        Log.d("loginButtonIsEnabled = ${loginButtonEnabled}")
         getView()?.hideKeyboard()
         getView()?.showProgress()
+
         val login: String? = getView()?.getLoginFromEditText()
         val pass: String? = getView()?.getPasswordFromEditText()
 
         var checkIfInputIsNotEmpty: Boolean = false
         if (login != null) {
             if (pass != null) {
-                checkIfInputIsNotEmpty = (login.length != 0) and (pass.length != 0)
+                checkIfInputIsNotEmpty = login.isNotEmpty() and pass.isNotEmpty()
             }
         }
 
@@ -68,7 +66,6 @@ class LoginPresenter: BasePresenter<LoginContract.View>(), LoginContract.Present
                                 override fun onSuccess(t: AuthResponse) {
                                     loginButtonEnabled = true
                                     getView()?.setLoginButtonEnabled(loginButtonEnabled)
-                                    Log.d("loginButtonIsEnabled = ${loginButtonEnabled}")
                                     getView()?.hideProgress()
                                     Log.d("Pass is ok, token = ${t.userToken}")
                                     UserProvider().saveUserData(User(login, t.userToken))
@@ -78,11 +75,9 @@ class LoginPresenter: BasePresenter<LoginContract.View>(), LoginContract.Present
                                 override fun onError(e: Throwable) {
                                     loginButtonEnabled = true
                                     getView()?.setLoginButtonEnabled(loginButtonEnabled)
-                                    Log.d("loginButtonIsEnabled = ${loginButtonEnabled}")
                                     getView()?.hideProgress()
                                     getView()?.displayToast(e.message!!)
                                     Log.d("Pass is NOK, error = ${e.message}")
-
                                 }
                             })
             }

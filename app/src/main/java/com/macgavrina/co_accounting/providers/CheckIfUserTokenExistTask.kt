@@ -11,7 +11,9 @@ class CheckIfUserTokenExistTask(callback: UserProvider.CheckIfUserTokenExistCall
     override fun doInBackground(vararg params: Void): Boolean {
         val mySharedPreferences: MySharedPreferences = MySharedPreferences(MainApplication.applicationContext())
         val login = mySharedPreferences.login
-        if (login.isEmpty()) {
+        if (login == null) {
+            return false
+        } else if (login.isEmpty()) {
             return false
         }
         return true

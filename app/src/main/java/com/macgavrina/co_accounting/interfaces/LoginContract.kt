@@ -2,7 +2,7 @@ package com.macgavrina.co_accounting.interfaces
 
 import com.macgavrina.co_accounting.presenters.LoginPresenter
 
-public interface LoginContract {
+interface LoginContract {
 
     interface View:BaseViewContract {
 

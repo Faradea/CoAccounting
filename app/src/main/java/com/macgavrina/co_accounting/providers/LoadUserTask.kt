@@ -15,13 +15,31 @@ class LoadUserTask(callback: LoadUserCallback) : AsyncTask<Void, Void, User>() {
 
     override fun doInBackground(vararg params: Void): User? {
         val mySharedPreferences: MySharedPreferences = MySharedPreferences(MainApplication.applicationContext())
-        val login = mySharedPreferences.login
-        val token = mySharedPreferences.token
-            if (login.isEmpty() or token.isEmpty()) {
-                return User("", "")
-            }
-            return User(login, token)
+
+        lateinit var login: String
+        lateinit var token: String
+
+        if (mySharedPreferences.login == null) {
+            return User("", "")
         }
+
+        if (mySharedPreferences.login!!.isEmpty()) {
+            return User("", "")
+        }
+
+        if (mySharedPreferences.token == null) {
+            return User("", "")
+        }
+
+        if (mySharedPreferences.token!!.isEmpty()) {
+            return User("", "")
+        }
+
+        login = mySharedPreferences.login!!
+        token = mySharedPreferences.token!!
+        return User(login, token)
+
+    }
 
     override fun onPostExecute(user: User) {
             myCallback.onLoad(user)

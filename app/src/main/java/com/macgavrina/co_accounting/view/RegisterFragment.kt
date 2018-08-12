@@ -19,17 +19,14 @@ import kotlinx.android.synthetic.main.login_fragment.*
 import kotlinx.android.synthetic.main.register_fragment.*
 
 class RegisterFragment() : Fragment(), RegisterContract.View {
-    override fun finishSelf(enteredLogin: String?) {
-        onRegisterEventsListener.finishSelf(enteredLogin)
-    }
+
+    lateinit var presenter: RegisterPresenter
+    lateinit var onRegisterEventsListener: OnRegisterEventsListener
 
     interface OnRegisterEventsListener {
         fun registrationIsSuccessful(title: String, text: String)
         fun finishSelf(enteredLogin: String?)
     }
-
-    lateinit var presenter: RegisterPresenter
-    lateinit var onRegisterEventsListener: OnRegisterEventsListener
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
@@ -62,7 +59,7 @@ class RegisterFragment() : Fragment(), RegisterContract.View {
             presenter.gotoLoginButtonIsPressed()
         }
 
-        val enteredLogin:String? = this.arguments?.getString("enteredLogin")
+        val enteredLogin:String? = this.arguments?.getString(LoginFragment.ENTERED_LOGIN_KEY)
         if (enteredLogin != null) {
             register_fragment_email_edit_text.setText("${enteredLogin}")
         }
@@ -119,6 +116,10 @@ class RegisterFragment() : Fragment(), RegisterContract.View {
     override fun onDestroyView() {
         super.onDestroyView()
         presenter.detachView()
+    }
+
+    override fun finishSelf(enteredLogin: String?) {
+        onRegisterEventsListener.finishSelf(enteredLogin)
     }
 
     override fun hideKeyboard() {

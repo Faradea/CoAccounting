@@ -1,9 +1,7 @@
 package com.macgavrina.co_accounting
 
-import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
-import android.util.Log
 
 
 //This class is necessary to get application context - MainApplication.applicationContext()

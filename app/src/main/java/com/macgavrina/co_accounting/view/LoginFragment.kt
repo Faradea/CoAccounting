@@ -14,19 +14,20 @@ import com.macgavrina.co_accounting.interfaces.LoginContract
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.rxjava.LoginInputObserver.LoginInputObserver.getTextWatcherObservable
 import io.reactivex.Observable
-import io.reactivex.functions.BiFunction
 import com.macgavrina.co_accounting.presenters.LoginPresenter
-import kotlinx.android.synthetic.main.register_fragment.*
 
 class LoginFragment:Fragment(), LoginContract.View {
 
-    lateinit var loginPresenter: LoginPresenter
+    companion object {
+        const val ENTERED_LOGIN_KEY = "enteredLogin"
+    }
+
+    lateinit var presenter: LoginPresenter
+    lateinit var onLoginFinishedListener: OnLoginFinishedListener
 
     interface OnLoginFinishedListener {
         fun loginFinished(nextFragment: LoginPresenter.nextFragment, enteredLogin: String?)
     }
-
-    lateinit var onLoginFinishedListener: OnLoginFinishedListener
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
@@ -41,8 +42,8 @@ class LoginFragment:Fragment(), LoginContract.View {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 
-        loginPresenter = LoginPresenter()
-        loginPresenter.attachView(this)
+        presenter = LoginPresenter()
+        presenter.attachView(this)
 
         return inflater.inflate(R.layout.login_fragment, container,
                 false)
@@ -51,22 +52,21 @@ class LoginFragment:Fragment(), LoginContract.View {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
+        val enteredLogin:String? = this.arguments?.getString(ENTERED_LOGIN_KEY)
+        if (enteredLogin != null) {
+            login_fragment_login_et.setText("${enteredLogin}")
+        }
+
         login_fragment_login_button.setOnClickListener { view ->
-            loginPresenter.loginButtonIsPressed()
+            presenter.loginButtonIsPressed()
         }
 
         login_fragment_recover_password_tv.setOnClickListener {view ->
-            Log.d("Recover password button is pressed")
-            loginPresenter.recoverPassButtonIsPressed()
+            presenter.recoverPassButtonIsPressed()
         }
 
         login_fragment_register_tv.setOnClickListener { view ->
-            loginPresenter.registerButtonIsPressed()
-        }
-
-        val enteredLogin:String? = this.arguments?.getString("enteredLogin")
-        if (enteredLogin != null) {
-            login_fragment_login_et.setText("${enteredLogin}")
+            presenter.registerButtonIsPressed()
         }
 
     }
@@ -80,26 +80,26 @@ class LoginFragment:Fragment(), LoginContract.View {
         emailObservable.subscribe {it ->
             if (login_fragment_login_et.text.length != 0) {
                 if (login_fragment_password_et.text.length != 0) {
-                    loginPresenter.inputTextFieldsAreEmpty(true)
+                    presenter.inputTextFieldsAreEmpty(true)
                 }
                 else {
-                    loginPresenter.inputTextFieldsAreEmpty(false)
+                    presenter.inputTextFieldsAreEmpty(false)
                 }
             } else {
-                loginPresenter.inputTextFieldsAreEmpty(false)
+                presenter.inputTextFieldsAreEmpty(false)
             }
         }
 
         passwordObservable.subscribe {it ->
             if (login_fragment_login_et.text.length != 0) {
                 if (login_fragment_password_et.text.length != 0) {
-                    loginPresenter.inputTextFieldsAreEmpty(true)
+                    presenter.inputTextFieldsAreEmpty(true)
                 }
                 else {
-                    loginPresenter.inputTextFieldsAreEmpty(false)
+                    presenter.inputTextFieldsAreEmpty(false)
                 }
             } else {
-                loginPresenter.inputTextFieldsAreEmpty(false)
+                presenter.inputTextFieldsAreEmpty(false)
             }
         }
 
@@ -116,13 +116,13 @@ class LoginFragment:Fragment(), LoginContract.View {
 
 */
         Log.d("viewIsReady")
-        loginPresenter.viewIsReady()
+        presenter.viewIsReady()
 
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        loginPresenter.detachView()
+        presenter.detachView()
     }
 
     override fun hideKeyboard() {
