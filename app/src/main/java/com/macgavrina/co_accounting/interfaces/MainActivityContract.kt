@@ -26,6 +26,8 @@ interface MainActivityContract {
 
         fun displayRecoverPassSuccessDialog(title: String, text: String, enteredLogin: String?)
 
+        fun hideProgress()
+
     }
 
     interface Presenter:BasePresenterContract<View> {

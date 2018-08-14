@@ -31,12 +31,18 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
     override fun loginFinished(nextFragment: LoginPresenter.nextFragment, enteredLogin: String?) {
         UserProvider().loadUser(this)
         when (nextFragment) {
-            LoginPresenter.nextFragment.MAIN ->
+            LoginPresenter.nextFragment.MAIN -> {
                 getView()?.displayMainFragment()
-            LoginPresenter.nextFragment.RECOVER_PASS ->
+            }
+
+            LoginPresenter.nextFragment.RECOVER_PASS -> {
                 getView()?.displayRecoverPassFragment(enteredLogin)
-            LoginPresenter.nextFragment.REGISTER ->
+            }
+
+            LoginPresenter.nextFragment.REGISTER -> {
                 getView()?.displayRegisterFragment(enteredLogin)
+            }
+
         }
 
     }
@@ -68,9 +74,11 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
     override fun onLoad(ifExist:Boolean) {
             if (ifExist) {
                 Log.d("User is already loggined")
-                getView()!!.displayProfileFragment()
+                getView()?.hideProgress()
+                getView()?.displayProfileFragment()
             } else {
-                getView()!!.displayLoginFragment(null)
+                getView()?.hideProgress()
+                getView()?.displayLoginFragment(null)
             }
     }
 }

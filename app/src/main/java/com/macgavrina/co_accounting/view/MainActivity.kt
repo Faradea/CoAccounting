@@ -152,6 +152,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .commit()
     }
 
+    override fun hideProgress() {
+        clearStack()
+        displayMainFragment()
+    }
 
     override fun hideMenu() {
         drawer_layout.closeDrawer(GravityCompat.START)
@@ -164,11 +168,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         bundle.putString(LoginFragment.ENTERED_LOGIN_KEY, enteredLogin)
         loginFragment.arguments = bundle
 
+        clearStack()
         val supportFragmentManager = supportFragmentManager
         supportFragmentManager.beginTransaction()
                 .replace(R.id.content_main_constraint_layout, loginFragment)
                 .addToBackStack("LoginFragment")
-                //ToDo Продумать про добавление в backstack
                 .commit()
     }
 
@@ -187,6 +191,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun displayRecoverPassSuccessDialog(title: String, text: String, enteredLogin: String?) {
+        clearStack()
         val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
         alertDialogBuilder.setMessage(text)
                 .setTitle(title)
@@ -199,6 +204,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun displayRegisterSuccessDialog(title: String, text: String) {
+        clearStack()
         val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
         alertDialogBuilder.setMessage(text)
                 .setTitle(title)
@@ -215,5 +221,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         supportFragmentManager.beginTransaction()
                 .replace(R.id.content_main_constraint_layout, MainFragment())
                 .commit()
+    }
+
+    private fun clearStack() {
+        val supportFragmentManager = supportFragmentManager
+        var count = supportFragmentManager.getBackStackEntryCount()
+        while (count > 0) {
+            supportFragmentManager.popBackStack()
+            count--
+        }
     }
 }
