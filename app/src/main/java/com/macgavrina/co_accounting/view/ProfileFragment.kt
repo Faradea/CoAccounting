@@ -17,20 +17,6 @@ class ProfileFragment: Fragment(), ProfileContract.View {
 
     lateinit var presenter: ProfilePresenter
 
-    lateinit var onLogoutFinishedListener: OnLogoutFinishedListener
-
-    interface OnLogoutFinishedListener {
-        fun logoutFinished()
-    }
-
-    override fun onAttach(context: Context?) {
-        super.onAttach(context)
-        try {
-            onLogoutFinishedListener = activity as OnLogoutFinishedListener
-        } catch (e: ClassCastException) {
-            throw ClassCastException(activity!!.toString() + " must implement onLogoutFinishedListener")
-        }
-    }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 
@@ -57,10 +43,6 @@ class ProfileFragment: Fragment(), ProfileContract.View {
 
     override fun updateUserData(login: String?) {
         profile_fragment_login_tv.text = login
-    }
-
-    override fun finishSelf() {
-        onLogoutFinishedListener.logoutFinished()
     }
 
     override fun showProgress() {

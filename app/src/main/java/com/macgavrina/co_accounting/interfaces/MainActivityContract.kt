@@ -36,16 +36,6 @@ interface MainActivityContract {
 
         fun headerIsClicked()
 
-        fun logoutFinished()
-
-        fun loginFinished(nextFragment: LoginPresenter.nextFragment, enteredLogin: String?)
-
-        fun passRecoverIsSuccessfull(title: String, text: String, enteredLogin: String?)
-
-        fun registrationIsSuccessfull(title: String, text: String)
-
-        fun gotoLoginEvent(enteredLogin: String?)
-
         fun gotoContactsEvent()
 
     }

@@ -20,7 +20,6 @@ interface LoginContract {
 
         fun hideProgress()
 
-        fun finishSelf(recoveR_PASS: LoginPresenter.nextFragment, enteredLogin: String?)
     }
 
     interface Presenter:BasePresenterContract<View> {

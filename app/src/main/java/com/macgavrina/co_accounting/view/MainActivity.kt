@@ -20,9 +20,7 @@ import kotlinx.android.synthetic.main.login_fragment.*
 import kotlinx.android.synthetic.main.nav_header_main.view.*
 
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, MainActivityContract.View, LoginFragment.OnLoginFinishedListener, ProfileFragment.OnLogoutFinishedListener, RecoverPasswordFragment.OnRecoverPasswordEventsListener, RegisterFragment.OnRegisterEventsListener {
-
-    //ToDo Продумать более граммотное взаимодействие активити и фрагментов
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, MainActivityContract.View {
 
     lateinit var presenter: MainActivityPresenter
 
@@ -108,24 +106,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         //ButterKnife.bind(this);
     }
 
-    override fun finishSelf(enteredLogin: String?) {
-        presenter.gotoLoginEvent(enteredLogin)
-    }
-
-    override fun recoverIsSuccessfull(title: String, text: String, enteredLogin: String?) {
-        presenter.passRecoverIsSuccessfull(title, text, enteredLogin)
-    }
-
-    override fun registrationIsSuccessful(title: String, text: String) {
-        presenter.registrationIsSuccessfull(title, text)
-    }
-
     override fun updateLoginText(login: String) {
         nav_view.getHeaderView(0).nav_header_main_tv.text = login
-    }
-
-    override fun logoutFinished() {
-        presenter.logoutFinished()
     }
 
     override fun displayProfileFragment() {
@@ -155,10 +137,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .replace(R.id.content_main_constraint_layout, registerFragment)
                 .addToBackStack("RegisterFragment")
                 .commit()
-    }
-
-    override fun loginFinished(nextFragment: LoginPresenter.nextFragment, enteredLogin: String?) {
-        presenter.loginFinished(nextFragment, enteredLogin)
     }
 
     override fun showProgress() {

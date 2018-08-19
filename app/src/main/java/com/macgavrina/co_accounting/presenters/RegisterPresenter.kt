@@ -1,11 +1,13 @@
 package com.macgavrina.co_accounting.presenters
 
+import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.interfaces.RegisterContract
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.model.AuthResponse
 import com.macgavrina.co_accounting.model.RegisterResponse
 import com.macgavrina.co_accounting.model.User
 import com.macgavrina.co_accounting.providers.UserProvider
+import com.macgavrina.co_accounting.rxjava.Events
 import com.macgavrina.co_accounting.services.AuthService
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.observers.DisposableSingleObserver
@@ -17,7 +19,9 @@ class RegisterPresenter: BasePresenter<RegisterContract.View>(), RegisterContrac
 
     override fun gotoLoginButtonIsPressed() {
         val enteredLogin = getView()?.getEmailFromEditText()
-        getView()?.finishSelf(enteredLogin)
+        MainApplication
+                .bus
+                .send(Events.FromRegisterToLoginEvent(enteredLogin))
     }
 
     override fun inputTextFieldsAreEmpty(isEmpty: Boolean) {
@@ -71,7 +75,7 @@ class RegisterPresenter: BasePresenter<RegisterContract.View>(), RegisterContrac
                                             getView()?.hideProgress()
                                             Log.d("Auth after register is ok, token = ${t.userToken}")
                                             UserProvider().saveUserData(User(login, t.userToken))
-                                            getView()?.displayDialog("Registration is ok", "Account is created in inactive mode. Please activate your account by link sent to your email.")
+                                            MainApplication.bus.send(Events.RegisterIsSuccessful("Registration is ok", "Account is created in inactive mode. Please activate your account by link sent to your email."))
                                             isRegisterButtonEnabled = true
                                             getView()?.setRegisterButtonEnabled(isRegisterButtonEnabled)
                                         }

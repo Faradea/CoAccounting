@@ -1,5 +1,6 @@
 package com.macgavrina.co_accounting.presenters
 
+import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.interfaces.LoginContract
 import com.macgavrina.co_accounting.model.User
 import com.macgavrina.co_accounting.providers.UserProvider
@@ -8,6 +9,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.model.AuthResponse
+import com.macgavrina.co_accounting.rxjava.Events
 import io.reactivex.observers.DisposableSingleObserver
 
 //ToDo При повороте экрана приложение не падает, но результат логина "теряется" (а хорошо бы продолжить отображать прогресс-бар и продолжить процесс)
@@ -69,7 +71,7 @@ class LoginPresenter: BasePresenter<LoginContract.View>(), LoginContract.Present
                                     getView()?.hideProgress()
                                     Log.d("Pass is ok, token = ${t.userToken}")
                                     UserProvider().saveUserData(User(login, t.userToken))
-                                    getView()?.finishSelf(nextFragment.MAIN, null)
+                                    MainApplication.bus.send(Events.LoginIsSuccessful())
                                 }
 
                                 override fun onError(e: Throwable) {
@@ -86,13 +88,12 @@ class LoginPresenter: BasePresenter<LoginContract.View>(), LoginContract.Present
 
     override fun recoverPassButtonIsPressed() {
         val enteredLogin = getView()?.getLoginFromEditText()
-        getView()?.finishSelf(nextFragment.RECOVER_PASS, enteredLogin)
-        Log.d("nextFragment.RECOVER_PASS = ${nextFragment.RECOVER_PASS}")
+        MainApplication.bus.send(Events.FromLoginToRecoverPass(enteredLogin))
     }
 
     override fun registerButtonIsPressed() {
         val enteredLogin:String? = getView()?.getLoginFromEditText()
-        getView()?.finishSelf(nextFragment.REGISTER, enteredLogin)
+        MainApplication.bus.send(Events.FromLoginToRegister(enteredLogin))
     }
 }
 

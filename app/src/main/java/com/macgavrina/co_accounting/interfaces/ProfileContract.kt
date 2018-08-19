@@ -4,8 +4,6 @@ interface ProfileContract {
 
     interface View:BaseViewContract {
 
-        fun finishSelf()
-
         fun showProgress()
 
         fun hideProgress()

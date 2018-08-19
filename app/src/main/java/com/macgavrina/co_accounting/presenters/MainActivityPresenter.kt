@@ -6,48 +6,50 @@ import com.macgavrina.co_accounting.interfaces.MainActivityContract
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.model.User
 import com.macgavrina.co_accounting.providers.UserProvider
+import com.macgavrina.co_accounting.rxjava.Events
+import com.macgavrina.co_accounting.rxjava.RxBus
 
 
 class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActivityContract.Presenter, UserProvider.LoadUserCallback, UserProvider.CheckIfUserTokenExistCallback {
+
+    override fun attachView(baseViewContract: MainActivityContract.View) {
+        super.attachView(baseViewContract)
+
+        MainApplication
+                .bus
+                .toObservable()
+                .subscribe { `object` ->
+                    when (`object`) {
+                        is Events.FromRegisterToLoginEvent -> {
+                            getView()?.displayLoginFragment(`object`.myEnteredLogin)
+                        }
+                        is Events.RegisterIsSuccessful -> {
+                            UserProvider().loadUser(this)
+                            getView()?.displayRegisterSuccessDialog(`object`.myTitle, `object`.myText)
+                        }
+                        is Events.RecoverPassIsSuccessful -> {
+                            getView()?.displayRecoverPassSuccessDialog(`object`.myTitle, `object`.myText, `object`.myEnteredLogin)
+                        }
+                        is Events.LogoutFinished -> {
+                            UserProvider().loadUser(this)
+                            getView()?.displayLoginFragment(null)
+                        }
+                        is Events.LoginIsSuccessful -> {
+                            UserProvider().loadUser(this)
+                            getView()?.displayMainFragment()
+                        }
+                        is Events.FromLoginToRegister -> {
+                            getView()?.displayRegisterFragment(`object`.myEnteredLogin)
+                        }
+                        is Events.FromLoginToRecoverPass -> {
+                            getView()?.displayRecoverPassFragment(`object`.myEnteredLogin)
+                        }
+                    }
+                }
+    }
+
     override fun gotoContactsEvent() {
         getView()?.displayContactsFragment()
-    }
-
-    override fun passRecoverIsSuccessfull(title: String, text: String, enteredLogin: String?) {
-        getView()?.displayRecoverPassSuccessDialog(title, text, enteredLogin)
-    }
-
-    override fun registrationIsSuccessfull(title: String, text: String) {
-        UserProvider().loadUser(this)
-        getView()?.displayRegisterSuccessDialog(title, text)
-    }
-
-    override fun gotoLoginEvent(enteredLogin: String?) {
-        getView()?.displayLoginFragment(enteredLogin)
-    }
-
-    override fun logoutFinished() {
-        UserProvider().loadUser(this)
-        getView()?.displayLoginFragment(null)
-    }
-
-    override fun loginFinished(nextFragment: LoginPresenter.nextFragment, enteredLogin: String?) {
-        UserProvider().loadUser(this)
-        when (nextFragment) {
-            LoginPresenter.nextFragment.MAIN -> {
-                getView()?.displayMainFragment()
-            }
-
-            LoginPresenter.nextFragment.RECOVER_PASS -> {
-                getView()?.displayRecoverPassFragment(enteredLogin)
-            }
-
-            LoginPresenter.nextFragment.REGISTER -> {
-                getView()?.displayRegisterFragment(enteredLogin)
-            }
-
-        }
-
     }
 
     override fun viewIsReady() {

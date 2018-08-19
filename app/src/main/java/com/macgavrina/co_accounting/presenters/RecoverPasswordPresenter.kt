@@ -1,8 +1,10 @@
 package com.macgavrina.co_accounting.presenters
 
+import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.interfaces.RecoverPasswordContract
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.model.RecoverPassResponse
+import com.macgavrina.co_accounting.rxjava.Events
 import com.macgavrina.co_accounting.services.AuthService
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.observers.DisposableSingleObserver
@@ -48,7 +50,7 @@ class RecoverPasswordPresenter: BasePresenter<RecoverPasswordContract.View>(), R
                         override fun onSuccess(t: RecoverPassResponse) {
                             getView()?.hideProgress()
                             Log.d("Recover pass is ok")
-                            getView()?.displayDialog("Pass recovering is ok", "Link to recover password is sent to your email")
+                            MainApplication.bus.send(Events.RecoverPassIsSuccessful("Pass recovering is ok", "Link to recover password is sent to your email", getView()?.getEmailFromEditText()))
                         }
 
                         override fun onError(e: Throwable) {

@@ -19,21 +19,6 @@ import kotlinx.android.synthetic.main.recover_password_fragment.*
 class RecoverPasswordFragment: Fragment(), RecoverPasswordContract.View {
 
     lateinit var presenter: RecoverPasswordPresenter
-    lateinit var onRecoverPasswordEventsListener: OnRecoverPasswordEventsListener
-
-    interface OnRecoverPasswordEventsListener {
-        fun recoverIsSuccessfull(title: String, text: String, enteredLogin: String?)
-    }
-
-    override fun onAttach(context: Context?) {
-        super.onAttach(context)
-        try {
-            onRecoverPasswordEventsListener = activity as OnRecoverPasswordEventsListener
-        } catch (e: ClassCastException) {
-            throw ClassCastException(activity.toString() + " must implement OnRecoverPasswordEventsListener")
-        }
-
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -90,11 +75,6 @@ class RecoverPasswordFragment: Fragment(), RecoverPasswordContract.View {
 
     override fun hideProgress() {
         recover_password_fragment_progress_bar.visibility = View.INVISIBLE
-    }
-
-    override fun displayDialog(title: String, text: String) {
-        val enteredLogin: String? = recover_password_fragment_edit_text.text.toString()
-        onRecoverPasswordEventsListener.recoverIsSuccessfull(title, text, enteredLogin)
     }
 
     override fun displayToast(text:String) {

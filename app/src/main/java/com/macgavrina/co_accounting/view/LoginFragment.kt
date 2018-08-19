@@ -23,21 +23,6 @@ class LoginFragment:Fragment(), LoginContract.View {
     }
 
     lateinit var presenter: LoginPresenter
-    lateinit var onLoginFinishedListener: OnLoginFinishedListener
-
-    interface OnLoginFinishedListener {
-        fun loginFinished(nextFragment: LoginPresenter.nextFragment, enteredLogin: String?)
-    }
-
-    override fun onAttach(context: Context?) {
-        super.onAttach(context)
-        try {
-            onLoginFinishedListener = activity as OnLoginFinishedListener
-        } catch (e: ClassCastException) {
-            throw ClassCastException(activity.toString() + " must implement OnLoginFinishedListener")
-        }
-
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -152,10 +137,6 @@ class LoginFragment:Fragment(), LoginContract.View {
 
     override fun displayToast(text:String) {
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
-    }
-
-    override fun finishSelf(nextFragment: LoginPresenter.nextFragment, enteredLogin: String?) {
-        onLoginFinishedListener.loginFinished(nextFragment, enteredLogin)
     }
 
 }

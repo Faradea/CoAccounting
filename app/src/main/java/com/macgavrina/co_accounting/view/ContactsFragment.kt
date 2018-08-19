@@ -34,6 +34,10 @@ class ContactsFragment: Fragment(), ContactsContract.View {
         super.onActivityCreated(savedInstanceState)
 
         contacts_fragment_progress_bar.visibility = View.INVISIBLE
+
+        contacts_fragment_add_fab.setOnClickListener { view ->
+            presenter.addContactButtonIsPressed()
+        }
     }
 
     override fun onResume() {

@@ -21,22 +21,6 @@ import kotlinx.android.synthetic.main.register_fragment.*
 class RegisterFragment() : Fragment(), RegisterContract.View {
 
     lateinit var presenter: RegisterPresenter
-    lateinit var onRegisterEventsListener: OnRegisterEventsListener
-
-    interface OnRegisterEventsListener {
-        fun registrationIsSuccessful(title: String, text: String)
-        fun finishSelf(enteredLogin: String?)
-    }
-
-    override fun onAttach(context: Context?) {
-        super.onAttach(context)
-        try {
-            onRegisterEventsListener = activity as OnRegisterEventsListener
-        } catch (e: ClassCastException) {
-            throw ClassCastException(activity.toString() + " must implement OnRegisterEventsListener")
-        }
-
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -118,10 +102,6 @@ class RegisterFragment() : Fragment(), RegisterContract.View {
         presenter.detachView()
     }
 
-    override fun finishSelf(enteredLogin: String?) {
-        onRegisterEventsListener.finishSelf(enteredLogin)
-    }
-
     override fun hideKeyboard() {
         val inputMethodManager: InputMethodManager = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.hideSoftInputFromWindow(view?.windowToken, 0)
@@ -141,10 +121,6 @@ class RegisterFragment() : Fragment(), RegisterContract.View {
 
     override fun getPassFromEditText(): String {
         return register_fragment_pass_edit_text.text.toString()
-    }
-
-    override fun displayDialog(title:String, text: String) {
-        onRegisterEventsListener.registrationIsSuccessful(title, text)
     }
 
     override fun setRegisterButtonEnabled(isNextButonEnabled: Boolean) {

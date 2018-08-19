@@ -10,8 +10,6 @@ interface RegisterContract {
 
         fun getPassFromEditText(): String
 
-        fun displayDialog(title: String, text:String)
-
         fun showProgress()
 
         fun hideProgress()
@@ -19,8 +17,6 @@ interface RegisterContract {
         fun displayToast(text: String)
 
         fun setRegisterButtonEnabled(isNextButonEnabled: Boolean)
-
-        fun finishSelf(enteredLogin: String?)
 
     }
 

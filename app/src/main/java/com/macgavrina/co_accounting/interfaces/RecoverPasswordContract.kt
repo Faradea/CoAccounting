@@ -8,8 +8,6 @@ interface RecoverPasswordContract {
 
         fun getEmailFromEditText(): String
 
-        fun displayDialog(title: String, text:String)
-
         fun showProgress()
 
         fun hideProgress()

@@ -1,8 +1,10 @@
 package com.macgavrina.co_accounting.presenters
 
+import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.interfaces.ProfileContract
 import com.macgavrina.co_accounting.model.User
 import com.macgavrina.co_accounting.providers.UserProvider
+import com.macgavrina.co_accounting.rxjava.Events
 
 class ProfilePresenter: BasePresenter<ProfileContract.View>(), ProfileContract.Presenter, UserProvider.LoadUserCallback {
 
@@ -19,7 +21,7 @@ class ProfilePresenter: BasePresenter<ProfileContract.View>(), ProfileContract.P
 
     override fun logoutButtonIsPressed() {
         UserProvider().clearUserData()
-        getView()?.finishSelf()
+        MainApplication.bus.send(Events.LogoutFinished())
     }
 
 }
