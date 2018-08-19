@@ -31,4 +31,8 @@ object Events {
         val myEnteredLogin = enteredLogin
     }
 
+    class AddContact{}
+
+    class ContactIsAdded{}
+
 }

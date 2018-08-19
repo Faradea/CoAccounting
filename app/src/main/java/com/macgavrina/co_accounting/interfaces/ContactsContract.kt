@@ -1,7 +1,7 @@
 package com.macgavrina.co_accounting.interfaces
 
-import com.macgavrina.co_accounting.model.Contact
 import com.macgavrina.co_accounting.presenters.LoginPresenter
+import com.macgavrina.co_accounting.room.Contact
 
 interface ContactsContract {
 
@@ -16,8 +16,6 @@ interface ContactsContract {
         fun showProgress()
 
         fun hideProgress()
-
-        fun finishSelf()
     }
 
     interface Presenter:BasePresenterContract<View> {

@@ -11,8 +11,9 @@ import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.adapters.ContactsRecyclerViewAdapter
 import com.macgavrina.co_accounting.interfaces.ContactsContract
-import com.macgavrina.co_accounting.model.Contact
 import com.macgavrina.co_accounting.presenters.ContactsPresenter
+import com.macgavrina.co_accounting.providers.ContactsProvider
+import com.macgavrina.co_accounting.room.Contact
 import kotlinx.android.synthetic.main.contacts_fragment.*
 
 class ContactsFragment: Fragment(), ContactsContract.View {
@@ -32,8 +33,6 @@ class ContactsFragment: Fragment(), ContactsContract.View {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-
-        contacts_fragment_progress_bar.visibility = View.INVISIBLE
 
         contacts_fragment_add_fab.setOnClickListener { view ->
             presenter.addContactButtonIsPressed()
@@ -69,15 +68,11 @@ class ContactsFragment: Fragment(), ContactsContract.View {
     }
 
     override fun showProgress() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        contacts_fragment_progress_bar.visibility = View.VISIBLE
     }
 
     override fun hideProgress() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun finishSelf() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        contacts_fragment_progress_bar.visibility = View.INVISIBLE
     }
 
 }

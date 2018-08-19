@@ -8,7 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.logging.Log
-import com.macgavrina.co_accounting.model.Contact
+import com.macgavrina.co_accounting.room.Contact
 import kotlinx.android.synthetic.main.contacts_list_item.view.*
 
 class ContactsRecyclerViewAdapter (contactsList: List<Contact>?) :
@@ -46,7 +46,7 @@ class ContactsRecyclerViewAdapter (contactsList: List<Contact>?) :
         Log.d("Bind item with position = ${position}")
         val item = mItems?.get(position)
         holder.friendAliasTV.text = item?.alias
-        holder.friendEmailTV.text = item?.friendEmail
+        holder.friendEmailTV.text = item?.email
     }
 
     // Return the size of your dataset (invoked by the layout manager)

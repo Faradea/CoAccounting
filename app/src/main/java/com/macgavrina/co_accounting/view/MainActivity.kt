@@ -119,6 +119,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun displayContactsFragment() {
+        clearStack()
         val supportFragmentManager = supportFragmentManager
         supportFragmentManager.beginTransaction()
                 .replace(R.id.content_main_constraint_layout, ContactsFragment())
@@ -214,6 +215,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val supportFragmentManager = supportFragmentManager
         supportFragmentManager.beginTransaction()
                 .replace(R.id.content_main_constraint_layout, MainFragment())
+                .commit()
+    }
+
+    override fun displayAddContactFragment() {
+        val supportFragmentManager = supportFragmentManager
+        supportFragmentManager.beginTransaction()
+                .replace(R.id.content_main_constraint_layout, AddContactFragment())
+                .addToBackStack("AddContactFragment")
                 .commit()
     }
 
