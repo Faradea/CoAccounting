@@ -16,7 +16,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/profile_fragment_progress_bar"
-        app:srcCompat="@mipmap/ic_launcher_round" />
+        app:srcCompat="@mipmap/ic_launcher_round"
+        tools:ignore="ContentDescription" />
 
     <TextView
         android:id="@+id/profile_fragment_login_tv"

@@ -28,6 +28,8 @@ interface MainActivityContract {
 
         fun hideProgress()
 
+        fun displayContactsFragment()
+
     }
 
     interface Presenter:BasePresenterContract<View> {
@@ -43,6 +45,8 @@ interface MainActivityContract {
         fun registrationIsSuccessfull(title: String, text: String)
 
         fun gotoLoginEvent(enteredLogin: String?)
+
+        fun gotoContactsEvent()
 
     }
 

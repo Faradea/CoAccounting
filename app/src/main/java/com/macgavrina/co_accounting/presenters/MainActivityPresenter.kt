@@ -9,6 +9,9 @@ import com.macgavrina.co_accounting.providers.UserProvider
 
 
 class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActivityContract.Presenter, UserProvider.LoadUserCallback, UserProvider.CheckIfUserTokenExistCallback {
+    override fun gotoContactsEvent() {
+        getView()?.displayContactsFragment()
+    }
 
     override fun passRecoverIsSuccessfull(title: String, text: String, enteredLogin: String?) {
         getView()?.displayRecoverPassSuccessDialog(title, text, enteredLogin)

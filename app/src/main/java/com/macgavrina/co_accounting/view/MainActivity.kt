@@ -1,6 +1,7 @@
 package com.macgavrina.co_accounting.view
 
 import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
@@ -15,15 +16,19 @@ import com.macgavrina.co_accounting.presenters.LoginPresenter
 import com.macgavrina.co_accounting.presenters.MainActivityPresenter
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
+import kotlinx.android.synthetic.main.login_fragment.*
 import kotlinx.android.synthetic.main.nav_header_main.view.*
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, MainActivityContract.View, LoginFragment.OnLoginFinishedListener, ProfileFragment.OnLogoutFinishedListener, RecoverPasswordFragment.OnRecoverPasswordEventsListener, RegisterFragment.OnRegisterEventsListener {
 
+    //ToDo Продумать более граммотное взаимодействие активити и фрагментов
+
     lateinit var presenter: MainActivityPresenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
@@ -68,6 +73,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         when (item.itemId) {
             R.id.nav_camera -> {
                 // Handle the camera action
+            }
+            R.id.nav_contacts -> {
+                presenter.gotoContactsEvent()
             }
             R.id.nav_gallery -> {
 
@@ -125,6 +133,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         supportFragmentManager.beginTransaction()
                 .replace(R.id.content_main_constraint_layout, ProfileFragment())
                 .addToBackStack("ProfileFragment")
+                .commit()
+    }
+
+    override fun displayContactsFragment() {
+        val supportFragmentManager = supportFragmentManager
+        supportFragmentManager.beginTransaction()
+                .replace(R.id.content_main_constraint_layout, ContactsFragment())
+                .addToBackStack("ContactsFragment")
                 .commit()
     }
 
