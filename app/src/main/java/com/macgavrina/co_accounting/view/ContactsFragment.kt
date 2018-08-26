@@ -5,16 +5,21 @@ import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.adapters.ContactsRecyclerViewAdapter
 import com.macgavrina.co_accounting.interfaces.ContactsContract
+import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.presenters.ContactsPresenter
 import com.macgavrina.co_accounting.providers.ContactsProvider
 import com.macgavrina.co_accounting.room.Contact
 import kotlinx.android.synthetic.main.contacts_fragment.*
+import android.widget.AdapterView.OnItemClickListener
+
+
 
 class ContactsFragment: Fragment(), ContactsContract.View {
 
@@ -45,7 +50,6 @@ class ContactsFragment: Fragment(), ContactsContract.View {
         viewManager = LinearLayoutManager(MainApplication.applicationContext())
         contacts_fragment_recyclerview.adapter = ContactsRecyclerViewAdapter(null)
         contacts_fragment_recyclerview.layoutManager = viewManager
-
         presenter.viewIsReady()
     }
 
@@ -60,7 +64,6 @@ class ContactsFragment: Fragment(), ContactsContract.View {
 
     override fun initializeList(contactsList: List<Contact>) {
         contacts_fragment_recyclerview.adapter = ContactsRecyclerViewAdapter(contactsList)
-        contacts_fragment_recyclerview.layoutManager = viewManager
     }
 
     override fun updateList() {

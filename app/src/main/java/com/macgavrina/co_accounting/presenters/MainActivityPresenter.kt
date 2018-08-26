@@ -50,6 +50,9 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
                         is Events.ContactIsAdded -> {
                             getView()?.displayContactsFragment()
                         }
+                        is Events.OnClickContactList -> {
+                            getView()?.displayEditContactFragment(`object`.myUid)
+                        }
                     }
                 }
     }

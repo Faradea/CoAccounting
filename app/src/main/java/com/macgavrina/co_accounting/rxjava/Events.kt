@@ -35,4 +35,8 @@ object Events {
 
     class ContactIsAdded{}
 
+    class OnClickContactList(uid: String?) {
+        val myUid: String? = uid
+    }
+
 }

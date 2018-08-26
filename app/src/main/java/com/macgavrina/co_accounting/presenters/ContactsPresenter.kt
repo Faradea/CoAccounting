@@ -48,7 +48,7 @@ class ContactsPresenter: BasePresenter<ContactsContract.View>(), ContactsContrac
     }
 
     override fun contactItemIsSelected(selectedContactId: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        Log.d("selectedContactId = ${selectedContactId}")
     }
 
 }

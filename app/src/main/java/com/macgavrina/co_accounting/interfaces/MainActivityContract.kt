@@ -32,6 +32,8 @@ interface MainActivityContract {
 
         fun displayAddContactFragment()
 
+        fun displayEditContactFragment(uid: String?)
+
     }
 
     interface Presenter:BasePresenterContract<View> {

@@ -10,21 +10,34 @@ import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.Contact
 import kotlinx.android.synthetic.main.contacts_list_item.view.*
+import android.widget.TextView
+import com.macgavrina.co_accounting.MainApplication
+import com.macgavrina.co_accounting.rxjava.Events
+
 
 class ContactsRecyclerViewAdapter (contactsList: List<Contact>?) :
         RecyclerView.Adapter<ContactsRecyclerViewAdapter.ViewHolder>() {
 
     private val mItems: List<Contact>? = contactsList
 
-    // Provide a reference to the views for each data item
-    // Complex data items may need more than one view per item, and
-    // you provide access to all the views for a data item in a view holder.
-    // Each data item is just a string in this case that is shown in a TextView.
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    open class ViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
 
         val friendAliasTV = view.contacts_list_item_alias_tv
         val friendEmailTV = view.contacts_list_item_email_tv
+        private var mItem: Contact? = null
 
+        init {
+            view.setOnClickListener(this)
+        }
+
+        fun setItem(item: Contact) {
+            mItem = item
+        }
+
+        override fun onClick(view: View) {
+            Log.d( "onClick ${mItem?.uid}")
+            MainApplication.bus.send(Events.OnClickContactList(mItem?.uid.toString()))
+        }
     }
 
     // Create new views (invoked by the layout manager)
@@ -34,8 +47,10 @@ class ContactsRecyclerViewAdapter (contactsList: List<Contact>?) :
         // create a new view
         val view = layoutInflater.inflate(R.layout.contacts_list_item, parent, false)
         // set the view's size, margins, paddings and layout parameters
+
         return ViewHolder(view)
     }
+
 
     // Replace the contents of a view (invoked by the layout manager)
     @SuppressLint("ResourceAsColor")
@@ -47,6 +62,7 @@ class ContactsRecyclerViewAdapter (contactsList: List<Contact>?) :
         val item = mItems?.get(position)
         holder.friendAliasTV.text = item?.alias
         holder.friendEmailTV.text = item?.email
+        holder.setItem(mItems?.get(position)!!)
     }
 
     // Return the size of your dataset (invoked by the layout manager)
@@ -57,4 +73,7 @@ class ContactsRecyclerViewAdapter (contactsList: List<Contact>?) :
         return -1
     }
 
+    interface OnItemClickListener {
+        fun onItemClick(item: Contact)
+    }
 }

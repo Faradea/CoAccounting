@@ -10,7 +10,7 @@ interface ContactDao {
     val getAll: Maybe<List<Contact>>
 
     @Query("SELECT * FROM contact WHERE uid IN (:contactId)")
-    fun loadContactByIds(contactId: String): List<Contact>
+    fun loadContactByIds(contactId: String): Maybe<Contact>
 
     @Insert
     fun insertContact(contact: Contact)

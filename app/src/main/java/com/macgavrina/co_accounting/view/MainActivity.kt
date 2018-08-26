@@ -140,6 +140,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .commit()
     }
 
+    override fun displayEditContactFragment(uid: String?) {
+        val supportFragmentManager = supportFragmentManager
+        val editContactFragment:EditContactFragment = EditContactFragment()
+        val bundle:Bundle = Bundle()
+        bundle.putString(EditContactFragment.CONTACT_UID_KEY, uid)
+        editContactFragment.arguments = bundle
+        supportFragmentManager.beginTransaction()
+                .replace(R.id.content_main_constraint_layout, editContactFragment)
+                .addToBackStack("EditContactFragment")
+                .commit()
+    }
+
     override fun showProgress() {
         val supportFragmentManager = supportFragmentManager
         supportFragmentManager.beginTransaction()
