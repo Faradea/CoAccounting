@@ -39,4 +39,6 @@ object Events {
         val myUid: String? = uid
     }
 
+    class ContactEditingIsFinished{}
+
 }

@@ -8,6 +8,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
+import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.interfaces.AddContactContract
 import com.macgavrina.co_accounting.presenters.AddContactPresenter
@@ -18,6 +20,9 @@ import kotlinx.android.synthetic.main.add_contact_fragment.view.*
 import kotlinx.android.synthetic.main.recover_password_fragment.*
 
 class AddContactFragment: Fragment(), AddContactContract.View {
+    override fun displayToast(text: String) {
+        Toast.makeText(MainApplication.applicationContext(), text, Toast.LENGTH_SHORT).show()
+    }
 
     lateinit var presenter: AddContactPresenter
 

@@ -56,6 +56,10 @@ class EditContactFragment: Fragment(), EditContactContract.View {
         edit_contact_fragment_save_button.setOnClickListener{ view ->
             presenter.saveButtonIsPressed()
         }
+
+        edit_contact_fragment_delete_button.setOnClickListener { view ->
+            presenter.deleteButtonIsPressed()
+        }
     }
 
     override fun onResume() {
@@ -63,7 +67,6 @@ class EditContactFragment: Fragment(), EditContactContract.View {
 
         val aliasObservable: Observable<String> = getTextWatcherObservable(edit_contact_fragment_alias_et)
         aliasObservable.subscribe {it ->
-            //ToDo делать кнопку Save активной только после изменения alias
             presenter.aliasIsChanged()
 
         }

@@ -4,24 +4,116 @@ import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.Contact
 import io.reactivex.Completable
-import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Consumer
-import io.reactivex.observers.DisposableMaybeObserver
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.CompletableObserver
+import io.reactivex.functions.Action
+import io.reactivex.observers.DisposableMaybeObserver
 
 
 class ContactsProvider() {
 
-    fun addContact(contact: Contact) {
-        Observable.just(MainApplication.db)
+    //ToDo сделать singleton
+
+    fun getAll(databaseCallback: DatabaseCallback) {
+        MainApplication.db.contactDAO().getAll
                 .subscribeOn(Schedulers.io())
-                .subscribe { db -> MainApplication.db.contactDAO().insertContact(contact) }
-        Log.d("contact is saved in DB")
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : DisposableMaybeObserver<List<com.macgavrina.co_accounting.room.Contact>>() {
+                    override fun onSuccess(t: List<com.macgavrina.co_accounting.room.Contact>) {
+                        databaseCallback.onContactsListLoaded(t)
+                    }
+
+                    override fun onError(e: Throwable) {
+                        Log.d(e.toString())
+                    }
+
+                    override fun onComplete() {
+                        Log.d("nothing")
+                    }
+                })
+    }
+
+    fun getContactById(databaseCallback: DatabaseCallback, contactUid:String) {
+        MainApplication.db.contactDAO().loadContactByIds(contactUid)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : DisposableMaybeObserver<Contact>() {
+                    override fun onSuccess(t: com.macgavrina.co_accounting.room.Contact) {
+                        databaseCallback.onContactLoaded(t)
+                    }
+
+                    override fun onError(e: Throwable) {
+                        Log.d(e.toString())
+                    }
+
+                    override fun onComplete() {
+                        Log.d("nothing")
+                    }
+                })
     }
 
 
+    fun addContact(databaseCallback: DatabaseCallback, contact: Contact) {
+        Completable.fromAction {
+            MainApplication.db.contactDAO().insertContact(contact)
+        }.observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io()).subscribe(object : CompletableObserver {
+                    override fun onSubscribe(d: Disposable) {}
 
+                    override fun onComplete() {
+                        databaseCallback.onContactAdded()
+                    }
+
+                    override fun onError(e: Throwable) {
+                        databaseCallback.onDatabaseError()
+                    }
+                })
+    }
+
+
+    fun updateContact(databaseCallback: DatabaseCallback, contact: Contact) {
+        Completable.fromAction(object : Action {
+            @Throws(Exception::class)
+            override fun run() {
+                MainApplication.db.contactDAO().updateContact(contact)
+            }
+        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(object : CompletableObserver {
+            override fun onSubscribe(d: Disposable) {
+
+            }
+
+            override fun onComplete() {
+                databaseCallback.onContactUpdated()
+            }
+
+            override fun onError(e: Throwable) {
+                databaseCallback.onDatabaseError()
+            }
+        })
+    }
+
+    fun deleteContact(databaseCallback: DatabaseCallback, contact:Contact) {
+        Completable.fromAction {
+            MainApplication.db.contactDAO().deleteContact(contact) }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : CompletableObserver {
+            override fun onSubscribe(d: Disposable) {
+
+            }
+
+            override fun onComplete() {
+                databaseCallback.onContactDeleted()
+            }
+
+            override fun onError(e: Throwable) {
+                databaseCallback.onDatabaseError()
+            }
+        })
+    }
 /*
     fun addContact(contact:Contact) : Completable = Completable.fromCallable {
         MainApplication.db.contactDAO().insertContact(contact)
@@ -51,4 +143,29 @@ class ContactsProvider() {
         fun onLoad(user: User)
     }
     */
+
+    interface DatabaseCallback {
+
+        fun onContactUpdated() {
+            Log.d("contact is updated")
+        }
+
+        fun onDatabaseError()
+
+        fun onContactDeleted() {
+            Log.d("contact is deleted")
+        }
+
+        fun onContactAdded() {
+            Log.d("contact id added")
+        }
+
+        fun onContactLoaded(contact: Contact) {
+            Log.d("contact is loaded")
+        }
+
+        fun onContactsListLoaded(contactsList: List<Contact>) {
+            Log.d("contacts list is loaded")
+        }
+    }
 }

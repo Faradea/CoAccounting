@@ -16,6 +16,8 @@ interface ContactsContract {
         fun showProgress()
 
         fun hideProgress()
+
+        fun displayToast(text:String)
     }
 
     interface Presenter:BasePresenterContract<View> {

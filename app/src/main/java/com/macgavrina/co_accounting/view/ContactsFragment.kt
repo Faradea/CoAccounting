@@ -18,7 +18,7 @@ import com.macgavrina.co_accounting.providers.ContactsProvider
 import com.macgavrina.co_accounting.room.Contact
 import kotlinx.android.synthetic.main.contacts_fragment.*
 import android.widget.AdapterView.OnItemClickListener
-
+import android.widget.Toast
 
 
 class ContactsFragment: Fragment(), ContactsContract.View {
@@ -56,6 +56,10 @@ class ContactsFragment: Fragment(), ContactsContract.View {
     override fun onDestroyView() {
         super.onDestroyView()
         presenter.detachView()
+    }
+
+    override fun displayToast(text: String) {
+        Toast.makeText(MainApplication.applicationContext(), text, Toast.LENGTH_SHORT).show()
     }
 
     override fun displayRevertChangesAction() {

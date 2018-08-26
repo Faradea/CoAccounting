@@ -4,35 +4,29 @@ import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.interfaces.ContactsContract
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.model.Contact
+import com.macgavrina.co_accounting.providers.ContactsProvider
 import com.macgavrina.co_accounting.rxjava.Events
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.observers.DisposableMaybeObserver
 import io.reactivex.schedulers.Schedulers
 
-class ContactsPresenter: BasePresenter<ContactsContract.View>(), ContactsContract.Presenter {
+class ContactsPresenter: BasePresenter<ContactsContract.View>(), ContactsContract.Presenter, ContactsProvider.DatabaseCallback {
+
+    override fun onContactsListLoaded(contactsList: List<com.macgavrina.co_accounting.room.Contact>) {
+        getView()?.hideProgress()
+        getView()?.initializeList(contactsList)
+    }
+    override fun onDatabaseError() {
+        getView()?.displayToast("Database error")
+    }
+
     override fun viewIsReady() {
 
         Log.d("view is ready")
 
         getView()?.showProgress()
 
-        //ToDo перенести в ContactProvider
-        MainApplication.db.contactDAO().getAll
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(object : DisposableMaybeObserver<List<com.macgavrina.co_accounting.room.Contact>>() {
-                    override fun onSuccess(t: List<com.macgavrina.co_accounting.room.Contact>) {
-                        getView()?.initializeList(t)
-                    }
-
-                        override fun onError(e: Throwable) {
-                            Log.d(e.toString())
-                        }
-
-                        override fun onComplete() {
-                            Log.d("nothing")
-                        }
-                    })
+        ContactsProvider().getAll(this)
 
         getView()?.hideProgress()
 
@@ -44,7 +38,7 @@ class ContactsPresenter: BasePresenter<ContactsContract.View>(), ContactsContrac
     }
 
     override fun deleteContactsButtonIsPressed(selectedContactsIds: List<Int>) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        //ToDo Сделать массовое удаление контактов через actionMode
     }
 
     override fun contactItemIsSelected(selectedContactId: Int) {

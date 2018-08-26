@@ -24,6 +24,8 @@ interface EditContactContract {
 
         fun saveButtonIsPressed()
 
+        fun deleteButtonIsPressed()
+
         fun aliasIsChanged()
 
         fun viewIsReady(uid: String)

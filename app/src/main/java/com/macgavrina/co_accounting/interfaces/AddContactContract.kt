@@ -15,6 +15,8 @@ interface AddContactContract {
         fun setAddButtonEnabled(areEnabled: Boolean)
 
         fun hideKeyboard()
+
+        fun displayToast(text: String)
     }
 
     interface Presenter:BasePresenterContract<View> {

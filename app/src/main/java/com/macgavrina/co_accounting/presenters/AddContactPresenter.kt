@@ -6,7 +6,18 @@ import com.macgavrina.co_accounting.providers.ContactsProvider
 import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.rxjava.Events
 
-class AddContactPresenter: BasePresenter<AddContactContract.View>(), AddContactContract.Presenter {
+class AddContactPresenter: BasePresenter<AddContactContract.View>(), AddContactContract.Presenter, ContactsProvider.DatabaseCallback {
+
+    override fun onDatabaseError() {
+        getView()?.displayToast("Database error")
+        getView()?.hideProgress()
+    }
+
+    override fun onContactAdded() {
+        getView()?.hideProgress()
+
+        MainApplication.bus.send(Events.ContactIsAdded())
+    }
 
     var addContactButtonEnabled: Boolean = false
 
@@ -32,11 +43,6 @@ class AddContactPresenter: BasePresenter<AddContactContract.View>(), AddContactC
         contact.email = getView()?.getEmail()
         contact.alias = getView()?.getAlias()
 
-        val contactsProvider:ContactsProvider = ContactsProvider()
-        contactsProvider.addContact(contact)
-
-        getView()?.hideProgress()
-
-        MainApplication.bus.send(Events.ContactIsAdded())
+        ContactsProvider().addContact(this, contact)
     }
 }
