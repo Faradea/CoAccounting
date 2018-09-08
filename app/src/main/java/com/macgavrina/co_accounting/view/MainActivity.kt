@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         presenter = MainActivityPresenter()
         presenter.attachView(this)
 
-        account = CreateSyncAccount(this)!!
+        //account = CreateSyncAccount(this)!!
 
 /*        fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -255,33 +255,33 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    //ToDo метод дублируется здесь и в СontactsProvider
+    /*//ToDo метод дублируется здесь и в СontactsProvider
     fun CreateSyncAccount(context: Context): Account? {
         // Create the account type and default account
         val newAccount = Account(SyncService.ACCOUNT, SyncService.ACCOUNT_TYPE)
         // Get an instance of the Android account manager
         val accountManager = context.getSystemService(
                 Context.ACCOUNT_SERVICE) as AccountManager
-        /*
+        *//*
          * Add the account and account type, no password or user data
          * If successful, return the Account object, otherwise report an error.
-         */
+         *//*
         if (accountManager.addAccountExplicitly(newAccount, null, null)) {
-            /*
+            *//*
              * If you don't set android:syncable="true" in
              * in your <provider> element in the manifest,
              * then call context.setIsSyncable(account, AUTHORITY, 1)
              * here.
-             */
+             *//*
             Log.d("account is initialized")
             return newAccount
         } else {
-            /*
+            *//*
              * The account exists or some other error occurred. Log this, report it,
              * or handle it internally.
-             */
+             *//*
             Log.d("account initializing error")
             return newAccount
         }
-    }
+    }*/
 }

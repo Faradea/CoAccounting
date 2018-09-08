@@ -73,8 +73,8 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
     override fun viewIsCreated() {
         super.viewIsCreated()
         //ToDo продумать какую-то более классную логику синхронизации данных
-        ContactsProvider().syncDataUpload()
-        ContactsProvider().syncDataDownload()
+        //ContactsProvider().syncDataUpload()
+        //ContactsProvider().syncDataDownload()
     }
 
     override fun headerIsClicked() {
@@ -89,6 +89,7 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
         //Выполняется после получения callback с данными о пользователе от UserProvider.CheckIfUserTokenExistCallback
         if (user.login.length != 0) {
             getView()?.updateLoginText(user.login)
+            ContactsProvider().syncDataUpload(user.token)
         }
         else {
             getView()?.updateLoginText(MainApplication.applicationContext().getString(R.string.default_user_name))
