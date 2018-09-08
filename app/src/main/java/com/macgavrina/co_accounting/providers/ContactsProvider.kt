@@ -1,5 +1,9 @@
 package com.macgavrina.co_accounting.providers
 
+import android.accounts.Account
+import android.accounts.AccountManager
+import android.content.ContentResolver
+import android.content.Context
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.Contact
@@ -11,11 +15,16 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.CompletableObserver
 import io.reactivex.functions.Action
 import io.reactivex.observers.DisposableMaybeObserver
+import android.os.Bundle
+import com.macgavrina.co_accounting.customsync.SyncService
+import com.macgavrina.co_accounting.view.MainActivity
 
 
 class ContactsProvider() {
 
-    //ToDo сделать singleton
+    //ToDo подумать насчет ContentProvider
+
+    //ToDo сделать singleton (см. пример в SyncService)
 
     fun getAll(databaseCallback: DatabaseCallback) {
         MainApplication.db.contactDAO().getAll
@@ -65,6 +74,7 @@ class ContactsProvider() {
 
                     override fun onComplete() {
                         databaseCallback.onContactAdded()
+                        syncDataUpload()
                     }
 
                     override fun onError(e: Throwable) {
@@ -87,6 +97,7 @@ class ContactsProvider() {
 
             override fun onComplete() {
                 databaseCallback.onContactUpdated()
+                syncDataUpload()
             }
 
             override fun onError(e: Throwable) {
@@ -95,6 +106,7 @@ class ContactsProvider() {
         })
     }
 
+    //ToDo сделать удаление через update
     fun deleteContact(databaseCallback: DatabaseCallback, contact:Contact) {
         Completable.fromAction {
             MainApplication.db.contactDAO().deleteContact(contact) }
@@ -107,6 +119,7 @@ class ContactsProvider() {
 
             override fun onComplete() {
                 databaseCallback.onContactDeleted()
+                syncDataUpload()
             }
 
             override fun onError(e: Throwable) {
@@ -143,6 +156,16 @@ class ContactsProvider() {
         fun onLoad(user: User)
     }
     */
+
+    fun syncDataDownload() {
+        // Pass the settings flags by inserting them in a bundle
+        SyncService.syncData(false, true)
+    }
+
+    fun syncDataUpload() {
+        // Pass the settings flags by inserting them in a bundle
+        SyncService.syncData(true, false)
+    }
 
     interface DatabaseCallback {
 

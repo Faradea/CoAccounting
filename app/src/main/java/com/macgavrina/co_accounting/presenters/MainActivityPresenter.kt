@@ -5,6 +5,7 @@ import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.interfaces.MainActivityContract
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.model.User
+import com.macgavrina.co_accounting.providers.ContactsProvider
 import com.macgavrina.co_accounting.providers.UserProvider
 import com.macgavrina.co_accounting.rxjava.Events
 import com.macgavrina.co_accounting.rxjava.RxBus
@@ -67,6 +68,13 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
     override fun viewIsReady() {
         Log.d("MainActivity view id ready")
         UserProvider().loadUser(this)
+    }
+
+    override fun viewIsCreated() {
+        super.viewIsCreated()
+        //ToDo продумать какую-то более классную логику синхронизации данных
+        ContactsProvider().syncDataUpload()
+        ContactsProvider().syncDataDownload()
     }
 
     override fun headerIsClicked() {

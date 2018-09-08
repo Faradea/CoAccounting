@@ -6,6 +6,8 @@ interface BasePresenterContract<V : BaseViewContract> {
 
     fun viewIsReady()
 
+    fun viewIsCreated()
+
     fun detachView()
 
     fun destroy()

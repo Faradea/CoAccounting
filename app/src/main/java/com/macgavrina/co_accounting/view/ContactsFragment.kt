@@ -63,7 +63,6 @@ class ContactsFragment: Fragment(), ContactsContract.View {
     }
 
     override fun displayRevertChangesAction() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun initializeList(contactsList: List<Contact>) {
@@ -71,7 +70,6 @@ class ContactsFragment: Fragment(), ContactsContract.View {
     }
 
     override fun updateList() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun showProgress() {
