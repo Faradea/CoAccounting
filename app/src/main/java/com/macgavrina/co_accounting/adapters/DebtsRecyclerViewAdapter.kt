@@ -1,27 +1,17 @@
 package com.macgavrina.co_accounting.adapters
 
-import android.annotation.SuppressLint
 import android.support.v7.widget.RecyclerView
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import com.macgavrina.co_accounting.R
-import com.macgavrina.co_accounting.logging.Log
-import com.macgavrina.co_accounting.room.Contact
-import kotlinx.android.synthetic.main.contacts_list_item.view.*
-import com.macgavrina.co_accounting.MainApplication
-import com.macgavrina.co_accounting.rxjava.Events
 
-
-class ContactsRecyclerViewAdapter (contactsList: List<Contact>?) :
+class DebtsRecyclerViewAdapter (debtsList: List<Debt>?) :
         RecyclerView.Adapter<ContactsRecyclerViewAdapter.ViewHolder>() {
 
-    private val mItems: List<Contact>? = contactsList
+    private val mItems: List<Debt>? = debtsList
 
     open class ViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
 
         val friendAliasTV = view.contacts_list_item_alias_tv
-        val friendEmailTV = view.debts_list_item_email_tv
+        val friendEmailTV = view.contacts_list_item_email_tv
         private var mItem: Contact? = null
 
         init {

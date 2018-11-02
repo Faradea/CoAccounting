@@ -7,36 +7,33 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
-import com.macgavrina.co_accounting.adapters.ContactsRecyclerViewAdapter
-import com.macgavrina.co_accounting.interfaces.ContactsContract
-import com.macgavrina.co_accounting.presenters.ContactsPresenter
-import com.macgavrina.co_accounting.room.Contact
-import kotlinx.android.synthetic.main.contacts_fragment.*
-import android.widget.Toast
+import com.macgavrina.co_accounting.interfaces.DebtsContract
+import com.macgavrina.co_accounting.presenters.DebtsPresenter
+import kotlinx.android.synthetic.main.debts_fragment.*
 
+class DebtsFragment: Fragment(), DebtsContract.View {
 
-class ContactsFragment: Fragment(), ContactsContract.View {
-
-    lateinit var presenter: ContactsPresenter
+    lateinit var presenter: DebtsPresenter
     private lateinit var viewManager: RecyclerView.LayoutManager
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 
-        presenter = ContactsPresenter()
+        presenter = DebtsPresenter()
         presenter.attachView(this)
 
-        return inflater.inflate(R.layout.contacts_fragment, container,
+        return inflater.inflate(R.layout.debts_fragment, container,
                 false)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        contacts_fragment_add_fab.setOnClickListener { view ->
-            presenter.addContactButtonIsPressed()
+        debts_fragment_add_fab.setOnClickListener { view ->
+            presenter.addDebtButtonIsPressed()
         }
     }
 
@@ -44,8 +41,8 @@ class ContactsFragment: Fragment(), ContactsContract.View {
         super.onResume()
 
         viewManager = LinearLayoutManager(MainApplication.applicationContext())
-        contacts_fragment_recyclerview.adapter = ContactsRecyclerViewAdapter(null)
-        contacts_fragment_recyclerview.layoutManager = viewManager
+        debts_fragment_recyclerview.adapter = DebtsRecyclerViewAdapter(null)
+        debts_fragment_recyclerview.layoutManager = viewManager
         presenter.viewIsReady()
     }
 
@@ -61,8 +58,8 @@ class ContactsFragment: Fragment(), ContactsContract.View {
     override fun displayRevertChangesAction() {
     }
 
-    override fun initializeList(contactsList: List<Contact>) {
-        contacts_fragment_recyclerview.adapter = ContactsRecyclerViewAdapter(contactsList)
+    override fun initializeList(debtsList: List<Debt>) {
+        debts_fragment_recyclerview.adapter = DebtsRecyclerViewAdapter(debtsList)
     }
 
     override fun updateList() {

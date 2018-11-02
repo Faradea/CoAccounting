@@ -34,6 +34,8 @@ interface MainActivityContract {
 
         fun displayEditContactFragment(uid: String?)
 
+        fun displayDebtsFragment()
+
     }
 
     interface Presenter:BasePresenterContract<View> {
@@ -41,6 +43,8 @@ interface MainActivityContract {
         fun headerIsClicked()
 
         fun gotoContactsEvent()
+
+        fun gotoDebts()
 
     }
 

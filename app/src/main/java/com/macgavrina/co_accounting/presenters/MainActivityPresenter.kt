@@ -65,6 +65,10 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
         getView()?.displayContactsFragment()
     }
 
+    override fun gotoDebts() {
+        getView()?.displayDebtsFragment()
+    }
+
     override fun viewIsReady() {
         Log.d("MainActivity view id ready")
         UserProvider().loadUser(this)

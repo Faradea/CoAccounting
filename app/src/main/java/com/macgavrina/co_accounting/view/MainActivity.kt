@@ -82,6 +82,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.nav_contacts -> {
                 presenter.gotoContactsEvent()
             }
+            R.id.nav_debts -> {
+                presenter.gotoDebts()
+            }
             R.id.nav_gallery -> {
 
             }
@@ -158,6 +161,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .replace(R.id.content_main_constraint_layout, editContactFragment)
                 .addToBackStack("EditContactFragment")
                 .commit()
+    }
+
+    override fun displayDebtsFragment() {
+        Log.d("display debts fragment")
     }
 
     override fun showProgress() {
