@@ -3,14 +3,16 @@ package com.macgavrina.co_accounting.presenters
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.interfaces.DebtsContract
 import com.macgavrina.co_accounting.logging.Log
+import com.macgavrina.co_accounting.providers.DebtsProvider
 import com.macgavrina.co_accounting.rxjava.Events
 
 class DebtsPresenter: BasePresenter<DebtsContract.View>(), DebtsContract.Presenter, DebtsProvider.DatabaseCallback {
 
-    override fun onContactsListLoaded(contactsList: List<com.macgavrina.co_accounting.room.Contact>) {
+    override fun onDebtsListLoaded(debtsList: List<com.macgavrina.co_accounting.room.Debt>) {
         getView()?.hideProgress()
-        getView()?.initializeList(contactsList)
+        getView()?.initializeList(debtsList)
     }
+
     override fun onDatabaseError() {
         getView()?.displayToast("Database error")
     }

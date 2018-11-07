@@ -1,39 +1,52 @@
 package com.macgavrina.co_accounting.adapters
 
+import android.annotation.SuppressLint
 import android.support.v7.widget.RecyclerView
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import com.macgavrina.co_accounting.MainApplication
+import com.macgavrina.co_accounting.R
+import com.macgavrina.co_accounting.logging.Log
+import com.macgavrina.co_accounting.room.Debt
+import com.macgavrina.co_accounting.rxjava.Events
+import kotlinx.android.synthetic.main.debts_list_item.view.*
 
 class DebtsRecyclerViewAdapter (debtsList: List<Debt>?) :
-        RecyclerView.Adapter<ContactsRecyclerViewAdapter.ViewHolder>() {
+        RecyclerView.Adapter<DebtsRecyclerViewAdapter.ViewHolder>() {
 
     private val mItems: List<Debt>? = debtsList
 
     open class ViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
 
-        val friendAliasTV = view.contacts_list_item_alias_tv
-        val friendEmailTV = view.contacts_list_item_email_tv
-        private var mItem: Contact? = null
+        val sender = view.debts_list_item_sender_tv
+        val receiver = view.debts_list_item_receiver_tv
+        val amount = view.debts_list_item_amount_tv
+        val datetime = view.debts_list_item_datetime_tv
+        val comment = view.debts_list_item_comment_tv
+
+        private var mItem: Debt? = null
 
         init {
             view.setOnClickListener(this)
         }
 
-        fun setItem(item: Contact) {
+        fun setItem(item: Debt) {
             mItem = item
         }
 
         override fun onClick(view: View) {
             Log.d( "onClick ${mItem?.uid}")
-            MainApplication.bus.send(Events.OnClickContactList(mItem?.uid.toString()))
+            MainApplication.bus.send(Events.OnClickDebtItemList(mItem?.uid.toString()))
         }
     }
 
     // Create new views (invoked by the layout manager)
     override fun onCreateViewHolder(parent: ViewGroup,
-                                    viewType: Int): ContactsRecyclerViewAdapter.ViewHolder {
+                                    viewType: Int): DebtsRecyclerViewAdapter.ViewHolder {
         val layoutInflater: LayoutInflater = LayoutInflater.from(parent.context)
         // create a new view
-        val view = layoutInflater.inflate(R.layout.contacts_list_item, parent, false)
+        val view = layoutInflater.inflate(R.layout.debts_list_item, parent, false)
         // set the view's size, margins, paddings and layout parameters
 
         return ViewHolder(view)
@@ -48,8 +61,11 @@ class DebtsRecyclerViewAdapter (debtsList: List<Debt>?) :
 
         Log.d("Bind item with position = ${position}")
         val item = mItems?.get(position)
-        holder.friendAliasTV.text = item?.alias
-        holder.friendEmailTV.text = item?.email
+        holder.sender.text = item?.sender
+        holder.receiver.text = item?.receiver
+        holder.amount.text = item?.amount
+        holder.datetime.text = item?.datetime
+        holder.comment.text = item?.comment
         holder.setItem(mItems?.get(position)!!)
     }
 
@@ -62,6 +78,6 @@ class DebtsRecyclerViewAdapter (debtsList: List<Debt>?) :
     }
 
     interface OnItemClickListener {
-        fun onItemClick(item: Contact)
+        fun onItemClick(item: Debt)
     }
 }

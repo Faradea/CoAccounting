@@ -41,4 +41,10 @@ object Events {
 
     class ContactEditingIsFinished{}
 
+    class OnClickDebtItemList(uid: String?) {
+        val myUid = uid
+    }
+
+    class AddDebt
+
 }

@@ -165,6 +165,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun displayDebtsFragment() {
         Log.d("display debts fragment")
+        clearStack()
+        val supportFragmentManager = supportFragmentManager
+        supportFragmentManager.beginTransaction()
+                .replace(R.id.content_main_constraint_layout, DebtsFragment())
+                .addToBackStack("DebtsFragment")
+                .commit()
     }
 
     override fun showProgress() {
@@ -251,6 +257,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .replace(R.id.content_main_constraint_layout, AddContactFragment())
                 .addToBackStack("AddContactFragment")
                 .commit()
+    }
+
+    override fun displayAddDebtFragment() {
+        Log.d("display add debt fragment")
     }
 
     private fun clearStack() {

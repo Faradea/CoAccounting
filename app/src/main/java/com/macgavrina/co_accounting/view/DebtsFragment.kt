@@ -10,8 +10,10 @@ import android.view.ViewGroup
 import android.widget.Toast
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
+import com.macgavrina.co_accounting.adapters.DebtsRecyclerViewAdapter
 import com.macgavrina.co_accounting.interfaces.DebtsContract
 import com.macgavrina.co_accounting.presenters.DebtsPresenter
+import com.macgavrina.co_accounting.room.Debt
 import kotlinx.android.synthetic.main.debts_fragment.*
 
 class DebtsFragment: Fragment(), DebtsContract.View {

@@ -5,7 +5,7 @@ import io.reactivex.Flowable
 import io.reactivex.Maybe
 
 @Dao
-interface ContactDao {
+interface ContactDAO {
     @get:Query("SELECT * FROM contact")
     val getAll: Maybe<List<Contact>>
 

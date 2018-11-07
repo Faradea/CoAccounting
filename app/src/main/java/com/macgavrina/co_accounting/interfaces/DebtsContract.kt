@@ -1,5 +1,7 @@
 package com.macgavrina.co_accounting.interfaces
 
+import com.macgavrina.co_accounting.room.Debt
+
 interface DebtsContract {
 
     interface View:BaseViewContract {

@@ -21,7 +21,7 @@ class ContactsRecyclerViewAdapter (contactsList: List<Contact>?) :
     open class ViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
 
         val friendAliasTV = view.contacts_list_item_alias_tv
-        val friendEmailTV = view.debts_list_item_email_tv
+        val friendEmailTV = view.debts_list_item_sender_tv
         private var mItem: Contact? = null
 
         init {

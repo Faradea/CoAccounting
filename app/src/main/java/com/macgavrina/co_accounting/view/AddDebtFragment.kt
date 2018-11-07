@@ -10,33 +10,30 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
-import com.macgavrina.co_accounting.interfaces.AddContactContract
-import com.macgavrina.co_accounting.presenters.AddContactPresenter
-import com.macgavrina.co_accounting.rxjava.LoginInputObserver
-import io.reactivex.Observable
-import kotlinx.android.synthetic.main.add_contact_fragment.*
+import kotlinx.android.synthetic.main.add_debt_fragment.*
 
-class AddContactFragment: Fragment(), AddContactContract.View {
+
+class AddDebtFragment: Fragment(), AddDebtContract.View {
     override fun displayToast(text: String) {
         Toast.makeText(MainApplication.applicationContext(), text, Toast.LENGTH_SHORT).show()
     }
 
-    lateinit var presenter: AddContactPresenter
+    lateinit var presenter: AddDebtPresenter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 
-        presenter = AddContactPresenter()
+        presenter = AddDebtPresenter()
         presenter.attachView(this)
 
-        return inflater.inflate(R.layout.add_contact_fragment, container,
+        return inflater.inflate(R.layout.add_debt_fragment, container,
                 false)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        add_contact_fragment_add_button.setOnClickListener { view ->
+        add_debt_fragment_add_button.setOnClickListener { view ->
             presenter.addButtonIsPressed()
         }
 
@@ -45,10 +42,11 @@ class AddContactFragment: Fragment(), AddContactContract.View {
     override fun onResume() {
         super.onResume()
 
-        val emailObservable: Observable<String> = LoginInputObserver.getTextWatcherObservable(add_contact_fragment_email_et)
-        emailObservable.subscribe { it ->
-            presenter.inputTextFieldsAreEmpty(it.isNotEmpty())
-        }
+        //ToDo добавить проверку заполнения обязательных полей
+//        val emailObservable: Observable<String> = LoginInputObserver.getTextWatcherObservable(add_contact_fragment_email_et)
+//        emailObservable.subscribe { it ->
+//            presenter.inputTextFieldsAreEmpty(it.isNotEmpty())
+//        }
 
         presenter.viewIsReady()
     }
@@ -58,24 +56,36 @@ class AddContactFragment: Fragment(), AddContactContract.View {
         presenter.detachView()
     }
 
-    override fun getAlias(): String {
-        return add_debt_fragment_comment_et.text.toString()
+    override fun getSender(): String {
+        return add_debt_fragment_sender_spinner.toString()
     }
 
-    override fun getEmail(): String {
-        return add_contact_fragment_email_et.text.toString()
+    override fun getReceiver(): String {
+        return add_debt_fragment_receiver_spinner.toString()
+    }
+
+    override fun getAmount(): String {
+        return add_debt_fragment_amount_et.text.toString()
+    }
+
+    override fun getDate(): String {
+        return add_debt_fragment_date_et.text.toString()
+    }
+
+    override fun getComment(): String {
+        return add_debt_fragment_comment_et.toString()
     }
 
     override fun showProgress() {
-        add_contact_fragment_progressBar.visibility = View.VISIBLE
+        add_debt_fragment_progress_bar.visibility = View.VISIBLE
     }
 
     override fun hideProgress() {
-        add_contact_fragment_progressBar.visibility = View.INVISIBLE
+        add_debt_fragment_progress_bar.visibility = View.INVISIBLE
     }
 
     override fun setAddButtonEnabled(areEnabled: Boolean) {
-        add_contact_fragment_add_button.isEnabled = areEnabled
+        add_debt_fragment_add_button.isEnabled = areEnabled
     }
 
     override fun hideKeyboard() {

@@ -6,9 +6,10 @@ import android.arch.persistence.room.Database
 
 
 
-@Database(entities = arrayOf(Contact::class), version = AppDatabase.DATABASE_VERSION)
+@Database(entities = arrayOf(Contact::class, Debt::class), version = AppDatabase.DATABASE_VERSION)
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun contactDAO(): ContactDao
+    abstract fun contactDAO(): ContactDAO
+    abstract fun debtDAO(): DebtDAO
 
     companion object {
         const val DATABASE_VERSION = 1
