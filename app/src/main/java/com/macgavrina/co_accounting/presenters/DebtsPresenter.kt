@@ -10,6 +10,7 @@ class DebtsPresenter: BasePresenter<DebtsContract.View>(), DebtsContract.Present
 
     override fun onDebtsListLoaded(debtsList: List<com.macgavrina.co_accounting.room.Debt>) {
         getView()?.hideProgress()
+        Log.d("debtsList = $debtsList")
         getView()?.initializeList(debtsList)
     }
 

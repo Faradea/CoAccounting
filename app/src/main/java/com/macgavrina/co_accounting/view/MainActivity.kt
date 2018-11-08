@@ -260,7 +260,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun displayAddDebtFragment() {
-        Log.d("display add debt fragment")
+        val supportFragmentManager = supportFragmentManager
+        supportFragmentManager.beginTransaction()
+                .replace(R.id.content_main_constraint_layout, AddDebtFragment())
+                .addToBackStack("AddDebtFragment")
+                .commit()
     }
 
     private fun clearStack() {

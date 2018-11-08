@@ -6,7 +6,7 @@ import io.reactivex.Maybe
 @Dao
 interface DebtDAO {
     @get:Query("SELECT * FROM debt")
-    val getAll: Maybe<List<Contact>>
+    val getAll: Maybe<List<Debt>>
 
     @Query("SELECT * FROM debt WHERE uid IN (:debtId)")
     fun loadDebtByIds(debtId: String): Maybe<Debt>

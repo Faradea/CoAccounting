@@ -47,4 +47,6 @@ object Events {
 
     class AddDebt
 
+    class DebtIsAdded
+
 }

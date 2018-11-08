@@ -3,8 +3,11 @@ package com.macgavrina.co_accounting.providers
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.Debt
+import io.reactivex.Completable
+import io.reactivex.CompletableObserver
 import io.reactivex.Maybe
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import io.reactivex.observers.DisposableMaybeObserver
 import io.reactivex.schedulers.Schedulers
 
@@ -15,16 +18,18 @@ class DebtsProvider() {
     //ToDo сделать singleton (см. пример в SyncService)
 
     fun getAll(databaseCallback: DatabaseCallback) {
+        Log.d("get all debts")
         MainApplication.db.debtDAO().getAll
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(object : DisposableMaybeObserver<List<Debt>>() {
                     override fun onSuccess(t: List<Debt>) {
+                        Log.d("success")
                         databaseCallback.onDebtsListLoaded(t)
                     }
 
                     override fun onError(e: Throwable) {
-                        Log.d(e.toString())
+                        Log.d("error, ${e.toString()}")
                     }
 
                     override fun onComplete() {
@@ -53,23 +58,23 @@ class DebtsProvider() {
 //    }
 
 
-//    fun addContact(databaseCallback: DatabaseCallback, contact: Contact) {
-//        Completable.fromAction {
-//            MainApplication.db.contactDAO().insertContact(contact)
-//        }.observeOn(AndroidSchedulers.mainThread())
-//                .subscribeOn(Schedulers.io()).subscribe(object : CompletableObserver {
-//                    override fun onSubscribe(d: Disposable) {}
-//
-//                    override fun onComplete() {
-//                        databaseCallback.onContactAdded()
-//                        //syncDataUpload()
-//                    }
-//
-//                    override fun onError(e: Throwable) {
-//                        databaseCallback.onDatabaseError()
-//                    }
-//                })
-//    }
+    fun addDebt(databaseCallback: DatabaseCallback, debt: Debt) {
+        Completable.fromAction {
+            MainApplication.db.debtDAO().insertDebt(debt)
+        }.observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io()).subscribe(object : CompletableObserver {
+                    override fun onSubscribe(d: Disposable) {}
+
+                    override fun onComplete() {
+                        databaseCallback.onDebtAdded()
+                        //syncDataUpload()
+                    }
+
+                    override fun onError(e: Throwable) {
+                        databaseCallback.onDatabaseError()
+                    }
+                })
+    }
 
 
 //    fun updateContact(databaseCallback: DatabaseCallback, contact: Contact) {
@@ -150,8 +155,4 @@ class DebtsProvider() {
             Log.d("debt list is loaded")
         }
     }
-}
-
-private fun <T> Maybe<T>.subscribe(disposableMaybeObserver: DisposableMaybeObserver<List<Debt>>) {
-
 }

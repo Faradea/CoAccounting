@@ -7,9 +7,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
+import com.macgavrina.co_accounting.interfaces.AddDebtContract
+import com.macgavrina.co_accounting.presenters.AddDebtPresenter
 import kotlinx.android.synthetic.main.add_debt_fragment.*
 
 
@@ -57,11 +60,11 @@ class AddDebtFragment: Fragment(), AddDebtContract.View {
     }
 
     override fun getSender(): String {
-        return add_debt_fragment_sender_spinner.toString()
+        return add_debt_fragment_sender_spinner.selectedItem.toString()
     }
 
     override fun getReceiver(): String {
-        return add_debt_fragment_receiver_spinner.toString()
+        return add_debt_fragment_receiver_spinner.selectedItem.toString()
     }
 
     override fun getAmount(): String {
@@ -73,7 +76,7 @@ class AddDebtFragment: Fragment(), AddDebtContract.View {
     }
 
     override fun getComment(): String {
-        return add_debt_fragment_comment_et.toString()
+        return add_debt_fragment_comment_et.text.toString()
     }
 
     override fun showProgress() {
@@ -91,5 +94,30 @@ class AddDebtFragment: Fragment(), AddDebtContract.View {
     override fun hideKeyboard() {
         val inputMethodManager: InputMethodManager = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.hideSoftInputFromWindow(view?.windowToken, 0)
+    }
+
+    override fun setupSenderSpinner(contactsList: Array<String?>) {
+
+        val adapter = ArrayAdapter<String>(
+                MainApplication.applicationContext(),
+                android.R.layout.simple_spinner_item,
+                contactsList
+        )
+
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+        add_debt_fragment_sender_spinner.adapter = adapter
+    }
+
+    override fun setupReceiverSpinner(contactsList: Array<String?>) {
+        val adapter = ArrayAdapter<String>(
+                MainApplication.applicationContext(),
+                android.R.layout.simple_spinner_item,
+                contactsList
+        )
+
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+        add_debt_fragment_receiver_spinner.adapter = adapter
     }
 }
