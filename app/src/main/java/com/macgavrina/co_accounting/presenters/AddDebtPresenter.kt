@@ -2,17 +2,23 @@ package com.macgavrina.co_accounting.presenters
 
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.interfaces.AddDebtContract
+import com.macgavrina.co_accounting.model.RecieverWithAmount
 import com.macgavrina.co_accounting.providers.ContactsProvider
 import com.macgavrina.co_accounting.providers.DebtsProvider
+import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.room.Debt
 import com.macgavrina.co_accounting.rxjava.Events
 
 class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.Presenter, DebtsProvider.DatabaseCallback, ContactsProvider.DatabaseCallback {
 
+
+    lateinit var receiverWithAmountList: MutableList<RecieverWithAmount>
+    lateinit var friendsList: Array<String?>
+
     override fun onContactsListLoaded(contactsList: List<com.macgavrina.co_accounting.room.Contact>) {
 
         //ToDo добавлять в список первым пунктом себя
-        val friendsList = arrayOfNulls<String>(contactsList.size)
+        friendsList = arrayOfNulls<String>(contactsList.size)
         var i = 0
 
         contactsList.forEach { contact ->
@@ -21,7 +27,11 @@ class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.P
         }
 
         getView()?.setupSenderSpinner(friendsList)
-        getView()?.setupReceiverSpinner(friendsList)
+
+        val receiverWithAmount = RecieverWithAmount("TestName", 500.0f)
+        receiverWithAmountList = mutableListOf(receiverWithAmount)
+
+        getView()?.initializeReceiversList(receiverWithAmountList, friendsList)
     }
 
     override fun onDatabaseError() {
@@ -67,5 +77,14 @@ class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.P
         debt.comment = getView()?.getComment()
 
         DebtsProvider().addDebt(this, debt)
+    }
+
+    override fun addReceiverButtonIsPressed() {
+        getView()?.hideKeyboard()
+
+        val receiverWithAmount = RecieverWithAmount("TestName", 220.0f)
+        receiverWithAmountList.add(receiverWithAmount)
+
+        getView()?.initializeReceiversList(receiverWithAmountList, friendsList)
     }
 }

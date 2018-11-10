@@ -3,6 +3,8 @@ package com.macgavrina.co_accounting.view
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,12 +13,18 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
+import com.macgavrina.co_accounting.adapters.AddRecieverRecyclerViewAdapter
 import com.macgavrina.co_accounting.interfaces.AddDebtContract
+import com.macgavrina.co_accounting.logging.Log
+import com.macgavrina.co_accounting.model.RecieverWithAmount
 import com.macgavrina.co_accounting.presenters.AddDebtPresenter
 import kotlinx.android.synthetic.main.add_debt_fragment.*
 
 
 class AddDebtFragment: Fragment(), AddDebtContract.View {
+
+    private lateinit var viewManager: RecyclerView.LayoutManager
+
     override fun displayToast(text: String) {
         Toast.makeText(MainApplication.applicationContext(), text, Toast.LENGTH_SHORT).show()
     }
@@ -40,6 +48,10 @@ class AddDebtFragment: Fragment(), AddDebtContract.View {
             presenter.addButtonIsPressed()
         }
 
+        add_debt_fragment_add_receiver_tv.setOnClickListener { view ->
+            presenter.addReceiverButtonIsPressed()
+        }
+
     }
 
     override fun onResume() {
@@ -50,6 +62,8 @@ class AddDebtFragment: Fragment(), AddDebtContract.View {
 //        emailObservable.subscribe { it ->
 //            presenter.inputTextFieldsAreEmpty(it.isNotEmpty())
 //        }
+
+        viewManager = LinearLayoutManager(MainApplication.applicationContext())
 
         presenter.viewIsReady()
     }
@@ -64,7 +78,8 @@ class AddDebtFragment: Fragment(), AddDebtContract.View {
     }
 
     override fun getReceiver(): String {
-        return add_debt_fragment_receiver_spinner.selectedItem.toString()
+        //return add_debt_fragment_receiver_spinner.selectedItem.toString()
+        return ""
     }
 
     override fun getAmount(): String {
@@ -109,15 +124,11 @@ class AddDebtFragment: Fragment(), AddDebtContract.View {
         add_debt_fragment_sender_spinner.adapter = adapter
     }
 
-    override fun setupReceiverSpinner(contactsList: Array<String?>) {
-        val adapter = ArrayAdapter<String>(
-                MainApplication.applicationContext(),
-                android.R.layout.simple_spinner_item,
-                contactsList
-        )
+    override fun initializeReceiversList(receiverWithAmountList: List<RecieverWithAmount>, friendsList: Array<String?>) {
 
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        //ToDo send initial receiver list to adapter
+        add_debt_fragment_reciever_recyclerview.adapter = AddRecieverRecyclerViewAdapter(receiverWithAmountList, friendsList)
+        add_debt_fragment_reciever_recyclerview.layoutManager = viewManager
 
-        add_debt_fragment_receiver_spinner.adapter = adapter
     }
 }

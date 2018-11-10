@@ -12,4 +12,5 @@
     <string name="logout_button_text"><u>Logout</u></string>
     <string name="register_fragment_goto_login_tv">Already registered? <u>Log-in</u></string>
     <string name="default_user_name">Anonymous</string>
+    <string name="add_debt_fragment_add_reciever_tv_text"><u>Add</u></string>
 </resources>

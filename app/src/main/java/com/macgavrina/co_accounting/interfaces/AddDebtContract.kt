@@ -1,5 +1,7 @@
 package com.macgavrina.co_accounting.interfaces
 
+import com.macgavrina.co_accounting.model.RecieverWithAmount
+
 interface AddDebtContract {
 
     interface View:BaseViewContract {
@@ -26,12 +28,15 @@ interface AddDebtContract {
 
         fun setupSenderSpinner(contactsList: Array<String?>)
 
-        fun setupReceiverSpinner(contactsList: Array<String?>)
+        fun initializeReceiversList(receiverWithAmountList: List<RecieverWithAmount>, friendsList: Array<String?>)
+
     }
 
     interface Presenter:BasePresenterContract<View> {
 
         fun addButtonIsPressed()
+
+        fun addReceiverButtonIsPressed()
 
         fun inputTextFieldsAreEmpty(areFilled: Boolean)
 
