@@ -2,6 +2,7 @@ package com.macgavrina.co_accounting.presenters
 
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.interfaces.AddDebtContract
+import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.model.RecieverWithAmount
 import com.macgavrina.co_accounting.providers.ContactsProvider
 import com.macgavrina.co_accounting.providers.DebtsProvider
@@ -14,6 +15,24 @@ class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.P
 
     lateinit var receiverWithAmountList: MutableList<RecieverWithAmount>
     lateinit var friendsList: Array<String?>
+
+    override fun attachView(baseViewContract: AddDebtContract.View) {
+        super.attachView(baseViewContract)
+
+        MainApplication
+                .bus
+                .toObservable()
+                .subscribe { `object` ->
+                    when (`object`) {
+                        is Events.AddDebtReceiverWithAmountListIsChanged -> {
+                            val newAmount = `object`.myNewText
+                            val positionInList = `object`.myPositionInList
+                            Log.d("AddDebtReceiverWithAmountListIsChanged, newAmount = $newAmount, position = $positionInList")
+                            receiverWithAmountList[positionInList].amount = newAmount.toFloat()
+                        }
+                    }
+                }
+    }
 
     override fun onContactsListLoaded(contactsList: List<com.macgavrina.co_accounting.room.Contact>) {
 
@@ -28,7 +47,7 @@ class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.P
 
         getView()?.setupSenderSpinner(friendsList)
 
-        val receiverWithAmount = RecieverWithAmount("TestName", 500.0f)
+        val receiverWithAmount = RecieverWithAmount("TestName", 500.0f, 0)
         receiverWithAmountList = mutableListOf(receiverWithAmount)
 
         getView()?.initializeReceiversList(receiverWithAmountList, friendsList)
@@ -82,7 +101,7 @@ class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.P
     override fun addReceiverButtonIsPressed() {
         getView()?.hideKeyboard()
 
-        val receiverWithAmount = RecieverWithAmount("TestName", 220.0f)
+        val receiverWithAmount = RecieverWithAmount("TestName", 220.0f, receiverWithAmountList.size)
         receiverWithAmountList.add(receiverWithAmount)
 
         getView()?.initializeReceiversList(receiverWithAmountList, friendsList)

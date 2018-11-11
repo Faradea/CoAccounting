@@ -49,4 +49,9 @@ object Events {
 
     class DebtIsAdded
 
+    class AddDebtReceiverWithAmountListIsChanged(positionInList: Int, newText: String) {
+        val myPositionInList = positionInList
+        val myNewText = newText
+    }
+
 }
