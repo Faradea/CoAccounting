@@ -14,6 +14,8 @@ interface AddReceiverInAddDebtContract {
 
         fun initializeNotSelectedReceiversList(contactsList: List<Contact>?)
 
+        fun initializeSelectedReceiversList(contactsList: List<Contact>?)
+
     }
 
     interface Presenter:BasePresenterContract<View> {

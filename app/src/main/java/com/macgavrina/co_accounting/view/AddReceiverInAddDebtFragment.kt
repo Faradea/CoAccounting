@@ -13,6 +13,7 @@ import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.adapters.AddRecieverRecyclerViewAdapter
 import com.macgavrina.co_accounting.adapters.NotSelectedReceiversRecyclerViewAdapter
+import com.macgavrina.co_accounting.adapters.SelectedReceiversRecyclerViewAdapter
 import com.macgavrina.co_accounting.interfaces.AddReceiverInAddDebtContract
 import com.macgavrina.co_accounting.presenters.AddReceiverInAddDebtPresenter
 import com.macgavrina.co_accounting.room.Contact
@@ -22,7 +23,8 @@ import kotlinx.android.synthetic.main.contacts_fragment.*
 class AddReceiverInAddDebtFragment: Fragment(), AddReceiverInAddDebtContract.View {
 
     lateinit var presenter: AddReceiverInAddDebtPresenter
-    private lateinit var viewManager: RecyclerView.LayoutManager
+    private lateinit var viewManagerForNotSelected: RecyclerView.LayoutManager
+    private lateinit var viewManagerForSelected: RecyclerView.LayoutManager
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -53,12 +55,20 @@ class AddReceiverInAddDebtFragment: Fragment(), AddReceiverInAddDebtContract.Vie
         add_receiver_dialog_fragment_receiverlist_lv.adapter = NotSelectedReceiversRecyclerViewAdapter(contactsList)
     }
 
+    override fun initializeSelectedReceiversList(contactsList: List<Contact>?) {
+        add_receiver_dialog_fragment_selected_members_lv.adapter = SelectedReceiversRecyclerViewAdapter(contactsList)
+    }
+
     override fun onResume() {
         super.onResume()
 
-        viewManager = LinearLayoutManager(MainApplication.applicationContext())
+        viewManagerForNotSelected = LinearLayoutManager(MainApplication.applicationContext())
         add_receiver_dialog_fragment_receiverlist_lv.adapter = NotSelectedReceiversRecyclerViewAdapter(null)
-        add_receiver_dialog_fragment_receiverlist_lv.layoutManager = viewManager
+        add_receiver_dialog_fragment_receiverlist_lv.layoutManager = viewManagerForNotSelected
+
+        viewManagerForSelected = LinearLayoutManager(MainApplication.applicationContext())
+        add_receiver_dialog_fragment_selected_members_lv.adapter = NotSelectedReceiversRecyclerViewAdapter(null)
+        add_receiver_dialog_fragment_selected_members_lv.layoutManager = viewManagerForSelected
 
         presenter.viewIsReady()
     }

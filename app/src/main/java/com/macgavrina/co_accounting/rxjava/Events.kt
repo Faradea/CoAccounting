@@ -1,6 +1,7 @@
 package com.macgavrina.co_accounting.rxjava
 
 import com.macgavrina.co_accounting.presenters.LoginPresenter
+import com.macgavrina.co_accounting.room.Contact
 
 object Events {
 
@@ -55,5 +56,9 @@ object Events {
     }
 
     class AddReceiverButtonInAddDebtFragment
+
+    class NewContactIsAddedToSelectedReceiversList(contact: Contact?) {
+        val myContact = contact
+    }
 
 }

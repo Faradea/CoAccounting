@@ -1,11 +1,16 @@
 package com.macgavrina.co_accounting.presenters
 
+import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.interfaces.AddReceiverInAddDebtContract
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.providers.ContactsProvider
 import com.macgavrina.co_accounting.room.Contact
+import com.macgavrina.co_accounting.rxjava.Events
 
 class AddReceiverInAddDebtPresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddReceiverInAddDebtContract.Presenter, ContactsProvider.DatabaseCallback {
+
+    var notSelectedContactsList = mutableListOf<Contact>()
+    var selectedContactsList = mutableListOf<Contact>()
 
     override fun onDatabaseError() {
         Log.d("database error")
@@ -13,6 +18,10 @@ class AddReceiverInAddDebtPresenter: BasePresenter<AddReceiverInAddDebtContract.
 
     override fun onContactsListLoaded(contactsList: List<Contact>) {
         super.onContactsListLoaded(contactsList)
+
+        contactsList.forEach { contact ->
+            notSelectedContactsList.add(contact)
+        }
         getView()?.initializeNotSelectedReceiversList(contactsList)
     }
 
@@ -21,19 +30,22 @@ class AddReceiverInAddDebtPresenter: BasePresenter<AddReceiverInAddDebtContract.
 
         ContactsProvider().getAll(this)
 
-//        MainApplication
-//                .bus
-//                .toObservable()
-//                .subscribe { `object` ->
-//                    when (`object`) {
-//                        is Events.AddDebtReceiverWithAmountListIsChanged -> {
-//                            val newAmount = `object`.myNewText
-//                            val positionInList = `object`.myPositionInList
-//                            Log.d("AddDebtReceiverWithAmountListIsChanged, newAmount = $newAmount, position = $positionInList")
-//                            receiverWithAmountList[positionInList].amount = newAmount.toFloat()
-//                        }
-//                    }
-//                }
+        MainApplication
+                .bus
+                .toObservable()
+                .subscribe { `object` ->
+                    when (`object`) {
+                        is Events.NewContactIsAddedToSelectedReceiversList -> {
+                            val contact = `object`.myContact
+                            notSelectedContactsList.remove(contact)
+                            getView()?.initializeNotSelectedReceiversList(notSelectedContactsList)
+
+                            selectedContactsList.add(contact!!)
+                            //selectedContactsList =
+                            getView()?.initializeSelectedReceiversList(selectedContactsList)
+                        }
+                    }
+                }
     }
 
 
