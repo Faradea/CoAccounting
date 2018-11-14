@@ -63,6 +63,9 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
                         is Events.DebtIsAdded -> {
                             getView()?.displayDebtsFragment()
                         }
+                        is Events.AddReceiverButtonInAddDebtFragment -> {
+                            getView()?.displayAddReceiverInAddDebtFragment()
+                        }
                     }
                 }
     }

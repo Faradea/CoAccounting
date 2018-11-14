@@ -16,12 +16,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <Spinner
-            android:id="@+id/add_receiver_list_item_spinner"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1" />
-
         <EditText
             android:id="@+id/add_receiver_list_item_edittext"
             android:layout_width="match_parent"

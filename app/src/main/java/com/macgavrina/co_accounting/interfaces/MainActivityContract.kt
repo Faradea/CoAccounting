@@ -38,6 +38,8 @@ interface MainActivityContract {
 
         fun displayAddDebtFragment()
 
+        fun displayAddReceiverInAddDebtFragment()
+
     }
 
     interface Presenter:BasePresenterContract<View> {

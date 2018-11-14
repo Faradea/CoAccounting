@@ -12,8 +12,9 @@ import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.model.RecieverWithAmount
 import kotlinx.android.synthetic.main.add_receiver_list_item.view.*
-import com.macgavrina.co_accounting.adapters.AddRecieverRecyclerViewAdapter.OnEditTextChanged
+import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.rxjava.Events
+import java.util.ArrayList
 
 
 class AddRecieverRecyclerViewAdapter (receiverWithAmountList: List<RecieverWithAmount>?, inputContactsList: Array<String?>) :
@@ -22,10 +23,10 @@ class AddRecieverRecyclerViewAdapter (receiverWithAmountList: List<RecieverWithA
     private val mItems: List<RecieverWithAmount>? = receiverWithAmountList
     private val contactsList = inputContactsList
     private lateinit var onEditTextChanged: OnEditTextChanged
+    private lateinit var contactsArrayList: ArrayList<String>
 
-    open class ViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener, TextWatcher {
+    open class ViewHolder(view: View, contactsList: Array<String?>) : RecyclerView.ViewHolder(view), View.OnClickListener, TextWatcher {
 
-        val recieverSpinner = view.add_receiver_list_item_spinner
         val amountEditText = view.add_receiver_list_item_edittext
 
         private var mItem: RecieverWithAmount? = null
@@ -69,7 +70,7 @@ class AddRecieverRecyclerViewAdapter (receiverWithAmountList: List<RecieverWithA
         val view = layoutInflater.inflate(R.layout.add_receiver_list_item, parent, false)
         // set the view's size, margins, paddings and layout parameters
 
-        return ViewHolder(view)
+        return ViewHolder(view, contactsList)
     }
 
 
@@ -79,14 +80,6 @@ class AddRecieverRecyclerViewAdapter (receiverWithAmountList: List<RecieverWithA
 
         Log.d("Bind item with position = ${position}")
         val item = mItems?.get(position)
-
-        val adapter = ArrayAdapter<String>(
-                MainApplication.applicationContext(),
-                android.R.layout.simple_spinner_item,
-                contactsList
-        )
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        holder.recieverSpinner.adapter = adapter
 
         holder.amountEditText.setText(item?.amount.toString())
         holder.setItem(mItems?.get(position)!!)

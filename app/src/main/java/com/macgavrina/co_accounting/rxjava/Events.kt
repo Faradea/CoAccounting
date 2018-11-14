@@ -54,4 +54,6 @@ object Events {
         val myNewText = newText
     }
 
+    class AddReceiverButtonInAddDebtFragment
+
 }

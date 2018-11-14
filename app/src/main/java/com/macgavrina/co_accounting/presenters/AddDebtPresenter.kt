@@ -101,9 +101,10 @@ class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.P
     override fun addReceiverButtonIsPressed() {
         getView()?.hideKeyboard()
 
-        val receiverWithAmount = RecieverWithAmount("TestName", 220.0f, receiverWithAmountList.size)
-        receiverWithAmountList.add(receiverWithAmount)
-
-        getView()?.initializeReceiversList(receiverWithAmountList, friendsList)
+//        val receiverWithAmount = RecieverWithAmount("TestName", 220.0f, receiverWithAmountList.size)
+//        receiverWithAmountList.add(receiverWithAmount)
+//
+//        getView()?.initializeReceiversList(receiverWithAmountList, friendsList)
+        MainApplication.bus.send(Events.AddReceiverButtonInAddDebtFragment())
     }
 }

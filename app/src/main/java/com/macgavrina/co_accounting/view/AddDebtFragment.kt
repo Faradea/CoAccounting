@@ -19,6 +19,7 @@ import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.model.RecieverWithAmount
 import com.macgavrina.co_accounting.presenters.AddDebtPresenter
 import kotlinx.android.synthetic.main.add_debt_fragment.*
+import java.util.ArrayList
 
 
 class AddDebtFragment: Fragment(), AddDebtContract.View {
@@ -126,9 +127,8 @@ class AddDebtFragment: Fragment(), AddDebtContract.View {
 
     override fun initializeReceiversList(receiverWithAmountList: List<RecieverWithAmount>, friendsList: Array<String?>) {
 
-        //ToDo send initial receiver list to adapter
-        add_debt_fragment_reciever_recyclerview.adapter = AddRecieverRecyclerViewAdapter(receiverWithAmountList, friendsList)
-        add_debt_fragment_reciever_recyclerview.layoutManager = viewManager
+//        add_debt_fragment_reciever_recyclerview.adapter = AddRecieverRecyclerViewAdapter(receiverWithAmountList, friendsList)
+//        add_debt_fragment_reciever_recyclerview.layoutManager = viewManager
 
     }
 }
