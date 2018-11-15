@@ -9,9 +9,10 @@ import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.Contact
 import kotlinx.android.synthetic.main.selected_receivers_list_item.view.*
 
-class SelectedReceiversRecyclerViewAdapter (contactsList: List<Contact>?) :
+class SelectedReceiversRecyclerViewAdapter (contactsList: List<Contact>?, amountPerPerson: Float) :
         RecyclerView.Adapter<SelectedReceiversRecyclerViewAdapter.ViewHolder>() {
 
+    private val amountPerPerson = amountPerPerson
     private val mItems: List<Contact>? = contactsList
 
     open class ViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
@@ -56,7 +57,7 @@ class SelectedReceiversRecyclerViewAdapter (contactsList: List<Contact>?) :
 
         Log.d("Bind item with position = ${position}")
         val item = mItems?.get(position)
-        holder.amount.text = "0.0"
+        holder.amount.text = amountPerPerson.toString()
         holder.receiverName.text = item?.alias
         holder.setItem(mItems?.get(position)!!)
     }

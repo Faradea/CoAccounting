@@ -275,6 +275,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .commit()
     }
 
+    override fun dismissAddReceiverInAddDebtFragment() {
+        this.onBackPressed()
+    }
+
+    override fun displayAddReceiverInAddDebtFragmentAfterReceiverAdded() {
+        this.onBackPressed()
+        presenter.addReceiverInAddDebtFragmentAfterReceiverAddedIsDisplayed()
+    }
+
     private fun clearStack() {
         val supportFragmentManager = supportFragmentManager
         var count = supportFragmentManager.getBackStackEntryCount()

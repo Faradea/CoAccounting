@@ -40,6 +40,10 @@ interface MainActivityContract {
 
         fun displayAddReceiverInAddDebtFragment()
 
+        fun dismissAddReceiverInAddDebtFragment()
+
+        fun displayAddReceiverInAddDebtFragmentAfterReceiverAdded()
+
     }
 
     interface Presenter:BasePresenterContract<View> {
@@ -49,6 +53,8 @@ interface MainActivityContract {
         fun gotoContactsEvent()
 
         fun gotoDebts()
+
+        fun addReceiverInAddDebtFragmentAfterReceiverAddedIsDisplayed()
 
     }
 

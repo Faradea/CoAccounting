@@ -3,17 +3,16 @@ package com.macgavrina.co_accounting.presenters
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.interfaces.AddDebtContract
 import com.macgavrina.co_accounting.logging.Log
-import com.macgavrina.co_accounting.model.RecieverWithAmount
+import com.macgavrina.co_accounting.model.ReceiverWithAmount
 import com.macgavrina.co_accounting.providers.ContactsProvider
 import com.macgavrina.co_accounting.providers.DebtsProvider
-import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.room.Debt
 import com.macgavrina.co_accounting.rxjava.Events
 
 class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.Presenter, DebtsProvider.DatabaseCallback, ContactsProvider.DatabaseCallback {
 
 
-    lateinit var receiverWithAmountList: MutableList<RecieverWithAmount>
+    lateinit var receiverWithAmountList: MutableList<ReceiverWithAmount>
     lateinit var friendsList: Array<String?>
 
     override fun attachView(baseViewContract: AddDebtContract.View) {
@@ -29,6 +28,9 @@ class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.P
                             val positionInList = `object`.myPositionInList
                             Log.d("AddDebtReceiverWithAmountListIsChanged, newAmount = $newAmount, position = $positionInList")
                             receiverWithAmountList[positionInList].amount = newAmount.toFloat()
+                        }
+                        is Events.AddDebtFragmentRequiresRefresh -> {
+                            //ToDo считать обновления из базы и обновить список во фрагменте
                         }
                     }
                 }
@@ -47,10 +49,10 @@ class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.P
 
         getView()?.setupSenderSpinner(friendsList)
 
-        val receiverWithAmount = RecieverWithAmount("TestName", 500.0f, 0)
-        receiverWithAmountList = mutableListOf(receiverWithAmount)
-
-        getView()?.initializeReceiversList(receiverWithAmountList, friendsList)
+//        val receiverWithAmount = ReceiverWithAmount("TestName", 500.0f, 0)
+//        receiverWithAmountList = mutableListOf(receiverWithAmount)
+//
+//        getView()?.initializeReceiversList(receiverWithAmountList, friendsList)
     }
 
     override fun onDatabaseError() {

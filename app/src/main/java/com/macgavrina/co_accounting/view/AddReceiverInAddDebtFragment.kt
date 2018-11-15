@@ -5,22 +5,22 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
-import com.macgavrina.co_accounting.adapters.AddRecieverRecyclerViewAdapter
 import com.macgavrina.co_accounting.adapters.NotSelectedReceiversRecyclerViewAdapter
 import com.macgavrina.co_accounting.adapters.SelectedReceiversRecyclerViewAdapter
 import com.macgavrina.co_accounting.interfaces.AddReceiverInAddDebtContract
 import com.macgavrina.co_accounting.presenters.AddReceiverInAddDebtPresenter
 import com.macgavrina.co_accounting.room.Contact
 import kotlinx.android.synthetic.main.add_receiver_dialog_fragment.*
-import kotlinx.android.synthetic.main.contacts_fragment.*
 
-class AddReceiverInAddDebtFragment: Fragment(), AddReceiverInAddDebtContract.View {
+class AddReceiverInAddDebtFragment: Fragment(), AddReceiverInAddDebtContract.View, TextWatcher {
 
     lateinit var presenter: AddReceiverInAddDebtPresenter
     private lateinit var viewManagerForNotSelected: RecyclerView.LayoutManager
@@ -36,18 +36,33 @@ class AddReceiverInAddDebtFragment: Fragment(), AddReceiverInAddDebtContract.Vie
                 false)
     }
 
+
+    //EditText listeners
+    override fun afterTextChanged(s: Editable?) {
+    }
+
+    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+    }
+
+    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+        if (s != null) {
+            presenter.amountIsEdited(s.toString().toFloat())
+        }
+    }
+
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
+        add_receiver_dialog_fragment_amount_et.addTextChangedListener(this)
 
+        add_receiver_dialog_fragment_toolbar_cancel_image.setOnClickListener {
+            presenter.cancelButtonInToolbarIsClicked()
+        }
 
-//        add_debt_fragment_add_button.setOnClickListener { view ->
-//            presenter.addButtonIsPressed()
-//        }
-//
-//        add_debt_fragment_add_receiver_tv.setOnClickListener { view ->
-//            presenter.addReceiverButtonIsPressed()
-//        }
+        add_receiver_dialog_fragment_toolbar_save_button.setOnClickListener {
+            presenter.saveButtonIsPressed()
+        }
 
     }
 
@@ -55,8 +70,8 @@ class AddReceiverInAddDebtFragment: Fragment(), AddReceiverInAddDebtContract.Vie
         add_receiver_dialog_fragment_receiverlist_lv.adapter = NotSelectedReceiversRecyclerViewAdapter(contactsList)
     }
 
-    override fun initializeSelectedReceiversList(contactsList: List<Contact>?) {
-        add_receiver_dialog_fragment_selected_members_lv.adapter = SelectedReceiversRecyclerViewAdapter(contactsList)
+    override fun initializeSelectedReceiversList(contactsList: List<Contact>?, amountPerPerson: Float) {
+        add_receiver_dialog_fragment_selected_members_lv.adapter = SelectedReceiversRecyclerViewAdapter(contactsList, amountPerPerson)
     }
 
     override fun onResume() {
@@ -89,5 +104,14 @@ class AddReceiverInAddDebtFragment: Fragment(), AddReceiverInAddDebtContract.Vie
     override fun hideKeyboard() {
         val inputMethodManager: InputMethodManager = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.hideSoftInputFromWindow(view?.windowToken, 0)
+    }
+
+    override fun getAmount(): Float {
+        val etText = add_receiver_dialog_fragment_amount_et.text
+        return if (etText.isNotEmpty()) {
+            etText.toString().toFloat()
+        } else {
+            0F
+        }
     }
 }

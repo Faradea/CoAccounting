@@ -6,21 +6,17 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.logging.Log
-import com.macgavrina.co_accounting.model.RecieverWithAmount
+import com.macgavrina.co_accounting.model.ReceiverWithAmount
 import kotlinx.android.synthetic.main.add_receiver_list_item.view.*
-import com.macgavrina.co_accounting.room.Contact
-import com.macgavrina.co_accounting.rxjava.Events
 import java.util.ArrayList
 
 
-class AddRecieverRecyclerViewAdapter (receiverWithAmountList: List<RecieverWithAmount>?, inputContactsList: Array<String?>) :
+class AddRecieverRecyclerViewAdapter (receiverWithAmountList: List<ReceiverWithAmount>?, inputContactsList: Array<String?>) :
         RecyclerView.Adapter<AddRecieverRecyclerViewAdapter.ViewHolder>() {
 
-    private val mItems: List<RecieverWithAmount>? = receiverWithAmountList
+    private val mItems: List<ReceiverWithAmount>? = receiverWithAmountList
     private val contactsList = inputContactsList
     private lateinit var onEditTextChanged: OnEditTextChanged
     private lateinit var contactsArrayList: ArrayList<String>
@@ -29,30 +25,30 @@ class AddRecieverRecyclerViewAdapter (receiverWithAmountList: List<RecieverWithA
 
         val amountEditText = view.add_receiver_list_item_edittext
 
-        private var mItem: RecieverWithAmount? = null
+        private var mItem: ReceiverWithAmount? = null
 
         init {
             view.setOnClickListener(this)
             view.add_receiver_list_item_edittext.addTextChangedListener(this)
         }
 
-        fun setItem(item: RecieverWithAmount) {
+        fun setItem(item: ReceiverWithAmount) {
             mItem = item
         }
 
         override fun onClick(view: View) {
 
             //ToDo use some unic id instead of name
-            Log.d( "onClick ${mItem?.receiverName}")
+            //Log.d( "onClick ${mItem?.receiverName}")
             //MainApplication.bus.send(Events.OnClickContactList(mItem?.uid.toString()))
         }
 
         //EditText listener methods
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            Log.d("onTextChanged, newText = ${s.toString()}, item position = ${mItem?.positionInList}")
-            if (mItem?.positionInList != null) {
-                MainApplication.bus.send(Events.AddDebtReceiverWithAmountListIsChanged(mItem?.positionInList!!, s.toString()))
-            }
+//            Log.d("onTextChanged, newText = ${s.toString()}, item position = ${mItem?.positionInList}")
+//            if (mItem?.positionInList != null) {
+//                MainApplication.bus.send(Events.AddDebtReceiverWithAmountListIsChanged(mItem?.positionInList!!, s.toString()))
+//            }
         }
 
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -91,10 +87,6 @@ class AddRecieverRecyclerViewAdapter (receiverWithAmountList: List<RecieverWithA
             return mItems.size
         }
         return -1
-    }
-
-    interface OnItemClickListener {
-        fun onItemClick(item: RecieverWithAmount)
     }
 
     interface OnEditTextChanged {

@@ -14,11 +14,19 @@ interface AddReceiverInAddDebtContract {
 
         fun initializeNotSelectedReceiversList(contactsList: List<Contact>?)
 
-        fun initializeSelectedReceiversList(contactsList: List<Contact>?)
+        fun initializeSelectedReceiversList(contactsList: List<Contact>?, amountPerPerson: Float)
+
+        fun getAmount(): Float
 
     }
 
     interface Presenter:BasePresenterContract<View> {
+
+        fun amountIsEdited(newAmount: Float)
+
+        fun cancelButtonInToolbarIsClicked()
+
+        fun saveButtonIsPressed()
 
     }
 }

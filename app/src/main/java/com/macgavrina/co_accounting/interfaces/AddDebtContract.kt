@@ -1,6 +1,6 @@
 package com.macgavrina.co_accounting.interfaces
 
-import com.macgavrina.co_accounting.model.RecieverWithAmount
+import com.macgavrina.co_accounting.model.ReceiverWithAmount
 
 interface AddDebtContract {
 
@@ -28,7 +28,7 @@ interface AddDebtContract {
 
         fun setupSenderSpinner(contactsList: Array<String?>)
 
-        fun initializeReceiversList(receiverWithAmountList: List<RecieverWithAmount>, friendsList: Array<String?>)
+        fun initializeReceiversList(receiverWithAmountList: List<ReceiverWithAmount>, friendsList: Array<String?>)
 
     }
 

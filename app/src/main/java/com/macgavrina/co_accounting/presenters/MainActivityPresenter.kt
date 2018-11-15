@@ -66,6 +66,12 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
                         is Events.AddReceiverButtonInAddDebtFragment -> {
                             getView()?.displayAddReceiverInAddDebtFragment()
                         }
+                        is Events.CancelButtonInAddReceiverInAddDebtFragment -> {
+                            getView()?.dismissAddReceiverInAddDebtFragment()
+                        }
+                        is Events.ReceiversWithAmountInAddDebtIsAdded -> {
+                            getView()?.displayAddReceiverInAddDebtFragmentAfterReceiverAdded()
+                        }
                     }
                 }
     }
@@ -119,5 +125,9 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
                 getView()?.hideProgress()
                 getView()?.displayLoginFragment(null)
             }
+    }
+
+    override fun addReceiverInAddDebtFragmentAfterReceiverAddedIsDisplayed() {
+        MainApplication.bus.send(Events.AddDebtFragmentRequiresRefresh())
     }
 }
