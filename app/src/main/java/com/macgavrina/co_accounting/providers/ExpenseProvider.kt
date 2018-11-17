@@ -32,27 +32,27 @@ class ExpenseProvider() {
                 })
     }
 
-//    fun getDebtById(databaseCallback: DatabaseCallback, debtUid:String) {
-//        MainApplication.db.debtDAO().loadDebtByIds(debtUid)
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(object : DisposableMaybeObserver<Contact>() {
-//                    override fun onSuccess(t: com.macgavrina.co_accounting.room.Contact) {
-//                        databaseCallback.onContactLoaded(t)
-//                    }
-//
-//                    override fun onError(e: Throwable) {
-//                        Log.d(e.toString())
-//                    }
-//
-//                    override fun onComplete() {
-//                        Log.d("nothing")
-//                    }
-//                })
-//    }
+    fun addExpenseAndReturnId(databaseCallback: DatabaseCallback, expense: Expense) {
+        MainApplication.db.expenseDAO().insertExpense(expense)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : DisposableMaybeObserver<Long>() {
+                    override fun onSuccess(t: Long) {
+                        databaseCallback.onExpenseAdded(t)
+                    }
+
+                    override fun onError(e: Throwable) {
+                        Log.d(e.toString())
+                    }
+
+                    override fun onComplete() {
+                        Log.d("nothing")
+                    }
+                })
+    }
 
 
-    fun addExpense(databaseCallback: DatabaseCallback, expense: Expense) {
+/*    fun addExpense(databaseCallback: DatabaseCallback, expense: Expense) {
         Completable.fromAction {
             MainApplication.db.expenseDAO().insertExpense(expense)
         }.observeOn(AndroidSchedulers.mainThread())
@@ -68,7 +68,7 @@ class ExpenseProvider() {
                         databaseCallback.onDatabaseError()
                     }
                 })
-    }
+    }*/
 
     interface DatabaseCallback {
 

@@ -20,6 +20,7 @@ class AddReceiverInAddDebtPresenter: BasePresenter<AddReceiverInAddDebtContract.
     var amountPerPerson: Float = 0F
     var notSelectedContactsList = mutableListOf<Contact>()
     var selectedContactsList = mutableListOf<Contact>()
+    var receiversWithAmountList = mutableListOf<ReceiverWithAmountForDB>()
 
     override fun onDatabaseError() {
         Log.d("database error")
@@ -30,13 +31,6 @@ class AddReceiverInAddDebtPresenter: BasePresenter<AddReceiverInAddDebtContract.
         Log.d("receiver with amount list is added")
 
         MainApplication.bus.send(Events.ReceiversWithAmountInAddDebtIsAdded())
-    }
-
-    override fun onExpenseAdded() {
-        super.onExpenseAdded()
-
-        //ToDo how to get expenseId to insert it?
-        ReceiverForAmountProvider().addReceiverWithAmountList(this, receiversWithAmountList )
     }
 
     override fun onContactsListLoaded(contactsList: List<Contact>) {
@@ -50,6 +44,17 @@ class AddReceiverInAddDebtPresenter: BasePresenter<AddReceiverInAddDebtContract.
         }
         getView()?.initializeNotSelectedReceiversList(contactsList)
     }
+
+    override fun onExpenseAdded(uid: Long) {
+        super.onExpenseAdded(uid)
+
+        receiversWithAmountList.forEach { receiversWithAmount ->
+            receiversWithAmount.expenseId = uid.toString()
+        }
+
+        ReceiverForAmountProvider().addReceiverWithAmountList(this, receiversWithAmountList )
+    }
+
 
     override fun attachView(baseViewContract: AddReceiverInAddDebtContract.View) {
         super.attachView(baseViewContract)
@@ -111,7 +116,6 @@ class AddReceiverInAddDebtPresenter: BasePresenter<AddReceiverInAddDebtContract.
         //ToDo Should be done in transaction
         var receiversListString = ""
 
-        val receiversWithAmountList = mutableListOf<ReceiverWithAmountForDB>()
         selectedContactsList.forEach { contact ->
 
             val receiverWithAmount = ReceiverWithAmountForDB()
@@ -131,7 +135,7 @@ class AddReceiverInAddDebtPresenter: BasePresenter<AddReceiverInAddDebtContract.
         expense.totalAmount = getView()?.getAmount().toString()
         expense.receiversList = receiversListString
 
-        ExpenseProvider().addExpense(this, expense)
+        ExpenseProvider().addExpenseAndReturnId(this, expense)
 
     }
 }

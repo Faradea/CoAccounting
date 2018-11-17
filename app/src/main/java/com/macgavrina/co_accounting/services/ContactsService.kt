@@ -2,19 +2,20 @@ package com.macgavrina.co_accounting.services
 
 import com.google.gson.GsonBuilder
 import com.macgavrina.co_accounting.model.DefaultServiceResponse
+import com.macgavrina.co_accounting.model.GetAllContactsResponse
 import io.reactivex.Single
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.Field
-import retrofit2.http.FormUrlEncoded
-import retrofit2.http.Header
-import retrofit2.http.POST
+import retrofit2.http.*
 
 interface ContactsService {
     @FormUrlEncoded
     @POST("contacts")
     fun addContact(@Header("Authorization") userToken:String, @Field("email") email:String, @Field("alias") alias:String): Single<DefaultServiceResponse>
+
+    @GET("contacts")
+    fun getAllContacts(@Header("Authorization") userToken:String): Single<GetAllContactsResponse>
 
     companion object ApiFactory{
         fun create():ContactsService{

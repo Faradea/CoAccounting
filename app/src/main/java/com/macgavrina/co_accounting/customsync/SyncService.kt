@@ -40,6 +40,7 @@ class SyncService() {
 
                             }
                         })
+
             }
 
             if (syncDownload) {
