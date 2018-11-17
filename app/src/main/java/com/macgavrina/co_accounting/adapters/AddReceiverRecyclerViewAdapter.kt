@@ -9,12 +9,11 @@ import android.view.ViewGroup
 import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.model.ReceiverWithAmount
-import kotlinx.android.synthetic.main.add_receiver_list_item.view.*
 import java.util.ArrayList
 
 
-class AddRecieverRecyclerViewAdapter (receiverWithAmountList: List<ReceiverWithAmount>?, inputContactsList: Array<String?>) :
-        RecyclerView.Adapter<AddRecieverRecyclerViewAdapter.ViewHolder>() {
+class AddReceiverRecyclerViewAdapter (receiverWithAmountList: List<ReceiverWithAmount>?) :
+        RecyclerView.Adapter<AddReceiverRecyclerViewAdapter.ViewHolder>() {
 
     private val mItems: List<ReceiverWithAmount>? = receiverWithAmountList
     private val contactsList = inputContactsList

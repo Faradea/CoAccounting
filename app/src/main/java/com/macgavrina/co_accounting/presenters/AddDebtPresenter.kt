@@ -3,15 +3,20 @@ package com.macgavrina.co_accounting.presenters
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.interfaces.AddDebtContract
 import com.macgavrina.co_accounting.logging.Log
+import com.macgavrina.co_accounting.model.ExpenseReceiversWithAmountGroup
 import com.macgavrina.co_accounting.model.ReceiverWithAmount
 import com.macgavrina.co_accounting.providers.ContactsProvider
 import com.macgavrina.co_accounting.providers.DebtsProvider
+import com.macgavrina.co_accounting.providers.ReceiverForAmountProvider
+import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.room.Debt
+import com.macgavrina.co_accounting.room.ReceiverWithAmountForDB
 import com.macgavrina.co_accounting.rxjava.Events
 
-class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.Presenter, DebtsProvider.DatabaseCallback, ContactsProvider.DatabaseCallback {
+class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.Presenter, DebtsProvider.DatabaseCallback, ContactsProvider.DatabaseCallback, ReceiverForAmountProvider.DatabaseCallback {
 
 
+    lateinit var contactsIdToNameMap: Map<String, Contact>
     lateinit var receiverWithAmountList: MutableList<ReceiverWithAmount>
     lateinit var friendsList: Array<String?>
 
@@ -42,17 +47,55 @@ class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.P
         friendsList = arrayOfNulls<String>(contactsList.size)
         var i = 0
 
+        contactsIdToNameMap = mapOf<String, Contact>()
         contactsList.forEach { contact ->
             friendsList[i] = contact.alias.toString()
+            contactsIdToNameMap.plus(Pair(contact.uid, contact))
             i = i + 1
         }
 
         getView()?.setupSenderSpinner(friendsList)
+    }
 
-//        val receiverWithAmount = ReceiverWithAmount("TestName", 500.0f, 0)
-//        receiverWithAmountList = mutableListOf(receiverWithAmount)
-//
-//        getView()?.initializeReceiversList(receiverWithAmountList, friendsList)
+    override fun onReceiversWithAmountListLoaded(receiversWithAmountForDBList: List<ReceiverWithAmountForDB>) {
+        super.onReceiversWithAmountListLoaded(receiversWithAmountForDBList)
+
+        if (receiversWithAmountForDBList.isNotEmpty()) {
+
+            val receiverWithAmountGroupList = mutableListOf<ExpenseReceiversWithAmountGroup>()
+
+            var expenseId:String? = null
+            var receiverWithAmountGroup:ExpenseReceiversWithAmountGroup? = null
+
+            receiversWithAmountForDBList.forEach { receiversWithAmountForDB ->
+
+                //ToDo возможно проще делать расчеты при сохранении в базу а не при отображении (в таблице expense)
+                val contactUid = receiversWithAmountForDB.contactId
+                val contact = contactsIdToNameMap[contactUid]
+
+                if (expenseId == null) {
+                    expenseId = receiversWithAmountForDB.expenseId
+                    receiverWithAmountGroup = ExpenseReceiversWithAmountGroup(expenseId!!, contact!!.alias!!,
+                            receiversWithAmountForDB.amount)
+                    receiverWithAmountGroupList.add(receiverWithAmountGroup!!)
+                } else if (expenseId != receiversWithAmountForDB.expenseId) {
+                    expenseId = receiversWithAmountForDB.expenseId
+                    receiverWithAmountGroup = ExpenseReceiversWithAmountGroup(expenseId!!, contact.alias!!,
+                            receiversWithAmountForDB.amount)
+                    receiverWithAmountGroupList.add(receiverWithAmountGroup!!)
+                } else {
+                    receiverWithAmountGroup!!.receiverNamesList = "${receiverWithAmountGroup!!.receiverNamesList}, ${contact!!.alias!!}"
+                    receiverWithAmountGroup!!.totalAmount = receiverWithAmountGroup!!.totalAmount
+
+                }
+
+
+                val receiverWithAmount = ReceiverWithAmount(contact!!, receiversWithAmountForDB.amount!!.toFloat())
+                receiverWithAmountList.add(receiverWithAmount)
+
+            }
+        }
+        getView()?.initializeReceiversList(receiverWithAmountList)
     }
 
     override fun onDatabaseError() {
@@ -84,9 +127,12 @@ class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.P
 
         ContactsProvider().getAll(this)
 
+        ReceiverForAmountProvider().getAll(this)
+
     }
 
     override fun addButtonIsPressed() {
+
         getView()?.hideKeyboard()
         getView()?.showProgress()
 
@@ -96,6 +142,9 @@ class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.P
         debt.amount = getView()?.getAmount()
         debt.datetime = getView()?.getDate()
         debt.comment = getView()?.getComment()
+
+        //ToDo MainActivity should pass eventId here. If no expenseId is passed - list is saved with eventId = "-1" (draft)
+        //Draft (event with id = -1 should ALWAYS exist but may have all values is set to null
 
         DebtsProvider().addDebt(this, debt)
     }

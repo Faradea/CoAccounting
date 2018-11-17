@@ -28,7 +28,7 @@ interface AddDebtContract {
 
         fun setupSenderSpinner(contactsList: Array<String?>)
 
-        fun initializeReceiversList(receiverWithAmountList: List<ReceiverWithAmount>, friendsList: Array<String?>)
+        fun initializeReceiversList(receiverWithAmountList: List<ReceiverWithAmount>)
 
     }
 

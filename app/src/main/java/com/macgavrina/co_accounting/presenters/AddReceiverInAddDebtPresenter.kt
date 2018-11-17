@@ -5,13 +5,17 @@ import com.macgavrina.co_accounting.interfaces.AddReceiverInAddDebtContract
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.model.ReceiverWithAmount
 import com.macgavrina.co_accounting.providers.ContactsProvider
+import com.macgavrina.co_accounting.providers.ExpenseProvider
 import com.macgavrina.co_accounting.providers.ReceiverForAmountProvider
 import com.macgavrina.co_accounting.room.Contact
+import com.macgavrina.co_accounting.room.Expense
 import com.macgavrina.co_accounting.room.ReceiverWithAmountForDB
 import com.macgavrina.co_accounting.room.ReceiverWithAmountForDBDAO
 import com.macgavrina.co_accounting.rxjava.Events
+import java.lang.Exception
 
-class AddReceiverInAddDebtPresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddReceiverInAddDebtContract.Presenter, ContactsProvider.DatabaseCallback, ReceiverForAmountProvider.DatabaseCallback {
+class AddReceiverInAddDebtPresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddReceiverInAddDebtContract.Presenter, ContactsProvider.DatabaseCallback, ReceiverForAmountProvider.DatabaseCallback, ExpenseProvider.DatabaseCallback {
+    //ToDo переименовать в Expense
 
     var amountPerPerson: Float = 0F
     var notSelectedContactsList = mutableListOf<Contact>()
@@ -26,6 +30,13 @@ class AddReceiverInAddDebtPresenter: BasePresenter<AddReceiverInAddDebtContract.
         Log.d("receiver with amount list is added")
 
         MainApplication.bus.send(Events.ReceiversWithAmountInAddDebtIsAdded())
+    }
+
+    override fun onExpenseAdded() {
+        super.onExpenseAdded()
+
+        //ToDo how to get expenseId to insert it?
+        ReceiverForAmountProvider().addReceiverWithAmountList(this, receiversWithAmountList )
     }
 
     override fun onContactsListLoaded(contactsList: List<Contact>) {
@@ -97,6 +108,9 @@ class AddReceiverInAddDebtPresenter: BasePresenter<AddReceiverInAddDebtContract.
 
         getView()?.hideKeyboard()
 
+        //ToDo Should be done in transaction
+        var receiversListString = ""
+
         val receiversWithAmountList = mutableListOf<ReceiverWithAmountForDB>()
         selectedContactsList.forEach { contact ->
 
@@ -104,7 +118,20 @@ class AddReceiverInAddDebtPresenter: BasePresenter<AddReceiverInAddDebtContract.
             receiverWithAmount.amount = amountPerPerson.toString()
             receiverWithAmount.contactId = contact.uid.toString()
             receiversWithAmountList.add(receiverWithAmount)
+
+            if (receiversListString == "") {
+                receiversListString = contact.alias.toString()
+            } else {
+                receiversListString = "$receiversListString, ${contact.alias.toString()}"
+            }
         }
-        ReceiverForAmountProvider().addReceiverWithAmountList(this, receiversWithAmountList )
+
+
+        val expense = Expense()
+        expense.totalAmount = getView()?.getAmount().toString()
+        expense.receiversList = receiversListString
+
+        ExpenseProvider().addExpense(this, expense)
+
     }
 }

@@ -2,9 +2,14 @@ package com.macgavrina.co_accounting.room
 
 import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Entity
+import android.arch.persistence.room.ForeignKey
 import android.arch.persistence.room.PrimaryKey
 
-@Entity
+@Entity(foreignKeys = arrayOf(ForeignKey(entity = Expense::class,
+        parentColumns = arrayOf("uid"),
+        childColumns = arrayOf("expenseId"),
+        onDelete = ForeignKey.CASCADE)))
+
 class ReceiverWithAmountForDB {
 
     @PrimaryKey(autoGenerate = true)
