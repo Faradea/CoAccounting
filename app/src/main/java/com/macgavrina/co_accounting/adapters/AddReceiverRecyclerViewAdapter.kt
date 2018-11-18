@@ -1,3 +1,4 @@
+/*
 package com.macgavrina.co_accounting.adapters
 
 import android.support.v7.widget.RecyclerView
@@ -92,4 +93,4 @@ class AddReceiverRecyclerViewAdapter (receiverWithAmountList: List<ReceiverWithA
         fun onTextChanged(position: Int, charSeq: String)
     }
 
-}
+}*/

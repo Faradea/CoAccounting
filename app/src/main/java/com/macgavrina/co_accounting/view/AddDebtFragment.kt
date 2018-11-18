@@ -13,7 +13,6 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
-import com.macgavrina.co_accounting.adapters.AddReceiverRecyclerViewAdapter
 import com.macgavrina.co_accounting.interfaces.AddDebtContract
 import com.macgavrina.co_accounting.model.ReceiverWithAmount
 import com.macgavrina.co_accounting.presenters.AddDebtPresenter
@@ -125,7 +124,7 @@ class AddDebtFragment: Fragment(), AddDebtContract.View {
 
     override fun initializeReceiversList(receiverWithAmountList: List<ReceiverWithAmount>) {
 
-        add_debt_fragment_reciever_recyclerview.adapter = AddReceiverRecyclerViewAdapter(receiverWithAmountList)
+        //add_debt_fragment_reciever_recyclerview.adapter = AddReceiverRecyclerViewAdapter(receiverWithAmountList)
         add_debt_fragment_reciever_recyclerview.layoutManager = viewManager
 
     }

@@ -32,23 +32,10 @@ class ExpenseProvider() {
                 })
     }
 
-    fun addExpenseAndReturnId(databaseCallback: DatabaseCallback, expense: Expense) {
-        MainApplication.db.expenseDAO().insertExpense(expense)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(object : DisposableMaybeObserver<Long>() {
-                    override fun onSuccess(t: Long) {
-                        databaseCallback.onExpenseAdded(t)
-                    }
-
-                    override fun onError(e: Throwable) {
-                        Log.d(e.toString())
-                    }
-
-                    override fun onComplete() {
-                        Log.d("nothing")
-                    }
-                })
+    //ToDo Should be async (but room doesn't return
+    fun addExpenseAndReturnId(expense: Expense): Long {
+        val rowId = MainApplication.db.expenseDAO().insertExpense(expense)
+        return rowId
     }
 
 

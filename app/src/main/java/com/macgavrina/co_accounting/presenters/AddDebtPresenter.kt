@@ -80,7 +80,7 @@ class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.P
                     receiverWithAmountGroupList.add(receiverWithAmountGroup!!)
                 } else if (expenseId != receiversWithAmountForDB.expenseId) {
                     expenseId = receiversWithAmountForDB.expenseId
-                    receiverWithAmountGroup = ExpenseReceiversWithAmountGroup(expenseId!!, contact.alias!!,
+                    receiverWithAmountGroup = ExpenseReceiversWithAmountGroup(expenseId!!, contact!!.alias!!,
                             receiversWithAmountForDB.amount)
                     receiverWithAmountGroupList.add(receiverWithAmountGroup!!)
                 } else {
@@ -95,7 +95,7 @@ class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.P
 
             }
         }
-        getView()?.initializeReceiversList(receiverWithAmountList)
+        //getView()?.initializeReceiversList(receiverWithAmountList)
     }
 
     override fun onDatabaseError() {

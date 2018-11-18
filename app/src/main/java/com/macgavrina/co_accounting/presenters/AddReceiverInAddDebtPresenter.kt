@@ -135,7 +135,7 @@ class AddReceiverInAddDebtPresenter: BasePresenter<AddReceiverInAddDebtContract.
         expense.totalAmount = getView()?.getAmount().toString()
         expense.receiversList = receiversListString
 
-        ExpenseProvider().addExpenseAndReturnId(this, expense)
+        //ExpenseProvider().addExpenseAndReturnId(this, expense)
 
     }
 }

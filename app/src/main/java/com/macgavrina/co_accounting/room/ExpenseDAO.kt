@@ -12,7 +12,7 @@ interface ExpenseDAO {
     fun loadExpenseByIds(expenseId: String): Maybe<Expense>
 
     @Insert
-    fun insertExpense(expense: Expense): Maybe<Long>
+    fun insertExpense(expense: Expense): Long
 
     @Delete
     fun deleteExpense(expense: Expense)

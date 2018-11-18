@@ -4,12 +4,13 @@ import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.ForeignKey
 import android.arch.persistence.room.PrimaryKey
-
-@Entity(foreignKeys = arrayOf(ForeignKey(entity = Expense::class,
+/*
+        @Entity(foreignKeys = arrayOf(ForeignKey(entity = Expense::class,
         parentColumns = arrayOf("uid"),
         childColumns = arrayOf("expenseId"),
-        onDelete = ForeignKey.CASCADE)))
+        onDelete = ForeignKey.CASCADE)))*/
 
+@Entity
 class ReceiverWithAmountForDB {
 
     @PrimaryKey(autoGenerate = true)
