@@ -1,6 +1,6 @@
 package com.macgavrina.co_accounting.room
 
-import android.arch.persistence.room.*
+import androidx.room.*
 import io.reactivex.Maybe
 
 @Dao

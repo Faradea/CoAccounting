@@ -1,7 +1,7 @@
 package com.macgavrina.co_accounting.view
 
 import android.content.Context
-import android.support.v4.app.Fragment
+import androidx.fragment.app.Fragment
 import android.os.Bundle
 import android.view.ViewGroup
 import android.view.LayoutInflater
@@ -16,7 +16,7 @@ import com.macgavrina.co_accounting.rxjava.LoginInputObserver.LoginInputObserver
 import io.reactivex.Observable
 import com.macgavrina.co_accounting.presenters.LoginPresenter
 
-class LoginFragment:Fragment(), LoginContract.View {
+class LoginFragment: Fragment(), LoginContract.View {
 
     companion object {
         const val ENTERED_LOGIN_KEY = "enteredLogin"

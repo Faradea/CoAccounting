@@ -4,7 +4,7 @@ import android.app.Application
 import android.content.Context
 import com.macgavrina.co_accounting.rxjava.RxBus
 import com.macgavrina.co_accounting.room.AppDatabase
-import android.arch.persistence.room.Room
+import androidx.room.Room
 
 
 

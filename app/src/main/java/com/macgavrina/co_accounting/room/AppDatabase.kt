@@ -1,8 +1,8 @@
 package com.macgavrina.co_accounting.room
 
-import android.arch.persistence.room.RoomDatabase
+import androidx.room.RoomDatabase
 import com.macgavrina.co_accounting.model.User
-import android.arch.persistence.room.Database
+import androidx.room.Database
 
 
 

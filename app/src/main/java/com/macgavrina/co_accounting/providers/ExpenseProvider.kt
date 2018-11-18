@@ -32,37 +32,32 @@ class ExpenseProvider() {
                 })
     }
 
-    //ToDo Should be async (but room doesn't return
-    fun addExpenseAndReturnId(expense: Expense): Long {
-        val rowId = MainApplication.db.expenseDAO().insertExpense(expense)
-        return rowId
-    }
 
-
-/*    fun addExpense(databaseCallback: DatabaseCallback, expense: Expense) {
-        Completable.fromAction {
-            MainApplication.db.expenseDAO().insertExpense(expense)
-        }.observeOn(AndroidSchedulers.mainThread())
+    fun addExpense(databaseCallback: DatabaseCallback, expense: Expense) {
+        MainApplication.db.expenseDAO().insertExpense(expense)
                 .subscribeOn(Schedulers.io())
-                .subscribe(object : CompletableObserver {
-                    override fun onSubscribe(d: Disposable) {}
-
-                    override fun onComplete() {
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : DisposableMaybeObserver<Long>() {
+                    override fun onSuccess(uid: Long) {
                         databaseCallback.onExpenseAdded(uid)
                     }
 
                     override fun onError(e: Throwable) {
-                        databaseCallback.onDatabaseError()
+                        Log.d(e.toString())
+                    }
+
+                    override fun onComplete() {
+                        Log.d("nothing")
                     }
                 })
-    }*/
+    }
 
     interface DatabaseCallback {
 
         fun onDatabaseError()
 
         fun onExpenseAdded(uid: Long) {
-            Log.d("expense is added")
+            Log.d("expense is added, uid = $uid")
         }
 
         fun onExpenseListLoaded(debtList: List<Expense>) {
