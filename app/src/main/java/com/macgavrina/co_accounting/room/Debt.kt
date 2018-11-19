@@ -13,18 +13,13 @@ class Debt {
         set
         get
 
-    @ColumnInfo(name = "sender")
-    public var sender: String? = null
+    @ColumnInfo(name = "receiverId")
+    public var receiverId: String? = null
         set
         get
 
-    @ColumnInfo(name = "receiver")
-    public var receiver: String? = null
-        set
-        get
-
-    @ColumnInfo(name = "amount")
-    public var amount: String? = null
+    @ColumnInfo(name = "spentAmount")
+    public var spentAmount: String? = null
         set
         get
 

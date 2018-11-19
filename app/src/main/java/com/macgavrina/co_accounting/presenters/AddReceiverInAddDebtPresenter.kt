@@ -45,8 +45,14 @@ class AddReceiverInAddDebtPresenter: BasePresenter<AddReceiverInAddDebtContract.
         getView()?.initializeNotSelectedReceiversList(contactsList)
     }
 
-    override fun onExpenseAdded(uid: Long) {
-        super.onExpenseAdded(uid)
+    override fun onExpenseAdded() {
+        super.onExpenseAdded()
+
+        ExpenseProvider().getLastExpenseId(this)
+    }
+
+    override fun onGetLastExpenseId(uid: Int) {
+        super.onGetLastExpenseId(uid)
 
         receiversWithAmountList.forEach { receiversWithAmount ->
             receiversWithAmount.expenseId = uid.toString()
@@ -54,7 +60,6 @@ class AddReceiverInAddDebtPresenter: BasePresenter<AddReceiverInAddDebtContract.
 
         ReceiverForAmountProvider().addReceiverWithAmountList(this, receiversWithAmountList )
     }
-
 
     override fun attachView(baseViewContract: AddReceiverInAddDebtContract.View) {
         super.attachView(baseViewContract)

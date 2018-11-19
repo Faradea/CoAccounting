@@ -11,8 +11,11 @@ interface ExpenseDAO {
     @Query("SELECT * FROM expense WHERE uid IN (:expenseId)")
     fun loadExpenseByIds(expenseId: String): Maybe<Expense>
 
+    @Query("SELECT uid FROM expense ORDER BY uid LIMIT 1")
+    fun getLastExpenseId(): Maybe<Int>
+
     @Insert
-    fun insertExpense(expense: Expense): Maybe<Long>
+    fun insertExpense(expense: Expense)
 
     @Delete
     fun deleteExpense(expense: Expense)

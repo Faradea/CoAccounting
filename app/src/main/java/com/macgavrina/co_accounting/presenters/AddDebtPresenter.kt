@@ -7,13 +7,15 @@ import com.macgavrina.co_accounting.model.ExpenseReceiversWithAmountGroup
 import com.macgavrina.co_accounting.model.ReceiverWithAmount
 import com.macgavrina.co_accounting.providers.ContactsProvider
 import com.macgavrina.co_accounting.providers.DebtsProvider
+import com.macgavrina.co_accounting.providers.ExpenseProvider
 import com.macgavrina.co_accounting.providers.ReceiverForAmountProvider
 import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.room.Debt
+import com.macgavrina.co_accounting.room.Expense
 import com.macgavrina.co_accounting.room.ReceiverWithAmountForDB
 import com.macgavrina.co_accounting.rxjava.Events
 
-class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.Presenter, DebtsProvider.DatabaseCallback, ContactsProvider.DatabaseCallback, ReceiverForAmountProvider.DatabaseCallback {
+class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.Presenter, DebtsProvider.DatabaseCallback, ContactsProvider.DatabaseCallback, ExpenseProvider.DatabaseCallback {
 
 
     lateinit var contactsIdToNameMap: Map<String, Contact>
@@ -57,45 +59,10 @@ class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.P
         getView()?.setupSenderSpinner(friendsList)
     }
 
-    override fun onReceiversWithAmountListLoaded(receiversWithAmountForDBList: List<ReceiverWithAmountForDB>) {
-        super.onReceiversWithAmountListLoaded(receiversWithAmountForDBList)
+    override fun onExpenseListLoaded(expenseList: List<Expense>) {
+        super.onExpenseListLoaded(expenseList)
 
-        if (receiversWithAmountForDBList.isNotEmpty()) {
-
-            val receiverWithAmountGroupList = mutableListOf<ExpenseReceiversWithAmountGroup>()
-
-            var expenseId:String? = null
-            var receiverWithAmountGroup:ExpenseReceiversWithAmountGroup? = null
-
-            receiversWithAmountForDBList.forEach { receiversWithAmountForDB ->
-
-                //ToDo возможно проще делать расчеты при сохранении в базу а не при отображении (в таблице expense)
-                val contactUid = receiversWithAmountForDB.contactId
-                val contact = contactsIdToNameMap[contactUid]
-
-                if (expenseId == null) {
-                    expenseId = receiversWithAmountForDB.expenseId
-                    receiverWithAmountGroup = ExpenseReceiversWithAmountGroup(expenseId!!, contact!!.alias!!,
-                            receiversWithAmountForDB.amount)
-                    receiverWithAmountGroupList.add(receiverWithAmountGroup!!)
-                } else if (expenseId != receiversWithAmountForDB.expenseId) {
-                    expenseId = receiversWithAmountForDB.expenseId
-                    receiverWithAmountGroup = ExpenseReceiversWithAmountGroup(expenseId!!, contact!!.alias!!,
-                            receiversWithAmountForDB.amount)
-                    receiverWithAmountGroupList.add(receiverWithAmountGroup!!)
-                } else {
-                    receiverWithAmountGroup!!.receiverNamesList = "${receiverWithAmountGroup!!.receiverNamesList}, ${contact!!.alias!!}"
-                    receiverWithAmountGroup!!.totalAmount = receiverWithAmountGroup!!.totalAmount
-
-                }
-
-
-                val receiverWithAmount = ReceiverWithAmount(contact!!, receiversWithAmountForDB.amount!!.toFloat())
-                receiverWithAmountList.add(receiverWithAmount)
-
-            }
-        }
-        //getView()?.initializeReceiversList(receiverWithAmountList)
+        getView()?.initializeExpensesList(expenseList)
     }
 
     override fun onDatabaseError() {
@@ -127,7 +94,7 @@ class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.P
 
         ContactsProvider().getAll(this)
 
-        ReceiverForAmountProvider().getAll(this)
+        ExpenseProvider().getAll(this)
 
     }
 
@@ -137,9 +104,8 @@ class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.P
         getView()?.showProgress()
 
         val debt = Debt()
-        debt.sender = getView()?.getSender()
-        debt.receiver = getView()?.getReceiver()
-        debt.amount = getView()?.getAmount()
+        debt.receiverId = getView()?.getReceiver()
+        debt.spentAmount= getView()?.getAmount()
         debt.datetime = getView()?.getDate()
         debt.comment = getView()?.getComment()
 
