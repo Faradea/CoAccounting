@@ -25,6 +25,11 @@ class AddReceiverInAddDebtFragment: Fragment(), AddReceiverInAddDebtContract.Vie
     lateinit var presenter: AddReceiverInAddDebtPresenter
     private lateinit var viewManagerForNotSelected: RecyclerView.LayoutManager
     private lateinit var viewManagerForSelected: RecyclerView.LayoutManager
+    var debtId: Int? = null
+
+    companion object {
+        const val DEBT_ID_KEY = "debtid"
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -53,6 +58,11 @@ class AddReceiverInAddDebtFragment: Fragment(), AddReceiverInAddDebtContract.Vie
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+
+        debtId = this.arguments?.getInt(DEBT_ID_KEY)
+        if (debtId != null) {
+            presenter.debtIdIsReceiverFromMainActivity(debtId!!)
+        }
 
         add_receiver_dialog_fragment_amount_et.addTextChangedListener(this)
 

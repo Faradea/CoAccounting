@@ -38,24 +38,24 @@ class DebtsProvider() {
                 })
     }
 
-//    fun getDebtById(databaseCallback: DatabaseCallback, debtUid:String) {
-//        MainApplication.db.debtDAO().loadDebtByIds(debtUid)
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(object : DisposableMaybeObserver<Contact>() {
-//                    override fun onSuccess(t: com.macgavrina.co_accounting.room.Contact) {
-//                        databaseCallback.onContactLoaded(t)
-//                    }
-//
-//                    override fun onError(e: Throwable) {
-//                        Log.d(e.toString())
-//                    }
-//
-//                    override fun onComplete() {
-//                        Log.d("nothing")
-//                    }
-//                })
-//    }
+    fun getDebtDraft(databaseCallback: DatabaseCallback) {
+        MainApplication.db.debtDAO().getDebtDraft("draft")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : DisposableMaybeObserver<Debt>() {
+                    override fun onSuccess(t: Debt) {
+                        databaseCallback.onDebtDraftLoaded(t)
+                    }
+
+                    override fun onError(e: Throwable) {
+                        Log.d(e.toString())
+                    }
+
+                    override fun onComplete() {
+                        databaseCallback.onNoDebtDraftExist()
+                    }
+                })
+    }
 
 
     fun addDebt(databaseCallback: DatabaseCallback, debt: Debt) {
@@ -68,6 +68,25 @@ class DebtsProvider() {
                     override fun onComplete() {
                         databaseCallback.onDebtAdded()
                         //syncDataUpload()
+                    }
+
+                    override fun onError(e: Throwable) {
+                        databaseCallback.onDatabaseError()
+                    }
+                })
+    }
+
+    fun addDebtDraft(databaseCallback: DatabaseCallback) {
+        Completable.fromAction {
+            val debt = Debt()
+            debt.status = "draft"
+            MainApplication.db.debtDAO().insertDebt(debt)
+        }.observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io()).subscribe(object : CompletableObserver {
+                    override fun onSubscribe(d: Disposable) {}
+
+                    override fun onComplete() {
+                        databaseCallback.onDebtDraftAdded()
                     }
 
                     override fun onError(e: Throwable) {
@@ -153,6 +172,18 @@ class DebtsProvider() {
 
         fun onDebtsListLoaded(debtList: List<Debt>) {
             Log.d("debt list is loaded")
+        }
+
+        fun onDebtDraftLoaded(debt: Debt) {
+            Log.d("Debt draft is loaded, $debt")
+        }
+
+        fun onNoDebtDraftExist() {
+            Log.d("debt draft doesn't exist")
+        }
+
+        fun onDebtDraftAdded() {
+            Log.d("new empty debt draft is created")
         }
     }
 }

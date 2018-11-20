@@ -8,7 +8,6 @@ import com.macgavrina.co_accounting.model.User
 import com.macgavrina.co_accounting.providers.ContactsProvider
 import com.macgavrina.co_accounting.providers.UserProvider
 import com.macgavrina.co_accounting.rxjava.Events
-import com.macgavrina.co_accounting.rxjava.RxBus
 
 
 class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActivityContract.Presenter, UserProvider.LoadUserCallback, UserProvider.CheckIfUserTokenExistCallback {
@@ -64,7 +63,7 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
                             getView()?.displayDebtsFragment()
                         }
                         is Events.AddReceiverButtonInAddDebtFragment -> {
-                            getView()?.displayAddReceiverInAddDebtFragment()
+                            getView()?.displayAddReceiverInAddDebtFragment(`object`.myUid)
                         }
                         is Events.CancelButtonInAddReceiverInAddDebtFragment -> {
                             getView()?.dismissAddReceiverInAddDebtFragment()

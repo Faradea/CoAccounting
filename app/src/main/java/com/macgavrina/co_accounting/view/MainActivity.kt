@@ -2,7 +2,6 @@ package com.macgavrina.co_accounting.view
 
 import android.accounts.Account
 import android.content.DialogInterface
-import android.content.Intent
 import android.os.Bundle
 import com.google.android.material.navigation.NavigationView
 import androidx.core.view.GravityCompat
@@ -13,16 +12,10 @@ import android.view.MenuItem
 import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.interfaces.MainActivityContract
 import com.macgavrina.co_accounting.logging.Log
-import com.macgavrina.co_accounting.presenters.LoginPresenter
 import com.macgavrina.co_accounting.presenters.MainActivityPresenter
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
-import kotlinx.android.synthetic.main.login_fragment.*
 import kotlinx.android.synthetic.main.nav_header_main.view.*
-import androidx.core.content.ContextCompat.getSystemService
-import android.accounts.AccountManager
-import android.content.Context
-import com.macgavrina.co_accounting.sync.SyncService
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, MainActivityContract.View {
@@ -267,10 +260,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .commit()
     }
 
-    override fun displayAddReceiverInAddDebtFragment() {
+    override fun displayAddReceiverInAddDebtFragment(debtId: Int) {
+        val addReceiverInAddDebtFragment = AddReceiverInAddDebtFragment()
+        val bundle:Bundle = Bundle()
+        bundle.putInt(AddReceiverInAddDebtFragment.DEBT_ID_KEY, debtId)
+        addReceiverInAddDebtFragment.arguments = bundle
+
         val supportFragmentManager = supportFragmentManager
         supportFragmentManager.beginTransaction()
-                .replace(R.id.content_main_constraint_layout, AddReceiverInAddDebtFragment())
+                .replace(R.id.content_main_constraint_layout, addReceiverInAddDebtFragment)
                 .addToBackStack("AddReceiverInDebtFragment")
                 .commit()
     }

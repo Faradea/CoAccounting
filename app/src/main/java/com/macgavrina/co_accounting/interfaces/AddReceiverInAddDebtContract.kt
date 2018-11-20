@@ -28,5 +28,7 @@ interface AddReceiverInAddDebtContract {
 
         fun saveButtonIsPressed()
 
+        fun debtIdIsReceiverFromMainActivity(debtId: Int)
+
     }
 }

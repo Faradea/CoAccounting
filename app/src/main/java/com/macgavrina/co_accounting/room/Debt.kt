@@ -32,4 +32,9 @@ class Debt {
     public var comment: String? = null
         set
         get
+
+    @ColumnInfo(name = "status")
+    public var status: String? = null
+        set
+        get
 }

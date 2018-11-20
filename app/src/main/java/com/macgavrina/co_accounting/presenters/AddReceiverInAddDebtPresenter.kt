@@ -17,6 +17,7 @@ import java.lang.Exception
 class AddReceiverInAddDebtPresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddReceiverInAddDebtContract.Presenter, ContactsProvider.DatabaseCallback, ReceiverForAmountProvider.DatabaseCallback, ExpenseProvider.DatabaseCallback {
     //ToDo переименовать в Expense
 
+    var debtId: Int? = null
     var amountPerPerson: Float = 0F
     var notSelectedContactsList = mutableListOf<Contact>()
     var selectedContactsList = mutableListOf<Contact>()
@@ -89,6 +90,10 @@ class AddReceiverInAddDebtPresenter: BasePresenter<AddReceiverInAddDebtContract.
     }
 
 
+    override fun debtIdIsReceiverFromMainActivity(debtId: Int) {
+        this.debtId = debtId
+    }
+
     override fun amountIsEdited(newAmount: Float) {
         if (selectedContactsList.isNotEmpty()) {
             amountPerPerson = newAmount/selectedContactsList.size
@@ -139,6 +144,9 @@ class AddReceiverInAddDebtPresenter: BasePresenter<AddReceiverInAddDebtContract.
         val expense = Expense()
         expense.totalAmount = getView()?.getAmount().toString()
         expense.receiversList = receiversListString
+        expense.debtId = debtId
+
+        Log.d("add expense: debtId = ${expense.debtId}, receiversList = ${expense.receiversList}, amount = ${expense.totalAmount}")
 
         ExpenseProvider().addExpense(this, expense)
 

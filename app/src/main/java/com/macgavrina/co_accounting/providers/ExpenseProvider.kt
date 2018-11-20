@@ -32,6 +32,26 @@ class ExpenseProvider() {
                 })
     }
 
+    fun getExpensesForDebt(databaseCallback: DatabaseCallback, debtId: String) {
+        MainApplication.db.expenseDAO().getExpensesForDebt(debtId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : DisposableMaybeObserver<List<Expense>>() {
+                    override fun onSuccess(t: List<Expense>) {
+                        databaseCallback.onExpensesForDebtListLoaded(t)
+                    }
+
+                    override fun onError(e: Throwable) {
+                        Log.d("error, ${e.toString()}")
+                    }
+
+                    override fun onComplete() {
+                        Log.d("nothing")
+                        databaseCallback.onNoExpensesForDebt()
+                    }
+                })
+    }
+
 
     //ToDo Use  Maybe<Long> in DAO after Room bugfixing
 //    fun addExpense(databaseCallback: DatabaseCallback, expense: Expense) {
@@ -107,6 +127,14 @@ class ExpenseProvider() {
 
         fun onGetLastExpenseId(uid: Int) {
             Log.d("last expense id = $uid")
+        }
+
+        fun onExpensesForDebtListLoaded(expenseList: List<Expense>) {
+            Log.d("expenses for debt list is loaded")
+        }
+
+        fun onNoExpensesForDebt() {
+            Log.d("there is no expenses for debt")
         }
     }
 }

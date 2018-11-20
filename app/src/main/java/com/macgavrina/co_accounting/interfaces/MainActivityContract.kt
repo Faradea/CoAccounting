@@ -1,7 +1,5 @@
 package com.macgavrina.co_accounting.interfaces
 
-import com.macgavrina.co_accounting.presenters.LoginPresenter
-
 interface MainActivityContract {
 
     interface View:BaseViewContract {
@@ -38,7 +36,7 @@ interface MainActivityContract {
 
         fun displayAddDebtFragment()
 
-        fun displayAddReceiverInAddDebtFragment()
+        fun displayAddReceiverInAddDebtFragment(myUid: Int)
 
         fun dismissAddReceiverInAddDebtFragment()
 

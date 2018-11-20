@@ -11,6 +11,9 @@ interface DebtDAO {
     @Query("SELECT * FROM debt WHERE uid IN (:debtId)")
     fun loadDebtByIds(debtId: String): Maybe<Debt>
 
+    @Query("SELECT * FROM debt WHERE status IN (:status)")
+    fun getDebtDraft(status: String): Maybe<Debt>
+
     @Insert
     fun insertDebt(debt: Debt)
 

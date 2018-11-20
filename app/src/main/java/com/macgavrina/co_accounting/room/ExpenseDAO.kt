@@ -14,6 +14,9 @@ interface ExpenseDAO {
     @Query("SELECT uid FROM expense ORDER BY uid LIMIT 1")
     fun getLastExpenseId(): Maybe<Int>
 
+    @Query("SELECT * FROM expense WHERE debtId IN (:debtId) ORDER BY uid")
+    fun getExpensesForDebt(debtId: String): Maybe<List<Expense>>
+
     @Insert
     fun insertExpense(expense: Expense)
 

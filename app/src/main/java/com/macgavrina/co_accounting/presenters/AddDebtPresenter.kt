@@ -3,21 +3,19 @@ package com.macgavrina.co_accounting.presenters
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.interfaces.AddDebtContract
 import com.macgavrina.co_accounting.logging.Log
-import com.macgavrina.co_accounting.model.ExpenseReceiversWithAmountGroup
 import com.macgavrina.co_accounting.model.ReceiverWithAmount
 import com.macgavrina.co_accounting.providers.ContactsProvider
 import com.macgavrina.co_accounting.providers.DebtsProvider
 import com.macgavrina.co_accounting.providers.ExpenseProvider
-import com.macgavrina.co_accounting.providers.ReceiverForAmountProvider
 import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.room.Debt
 import com.macgavrina.co_accounting.room.Expense
-import com.macgavrina.co_accounting.room.ReceiverWithAmountForDB
 import com.macgavrina.co_accounting.rxjava.Events
+import kotlin.math.exp
 
 class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.Presenter, DebtsProvider.DatabaseCallback, ContactsProvider.DatabaseCallback, ExpenseProvider.DatabaseCallback {
 
-
+    lateinit var debt: Debt
     lateinit var contactsIdToNameMap: Map<String, Contact>
     lateinit var receiverWithAmountList: MutableList<ReceiverWithAmount>
     lateinit var friendsList: Array<String?>
@@ -59,12 +57,6 @@ class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.P
         getView()?.setupSenderSpinner(friendsList)
     }
 
-    override fun onExpenseListLoaded(expenseList: List<Expense>) {
-        super.onExpenseListLoaded(expenseList)
-
-        getView()?.initializeExpensesList(expenseList)
-    }
-
     override fun onDatabaseError() {
         getView()?.displayToast("Database error")
         getView()?.hideProgress()
@@ -76,6 +68,45 @@ class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.P
         MainApplication.bus.send(Events.DebtIsAdded())
     }
 
+    override fun onDebtDraftAdded() {
+        super.onDebtDraftAdded()
+
+        DebtsProvider().getDebtDraft(this)
+    }
+
+    override fun onDebtDraftLoaded(debt: Debt) {
+        super.onDebtDraftLoaded(debt)
+
+        Log.d("draft debt id = ${debt.uid}")
+
+        this.debt = debt
+        ExpenseProvider().getExpensesForDebt(this, debt.uid.toString())
+    }
+
+    override fun onNoDebtDraftExist() {
+        super.onNoDebtDraftExist()
+
+        DebtsProvider().addDebtDraft(this)
+    }
+
+    override fun onExpensesForDebtListLoaded(expenseList: List<Expense>) {
+        super.onExpensesForDebtListLoaded(expenseList)
+
+        getView()?.hideProgress()
+
+        expenseList.forEach { expense ->
+            Log.d("expense: debtId = ${expense.debtId}, amount = ${expense.totalAmount}, receiversList = ${expense.receiversList}")
+        }
+
+        getView()?.initializeExpensesList(expenseList)
+    }
+
+    override fun onNoExpensesForDebt() {
+        super.onNoExpensesForDebt()
+
+        getView()?.hideProgress()
+    }
+
     var addDebtButtonEnabled: Boolean = false
 
     override fun inputTextFieldsAreEmpty(areFilled: Boolean) {
@@ -85,6 +116,8 @@ class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.P
 
     override fun viewIsReady() {
 
+        DebtsProvider().getDebtDraft(this)
+
         //ToDo написать условия при который кнопка "добавить" активна
         addDebtButtonEnabled = true
                 //getView()?.getEmail()?.length!! > 0
@@ -93,8 +126,6 @@ class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.P
         getView()?.hideProgress()
 
         ContactsProvider().getAll(this)
-
-        ExpenseProvider().getAll(this)
 
     }
 
@@ -122,6 +153,6 @@ class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.P
 //        receiverWithAmountList.add(receiverWithAmount)
 //
 //        getView()?.initializeReceiversList(receiverWithAmountList, friendsList)
-        MainApplication.bus.send(Events.AddReceiverButtonInAddDebtFragment())
+        MainApplication.bus.send(Events.AddReceiverButtonInAddDebtFragment(debt.uid))
     }
 }

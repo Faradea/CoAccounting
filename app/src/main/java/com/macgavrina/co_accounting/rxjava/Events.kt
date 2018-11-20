@@ -54,7 +54,9 @@ object Events {
         val myNewText = newText
     }
 
-    class AddReceiverButtonInAddDebtFragment
+    class AddReceiverButtonInAddDebtFragment(uid: Int) {
+        val myUid = uid
+    }
 
     class NewContactIsAddedToSelectedReceiversList(contact: Contact?) {
         val myContact = contact
