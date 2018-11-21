@@ -57,7 +57,7 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
                             getView()?.displayContactsFragment()
                         }
                         is Events.AddDebt -> {
-                            getView()?.displayAddDebtFragment()
+                            getView()?.displayAddDebtFragment(null)
                         }
                         is Events.DebtIsAdded -> {
                             getView()?.displayDebtsFragment()
@@ -70,6 +70,9 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
                         }
                         is Events.ReceiversWithAmountInAddDebtIsAdded -> {
                             getView()?.displayAddReceiverInAddDebtFragmentAfterReceiverAdded()
+                        }
+                        is Events.OnClickDebtItemList -> {
+                            getView()?.displayAddDebtFragment(`object`.myUid)
                         }
                     }
                 }

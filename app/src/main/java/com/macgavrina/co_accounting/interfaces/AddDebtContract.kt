@@ -17,6 +17,14 @@ interface AddDebtContract {
 
         fun getComment(): String
 
+        fun setSender(senderName: String)
+
+        fun setAmount(amount: String)
+
+        fun setDate(date: String)
+
+        fun setComment(comment: String)
+
         fun showProgress()
 
         fun hideProgress()
@@ -40,6 +48,8 @@ interface AddDebtContract {
         fun addReceiverButtonIsPressed()
 
         fun inputTextFieldsAreEmpty(areFilled: Boolean)
+
+        fun debtIdIsReceiverFromMainActivity(debtId: Int?)
 
     }
 }

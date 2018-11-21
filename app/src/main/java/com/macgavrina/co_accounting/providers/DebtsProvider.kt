@@ -19,7 +19,7 @@ class DebtsProvider() {
 
     fun getAll(databaseCallback: DatabaseCallback) {
         Log.d("get all debts")
-        MainApplication.db.debtDAO().getAll
+        MainApplication.db.debtDAO().getAll("active")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(object : DisposableMaybeObserver<List<Debt>>() {
@@ -57,17 +57,36 @@ class DebtsProvider() {
                 })
     }
 
+    fun getDebtById(databaseCallback: DatabaseCallback, debtId: Int) {
+        Log.d("getting debt by id = $debtId")
+        MainApplication.db.debtDAO().getDebtByIds(debtId.toString())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : DisposableMaybeObserver<Debt>() {
+                    override fun onSuccess(t: Debt) {
+                        databaseCallback.onDebtLoaded(t)
+                    }
 
-    fun addDebt(databaseCallback: DatabaseCallback, debt: Debt) {
+                    override fun onError(e: Throwable) {
+                        Log.d(e.toString())
+                    }
+
+                    override fun onComplete() {
+                        databaseCallback.onNoDebtWithIdExist()
+                    }
+                })
+    }
+
+
+    fun updateDebt(databaseCallback: DatabaseCallback, debt: Debt) {
         Completable.fromAction {
-            MainApplication.db.debtDAO().insertDebt(debt)
+            MainApplication.db.debtDAO().updateDebt(debt)
         }.observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io()).subscribe(object : CompletableObserver {
                     override fun onSubscribe(d: Disposable) {}
 
                     override fun onComplete() {
-                        databaseCallback.onDebtAdded()
-                        //syncDataUpload()
+                        databaseCallback.onDebtUpdated()
                     }
 
                     override fun onError(e: Throwable) {
@@ -184,6 +203,10 @@ class DebtsProvider() {
 
         fun onDebtDraftAdded() {
             Log.d("new empty debt draft is created")
+        }
+
+        fun onNoDebtWithIdExist() {
+            Log.d("debt with sent id doesn't exist")
         }
     }
 }

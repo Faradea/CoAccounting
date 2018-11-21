@@ -62,10 +62,36 @@ class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.P
         getView()?.hideProgress()
     }
 
-    override fun onDebtAdded() {
+    override fun onDebtUpdated() {
         getView()?.hideProgress()
 
         MainApplication.bus.send(Events.DebtIsAdded())
+    }
+
+    override fun onDebtLoaded(debt: Debt) {
+        super.onDebtLoaded(debt)
+
+        //getView()?.setSender(debt.)
+
+        if (debt.spentAmount != null) {
+            getView()?.setAmount(debt.spentAmount!!)
+        }
+
+        if (debt.datetime != null) {
+            getView()?.setDate(debt.datetime!!)
+        }
+
+        if (debt.comment != null) {
+            getView()?.setComment(debt.comment!!)
+        }
+
+        ExpenseProvider().getExpensesForDebt(this, debt.uid.toString())
+    }
+
+    override fun onNoDebtWithIdExist() {
+        super.onNoDebtWithIdExist()
+
+        //ToDo load debt draft
     }
 
     override fun onDebtDraftAdded() {
@@ -116,8 +142,6 @@ class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.P
 
     override fun viewIsReady() {
 
-        DebtsProvider().getDebtDraft(this)
-
         //ToDo написать условия при который кнопка "добавить" активна
         addDebtButtonEnabled = true
                 //getView()?.getEmail()?.length!! > 0
@@ -134,16 +158,13 @@ class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.P
         getView()?.hideKeyboard()
         getView()?.showProgress()
 
-        val debt = Debt()
         debt.receiverId = getView()?.getReceiver()
         debt.spentAmount= getView()?.getAmount()
         debt.datetime = getView()?.getDate()
         debt.comment = getView()?.getComment()
+        debt.status = "active"
 
-        //ToDo MainActivity should pass eventId here. If no expenseId is passed - list is saved with eventId = "-1" (draft)
-        //Draft (event with id = -1 should ALWAYS exist but may have all values is set to null
-
-        DebtsProvider().addDebt(this, debt)
+        DebtsProvider().updateDebt(this, debt)
     }
 
     override fun addReceiverButtonIsPressed() {
@@ -154,5 +175,16 @@ class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.P
 //
 //        getView()?.initializeReceiversList(receiverWithAmountList, friendsList)
         MainApplication.bus.send(Events.AddReceiverButtonInAddDebtFragment(debt.uid))
+    }
+
+    override fun debtIdIsReceiverFromMainActivity(debtId: Int?) {
+
+        Log.d("debtIdIsReceiverFromMainActivity = $debtId")
+
+        if (debtId != null) {
+            DebtsProvider().getDebtById(this, debtId)
+        } else {
+            DebtsProvider().getDebtDraft(this)
+        }
     }
 }

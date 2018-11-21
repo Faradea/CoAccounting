@@ -252,10 +252,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .commit()
     }
 
-    override fun displayAddDebtFragment() {
+    override fun displayAddDebtFragment(debtId: String?) {
+
+        val addDebtFragment = AddDebtFragment()
+
+        if (debtId != null) {
+            val bundle = Bundle()
+            bundle.putInt(AddReceiverInAddDebtFragment.DEBT_ID_KEY, debtId.toInt())
+            addDebtFragment.arguments = bundle
+        }
+
         val supportFragmentManager = supportFragmentManager
         supportFragmentManager.beginTransaction()
-                .replace(R.id.content_main_constraint_layout, AddDebtFragment())
+                .replace(R.id.content_main_constraint_layout, addDebtFragment)
                 .addToBackStack("AddDebtFragment")
                 .commit()
     }

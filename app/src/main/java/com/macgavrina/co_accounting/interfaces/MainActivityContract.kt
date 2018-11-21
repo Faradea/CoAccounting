@@ -34,7 +34,7 @@ interface MainActivityContract {
 
         fun displayDebtsFragment()
 
-        fun displayAddDebtFragment()
+        fun displayAddDebtFragment(myUid: String?)
 
         fun displayAddReceiverInAddDebtFragment(myUid: Int)
 

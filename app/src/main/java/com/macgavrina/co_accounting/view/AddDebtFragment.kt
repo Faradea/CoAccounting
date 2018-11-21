@@ -15,6 +15,7 @@ import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.adapters.ExpensesRecyclerViewAdapter
 import com.macgavrina.co_accounting.interfaces.AddDebtContract
+import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.model.ReceiverWithAmount
 import com.macgavrina.co_accounting.presenters.AddDebtPresenter
 import com.macgavrina.co_accounting.room.Expense
@@ -44,6 +45,10 @@ class AddDebtFragment: Fragment(), AddDebtContract.View {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
+        val debtId = this.arguments?.getInt(AddReceiverInAddDebtFragment.DEBT_ID_KEY)
+        Log.d("debtId from bundle = $debtId")
+        presenter.debtIdIsReceiverFromMainActivity(debtId)
+
         add_debt_fragment_add_button.setOnClickListener { view ->
             presenter.addButtonIsPressed()
         }
@@ -71,6 +76,23 @@ class AddDebtFragment: Fragment(), AddDebtContract.View {
     override fun onDestroyView() {
         super.onDestroyView()
         presenter.detachView()
+    }
+
+    override fun setSender(senderName: String) {
+            //ToDo setup sender with value saved in DB
+            //add_debt_fragment_sender_spinner.selectedItem
+    }
+
+    override fun setAmount(amount: String) {
+        add_debt_fragment_amount_et.setText(amount)
+    }
+
+    override fun setDate(date: String) {
+        add_debt_fragment_date_et.setText(date)
+    }
+
+    override fun setComment(comment: String) {
+        add_debt_fragment_comment_et.setText(comment)
     }
 
     override fun getSender(): String {
