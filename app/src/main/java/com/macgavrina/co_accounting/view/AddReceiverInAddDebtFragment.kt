@@ -11,11 +11,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.adapters.NotSelectedReceiversRecyclerViewAdapter
 import com.macgavrina.co_accounting.adapters.SelectedReceiversRecyclerViewAdapter
 import com.macgavrina.co_accounting.interfaces.AddReceiverInAddDebtContract
+import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.presenters.AddReceiverInAddDebtPresenter
 import com.macgavrina.co_accounting.room.Contact
 import kotlinx.android.synthetic.main.add_receiver_dialog_fragment.*
@@ -26,6 +28,7 @@ class AddReceiverInAddDebtFragment: Fragment(), AddReceiverInAddDebtContract.Vie
     private lateinit var viewManagerForNotSelected: RecyclerView.LayoutManager
     private lateinit var viewManagerForSelected: RecyclerView.LayoutManager
     var debtId: Int? = null
+    var expenseId: Int? = null
 
     companion object {
         const val DEBT_ID_KEY = "debtid"
@@ -55,13 +58,18 @@ class AddReceiverInAddDebtFragment: Fragment(), AddReceiverInAddDebtContract.Vie
         }
     }
 
-
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
         debtId = this.arguments?.getInt(DEBT_ID_KEY)
+        expenseId = this.arguments?.getInt("expenseIdKey")
+
         if (debtId != null) {
             presenter.debtIdIsReceiverFromMainActivity(debtId!!)
+        }
+
+        if (expenseId != null) {
+            presenter.expenseIdIsReceivedFromMainActivity(expenseId!!)
         }
 
         add_receiver_dialog_fragment_amount_et.addTextChangedListener(this)
@@ -95,6 +103,12 @@ class AddReceiverInAddDebtFragment: Fragment(), AddReceiverInAddDebtContract.Vie
         add_receiver_dialog_fragment_selected_members_lv.adapter = NotSelectedReceiversRecyclerViewAdapter(null)
         add_receiver_dialog_fragment_selected_members_lv.layoutManager = viewManagerForSelected
 
+        //ToDo this button should exist only for edit fragment
+        add_receiver_dialog_fragment_delete_fab.setOnClickListener { _ ->
+            Log.d("delete button is pressed")
+            presenter.deleteButtonIsPressed()
+        }
+
         presenter.viewIsReady()
     }
 
@@ -123,5 +137,17 @@ class AddReceiverInAddDebtFragment: Fragment(), AddReceiverInAddDebtContract.Vie
         } else {
             0F
         }
+    }
+
+    override fun hideDeleteButton() {
+        add_receiver_dialog_fragment_delete_fab.hide()
+    }
+
+    override fun showDeleteButton() {
+        add_receiver_dialog_fragment_delete_fab.show()
+    }
+
+    override fun setAmount(totalAmount: String?) {
+        add_receiver_dialog_fragment_amount_et.setText(totalAmount)
     }
 }

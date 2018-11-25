@@ -63,16 +63,22 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
                             getView()?.displayDebtsFragment()
                         }
                         is Events.AddReceiverButtonInAddDebtFragment -> {
-                            getView()?.displayAddReceiverInAddDebtFragment(`object`.myUid)
+                            getView()?.displayAddReceiverInAddDebtFragment(`object`.myUid, null)
                         }
-                        is Events.CancelButtonInAddReceiverInAddDebtFragment -> {
+                        is Events.HideAddReceiverInAddDebtFragment -> {
+                            if (`object`.myWithSaveChanges == true) {
+                                getView()?.displayToast("Expense is saved")
+                            }
                             getView()?.dismissAddReceiverInAddDebtFragment()
                         }
-                        is Events.ReceiversWithAmountInAddDebtIsAdded -> {
+                        is Events.ReceiversWithAmountInAddDebtIsSaved -> {
                             getView()?.displayAddReceiverInAddDebtFragmentAfterReceiverAdded()
                         }
                         is Events.OnClickDebtItemList -> {
                             getView()?.displayAddDebtFragment(`object`.myUid)
+                        }
+                        is Events.OnClickExpenseItemList -> {
+                            getView()?.displayAddReceiverInAddDebtFragment(`object`.myDebtId, `object`.myExpenseId)
                         }
                     }
                 }

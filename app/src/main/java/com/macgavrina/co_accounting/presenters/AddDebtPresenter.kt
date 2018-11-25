@@ -73,6 +73,8 @@ class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.P
 
         //getView()?.setSender(debt.)
 
+        this.debt = debt
+
         if (debt.spentAmount != null) {
             getView()?.setAmount(debt.spentAmount!!)
         }

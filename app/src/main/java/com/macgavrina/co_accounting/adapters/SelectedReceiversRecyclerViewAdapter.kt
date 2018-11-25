@@ -4,9 +4,11 @@ import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.Contact
+import com.macgavrina.co_accounting.rxjava.Events
 import kotlinx.android.synthetic.main.selected_receivers_list_item.view.*
 
 class SelectedReceiversRecyclerViewAdapter (contactsList: List<Contact>?, amountPerPerson: Float) :
@@ -34,7 +36,7 @@ class SelectedReceiversRecyclerViewAdapter (contactsList: List<Contact>?, amount
         override fun onClick(view: View) {
 
             Log.d( "onClick ${mItem?.uid}")
-            //MainApplication.bus.send(Events.NewContactIsAddedToSelectedReceiversList(mItem))
+            MainApplication.bus.send(Events.onClickSelectedReceiverOnAddExpenseFragment(mItem!!))
         }
 
     }

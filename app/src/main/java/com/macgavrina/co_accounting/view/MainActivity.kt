@@ -9,6 +9,8 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import android.view.MenuItem
+import android.widget.Toast
+import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.interfaces.MainActivityContract
 import com.macgavrina.co_accounting.logging.Log
@@ -269,10 +271,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .commit()
     }
 
-    override fun displayAddReceiverInAddDebtFragment(debtId: Int) {
+    override fun displayAddReceiverInAddDebtFragment(debtId: Int, expenseId: Int?) {
         val addReceiverInAddDebtFragment = AddReceiverInAddDebtFragment()
-        val bundle:Bundle = Bundle()
+        val bundle = Bundle()
         bundle.putInt(AddReceiverInAddDebtFragment.DEBT_ID_KEY, debtId)
+        if (expenseId != null) {
+            bundle.putInt("expenseIdKey", expenseId)
+        }
         addReceiverInAddDebtFragment.arguments = bundle
 
         val supportFragmentManager = supportFragmentManager
@@ -329,4 +334,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             return newAccount
         }
     }*/
+
+    override fun displayToast(text:String) {
+        Toast.makeText(MainApplication.applicationContext(), text, Toast.LENGTH_SHORT).show()
+    }
 }

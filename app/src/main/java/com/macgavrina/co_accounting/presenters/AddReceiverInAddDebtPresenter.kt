@@ -3,25 +3,28 @@ package com.macgavrina.co_accounting.presenters
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.interfaces.AddReceiverInAddDebtContract
 import com.macgavrina.co_accounting.logging.Log
-import com.macgavrina.co_accounting.model.ReceiverWithAmount
 import com.macgavrina.co_accounting.providers.ContactsProvider
 import com.macgavrina.co_accounting.providers.ExpenseProvider
 import com.macgavrina.co_accounting.providers.ReceiverForAmountProvider
 import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.room.Expense
 import com.macgavrina.co_accounting.room.ReceiverWithAmountForDB
-import com.macgavrina.co_accounting.room.ReceiverWithAmountForDBDAO
 import com.macgavrina.co_accounting.rxjava.Events
-import java.lang.Exception
 
 class AddReceiverInAddDebtPresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddReceiverInAddDebtContract.Presenter, ContactsProvider.DatabaseCallback, ReceiverForAmountProvider.DatabaseCallback, ExpenseProvider.DatabaseCallback {
     //ToDo переименовать в Expense
 
     var debtId: Int? = null
+    var expenseId: Int? = null
+    var expense: Expense? = null
     var amountPerPerson: Float = 0F
+    var contactsList: List<Contact>? = null
     var notSelectedContactsList = mutableListOf<Contact>()
     var selectedContactsList = mutableListOf<Contact>()
     var receiversWithAmountList = mutableListOf<ReceiverWithAmountForDB>()
+
+    var receiversWithAmountListIsLoaded = false
+    var contactsListIsLoaded = false
 
     override fun onDatabaseError() {
         Log.d("database error")
@@ -31,12 +34,13 @@ class AddReceiverInAddDebtPresenter: BasePresenter<AddReceiverInAddDebtContract.
         super.onReceiverWithAmountListAdded()
         Log.d("receiver with amount list is added")
 
-        MainApplication.bus.send(Events.ReceiversWithAmountInAddDebtIsAdded())
+        MainApplication.bus.send(Events.ReceiversWithAmountInAddDebtIsSaved())
     }
 
     override fun onContactsListLoaded(contactsList: List<Contact>) {
         super.onContactsListLoaded(contactsList)
 
+        this.contactsList = contactsList
         amountPerPerson = 0F
         notSelectedContactsList.clear()
         selectedContactsList.clear()
@@ -44,6 +48,9 @@ class AddReceiverInAddDebtPresenter: BasePresenter<AddReceiverInAddDebtContract.
             notSelectedContactsList.add(contact)
         }
         getView()?.initializeNotSelectedReceiversList(contactsList)
+
+        contactsListIsLoaded = true
+        updateReceiverWithAmountListWithDataFromDB()
     }
 
     override fun onExpenseAdded() {
@@ -52,14 +59,51 @@ class AddReceiverInAddDebtPresenter: BasePresenter<AddReceiverInAddDebtContract.
         ExpenseProvider().getLastExpenseId(this)
     }
 
+    override fun onExpenseUpdated() {
+        super.onExpenseUpdated()
+
+        MainApplication.bus.send(Events.ReceiversWithAmountInAddDebtIsSaved())
+    }
+
     override fun onGetLastExpenseId(uid: Int) {
         super.onGetLastExpenseId(uid)
 
-        receiversWithAmountList.forEach { receiversWithAmount ->
+        receiversWithAmountList?.forEach { receiversWithAmount ->
             receiversWithAmount.expenseId = uid.toString()
         }
 
-        ReceiverForAmountProvider().addReceiverWithAmountList(this, receiversWithAmountList )
+        Log.d("saving receiverWithAmountList for expenseId = $uid")
+        ReceiverForAmountProvider().addReceiverWithAmountList(this, receiversWithAmountList!! )
+    }
+
+    override fun onExpenseByIdLoaded(expense: Expense) {
+        super.onExpenseByIdLoaded(expense)
+        this.expense = expense
+
+        getView()?.showDeleteButton()
+
+        getView()?.setAmount(expense.totalAmount)
+
+        ReceiverForAmountProvider().getReceiversWithAmountForExpense(this, expense.uid.toString())
+
+    }
+
+    override fun onNoExpenseWithRequestedId() {
+        //ToDo handle error
+    }
+
+    override fun onExpenseDeleted() {
+        super.onExpenseDeleted()
+        MainApplication.bus.send(Events.HideAddReceiverInAddDebtFragment(true))
+    }
+
+    override fun onReceiversWithAmountForExpenseListLoaded(receiversWithAmountList: List<ReceiverWithAmountForDB>) {
+        super.onReceiversWithAmountForExpenseListLoaded(receiversWithAmountList)
+
+        this.receiversWithAmountList = receiversWithAmountList as MutableList<ReceiverWithAmountForDB>
+        receiversWithAmountListIsLoaded = true
+        updateReceiverWithAmountListWithDataFromDB()
+
     }
 
     override fun attachView(baseViewContract: AddReceiverInAddDebtContract.View) {
@@ -75,15 +119,29 @@ class AddReceiverInAddDebtPresenter: BasePresenter<AddReceiverInAddDebtContract.
                         is Events.NewContactIsAddedToSelectedReceiversList -> {
                             val contact = `object`.myContact
                             notSelectedContactsList.remove(contact)
-                            getView()?.initializeNotSelectedReceiversList(notSelectedContactsList)
-
                             selectedContactsList.add(contact!!)
+
                             if (getView()?.getAmount() != null) {
                                 amountPerPerson = getView()?.getAmount()!! / selectedContactsList.size
                             } else {
                                 amountPerPerson = 0F
                             }
+                            getView()?.initializeNotSelectedReceiversList(notSelectedContactsList)
                             getView()?.initializeSelectedReceiversList(selectedContactsList, amountPerPerson)
+                        }
+                        is Events.onClickSelectedReceiverOnAddExpenseFragment -> {
+                            val contact = `object`.myContact
+                            selectedContactsList.remove(contact)
+                            notSelectedContactsList.add(contact)
+
+                            if (getView()?.getAmount() != null) {
+                                amountPerPerson = getView()?.getAmount()!! / selectedContactsList.size
+                            } else {
+                                amountPerPerson = 0F
+                            }
+                            getView()?.initializeNotSelectedReceiversList(notSelectedContactsList)
+                            getView()?.initializeSelectedReceiversList(selectedContactsList, amountPerPerson)
+
                         }
                     }
                 }
@@ -92,6 +150,12 @@ class AddReceiverInAddDebtPresenter: BasePresenter<AddReceiverInAddDebtContract.
 
     override fun debtIdIsReceiverFromMainActivity(debtId: Int) {
         this.debtId = debtId
+    }
+
+    override fun expenseIdIsReceivedFromMainActivity(expenseId: Int) {
+        this.expenseId = expenseId
+
+        ExpenseProvider().getExpenseById(this, expenseId)
     }
 
     override fun amountIsEdited(newAmount: Float) {
@@ -111,12 +175,13 @@ class AddReceiverInAddDebtPresenter: BasePresenter<AddReceiverInAddDebtContract.
 //        getView()?.hideProgress()
 //
         ContactsProvider().getAll(this)
+        getView()?.hideDeleteButton()
 
     }
 
     override fun cancelButtonInToolbarIsClicked() {
         getView()?.hideKeyboard()
-        MainApplication.bus.send(Events.CancelButtonInAddReceiverInAddDebtFragment())
+        MainApplication.bus.send(Events.HideAddReceiverInAddDebtFragment(false))
     }
 
     override fun saveButtonIsPressed() {
@@ -141,14 +206,54 @@ class AddReceiverInAddDebtPresenter: BasePresenter<AddReceiverInAddDebtContract.
         }
 
 
-        val expense = Expense()
-        expense.totalAmount = getView()?.getAmount().toString()
-        expense.receiversList = receiversListString
-        expense.debtId = debtId
+        if (expense == null) {
+            expense = Expense()
+            expense!!.totalAmount = getView()?.getAmount().toString()
+            expense!!.receiversList = receiversListString
+            expense!!.debtId = debtId
 
-        Log.d("add expense: debtId = ${expense.debtId}, receiversList = ${expense.receiversList}, amount = ${expense.totalAmount}")
+            Log.d("add expense: debtId = ${expense!!.debtId}, receiversList = ${expense!!.receiversList}, amount = ${expense!!.totalAmount}")
 
-        ExpenseProvider().addExpense(this, expense)
+            ExpenseProvider().addExpense(this, expense!!)
 
+        } else {
+            expense!!.totalAmount = getView()?.getAmount().toString()
+            expense!!.receiversList = receiversListString
+            expense!!.debtId = debtId
+
+            ExpenseProvider().updateExpense(this, expense!!)
+        }
+
+    }
+
+    override fun deleteButtonIsPressed() {
+        ExpenseProvider().deleteExpense(this, expense!!)
+    }
+
+    private fun updateReceiverWithAmountListWithDataFromDB() {
+
+        if (receiversWithAmountListIsLoaded && contactsListIsLoaded) {
+
+            Log.d("go through receiversWithAmountList with ${receiversWithAmountList.size} items")
+            receiversWithAmountList.forEach { receiversWithAmount ->
+
+                val contactId = receiversWithAmount.contactId
+                Log.d("go throw receiversWithAmountList, for contactId = $contactId")
+                val contact = contactsList!![contactId!!.toInt()-1]
+
+                selectedContactsList.add(contact)
+                notSelectedContactsList.remove(contact)
+            }
+
+            if (getView()?.getAmount() != null) {
+                amountPerPerson = getView()?.getAmount()!! / selectedContactsList.size
+            } else {
+                amountPerPerson = 0F
+            }
+
+            getView()?.initializeNotSelectedReceiversList(notSelectedContactsList)
+            getView()?.initializeSelectedReceiversList(selectedContactsList, amountPerPerson)
+
+        }
     }
 }

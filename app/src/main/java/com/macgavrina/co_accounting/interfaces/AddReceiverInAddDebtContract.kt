@@ -18,6 +18,12 @@ interface AddReceiverInAddDebtContract {
 
         fun getAmount(): Float
 
+        fun hideDeleteButton()
+
+        fun showDeleteButton()
+
+        fun setAmount(totalAmount: String?)
+
     }
 
     interface Presenter:BasePresenterContract<View> {
@@ -29,6 +35,10 @@ interface AddReceiverInAddDebtContract {
         fun saveButtonIsPressed()
 
         fun debtIdIsReceiverFromMainActivity(debtId: Int)
+
+        fun expenseIdIsReceivedFromMainActivity(expenseId: Int)
+
+        fun deleteButtonIsPressed()
 
     }
 }

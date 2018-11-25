@@ -12,6 +12,9 @@ interface ReceiverWithAmountForDBDAO {
 //    @Query("SELECT * FROM receivers WHERE uid IN (:contactId)")
 //    fun loadContactByIds(contactId: String): Maybe<Contact>
 
+    @Query("SELECT * FROM receiverwithamountfordb WHERE expenseId IN (:expenseId) ORDER BY uid")
+    fun getReceiversWithAmountForExpense(expenseId: String): Maybe<List<ReceiverWithAmountForDB>>
+
     @Insert
     fun insertReceiverWithAmount(receiverForAmountForDB: ReceiverWithAmountForDB)
 

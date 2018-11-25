@@ -34,6 +34,27 @@ class ReceiverForAmountProvider {
                 })
     }
 
+    fun getReceiversWithAmountForExpense(databaseCallback: DatabaseCallback, expenseId: String) {
+        Log.d("getting receiverWithAmount for expenseId = $expenseId")
+        MainApplication.db.receiverWithAmountForDBDAO().getReceiversWithAmountForExpense(expenseId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : DisposableMaybeObserver<List<ReceiverWithAmountForDB>>() {
+                    override fun onSuccess(t: List<ReceiverWithAmountForDB>) {
+                        Log.d("success")
+                        databaseCallback.onReceiversWithAmountForExpenseListLoaded(t)
+                    }
+
+                    override fun onError(e: Throwable) {
+                        Log.d("error, ${e.toString()}")
+                    }
+
+                    override fun onComplete() {
+                        Log.d("nothing")
+                    }
+                })
+    }
+
 
     fun addReceiverWithAmount(databaseCallback: DatabaseCallback, receiverForAmountForDB: ReceiverWithAmountForDB) {
         Completable.fromAction {
@@ -85,6 +106,10 @@ class ReceiverForAmountProvider {
 
         fun onReceiversWithAmountListLoaded(receiversWithAmountList: List<ReceiverWithAmountForDB>) {
             Log.d("receivers with amount list is loaded")
+        }
+
+        fun onReceiversWithAmountForExpenseListLoaded(receiversWithAmountList: List<ReceiverWithAmountForDB>) {
+            Log.d("receivers with amount list for expense is loaded, list size = ${receiversWithAmountList.size}")
         }
     }
 }

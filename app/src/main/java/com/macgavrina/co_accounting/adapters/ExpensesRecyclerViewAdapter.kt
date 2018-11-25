@@ -5,9 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.Expense
+import com.macgavrina.co_accounting.rxjava.Events
 import kotlinx.android.synthetic.main.add_receiver_list_item.view.*
 
 
@@ -33,7 +35,7 @@ class ExpensesRecyclerViewAdapter (expensesList: List<Expense>?) :
 
         override fun onClick(view: View) {
             Log.d( "onClick ${mItem?.uid}")
-            //MainApplication.bus.send(Events.OnClickDebtItemList(mItem?.uid.toString()))
+            MainApplication.bus.send(Events.OnClickExpenseItemList(mItem?.uid!!, mItem?.debtId!!))
         }
     }
 

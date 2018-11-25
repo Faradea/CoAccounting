@@ -92,6 +92,25 @@ class ExpenseProvider() {
                 })
     }
 
+    fun getExpenseById(databaseCallback: DatabaseCallback, expenseId: Int) {
+        MainApplication.db.expenseDAO().getExpenseByIds(expenseId.toString())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : DisposableMaybeObserver<Expense>() {
+                    override fun onSuccess(expense: Expense) {
+                        databaseCallback.onExpenseByIdLoaded(expense)
+                    }
+
+                    override fun onError(e: Throwable) {
+                        Log.d(e.toString())
+                    }
+
+                    override fun onComplete() {
+                        databaseCallback.onNoExpenseWithRequestedId()
+                    }
+                })
+    }
+
     fun addExpense(databaseCallback: DatabaseCallback, expense: Expense) {
         Completable.fromAction {
             MainApplication.db.expenseDAO().insertExpense(expense)
@@ -111,6 +130,46 @@ class ExpenseProvider() {
                         }
                     })
         }
+
+    fun deleteExpense(databaseCallback: DatabaseCallback, expense: Expense) {
+        Completable.fromAction {
+            MainApplication.db.expenseDAO().deleteExpense(expense)
+        }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : CompletableObserver {
+
+                    override fun onSubscribe(d: Disposable) {}
+
+                    override fun onError(e: Throwable) {
+                        Log.d(e.toString())
+                    }
+
+                    override fun onComplete() {
+                        databaseCallback.onExpenseDeleted()
+                    }
+                })
+    }
+
+    fun updateExpense(databaseCallback: DatabaseCallback, expense: Expense) {
+        Completable.fromAction {
+            MainApplication.db.expenseDAO().updateExpense(expense)
+        }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : CompletableObserver {
+
+                    override fun onSubscribe(d: Disposable) {}
+
+                    override fun onError(e: Throwable) {
+                        Log.d(e.toString())
+                    }
+
+                    override fun onComplete() {
+                        databaseCallback.onExpenseUpdated()
+                    }
+                })
+    }
 
 
     interface DatabaseCallback {
@@ -135,6 +194,22 @@ class ExpenseProvider() {
 
         fun onNoExpensesForDebt() {
             Log.d("there is no expenses for debt")
+        }
+
+        fun onExpenseByIdLoaded(expense: Expense) {
+            Log.d("expense is loaded")
+        }
+
+        fun onNoExpenseWithRequestedId() {
+            Log.d("no expenses for requested id")
+        }
+
+        fun onExpenseDeleted() {
+            Log.d("expense is deleted")
+        }
+
+        fun onExpenseUpdated() {
+            Log.d("expense is updated")
         }
     }
 }

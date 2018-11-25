@@ -62,10 +62,21 @@ object Events {
         val myContact = contact
     }
 
-    class CancelButtonInAddReceiverInAddDebtFragment
+    class HideAddReceiverInAddDebtFragment(withSaveChanges: Boolean) {
+        val myWithSaveChanges = withSaveChanges
+    }
 
-    class ReceiversWithAmountInAddDebtIsAdded
+    class ReceiversWithAmountInAddDebtIsSaved
 
     class AddDebtFragmentRequiresRefresh
+
+    class OnClickExpenseItemList(expenseId: Int, debtId: Int) {
+        val myExpenseId = expenseId
+        val myDebtId = debtId
+    }
+
+    class onClickSelectedReceiverOnAddExpenseFragment(contact: Contact) {
+        val myContact = contact
+    }
 
 }

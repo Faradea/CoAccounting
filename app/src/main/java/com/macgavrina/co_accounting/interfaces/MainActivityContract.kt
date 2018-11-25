@@ -36,11 +36,13 @@ interface MainActivityContract {
 
         fun displayAddDebtFragment(myUid: String?)
 
-        fun displayAddReceiverInAddDebtFragment(myUid: Int)
+        fun displayAddReceiverInAddDebtFragment(myUid: Int, myExpenseId: Int?)
 
         fun dismissAddReceiverInAddDebtFragment()
 
         fun displayAddReceiverInAddDebtFragmentAfterReceiverAdded()
+
+        fun displayToast(text: String)
 
     }
 

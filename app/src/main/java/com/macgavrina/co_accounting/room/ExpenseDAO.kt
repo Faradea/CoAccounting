@@ -9,9 +9,9 @@ interface ExpenseDAO {
     val getAll: Maybe<List<Expense>>
 
     @Query("SELECT * FROM expense WHERE uid IN (:expenseId)")
-    fun loadExpenseByIds(expenseId: String): Maybe<Expense>
+    fun getExpenseByIds(expenseId: String): Maybe<Expense>
 
-    @Query("SELECT uid FROM expense ORDER BY uid LIMIT 1")
+    @Query("SELECT uid FROM expense ORDER BY uid DESC LIMIT 1")
     fun getLastExpenseId(): Maybe<Int>
 
     @Query("SELECT * FROM expense WHERE debtId IN (:debtId) ORDER BY uid")
