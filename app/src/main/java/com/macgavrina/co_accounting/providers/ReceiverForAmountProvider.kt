@@ -92,6 +92,25 @@ class ReceiverForAmountProvider {
                 })
     }
 
+    fun deleteReceiversWithAmountForExpense(databaseCallback: DatabaseCallback, expenseId: String) {
+        Completable.fromAction {
+
+
+            MainApplication.db.receiverWithAmountForDBDAO().deleteReceiversWithAmountForExpense(expenseId)
+        }.observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io()).subscribe(object : CompletableObserver {
+                    override fun onSubscribe(d: Disposable) {}
+
+                    override fun onComplete() {
+                        databaseCallback.onReceiversWithAmountListForExpensesDeleted()
+                    }
+
+                    override fun onError(e: Throwable) {
+                        databaseCallback.onDatabaseError()
+                    }
+                })
+    }
+
     interface DatabaseCallback {
 
         fun onDatabaseError()
@@ -110,6 +129,10 @@ class ReceiverForAmountProvider {
 
         fun onReceiversWithAmountForExpenseListLoaded(receiversWithAmountList: List<ReceiverWithAmountForDB>) {
             Log.d("receivers with amount list for expense is loaded, list size = ${receiversWithAmountList.size}")
+        }
+
+        fun onReceiversWithAmountListForExpensesDeleted() {
+            Log.d("all receivers with amount for expense are deleted")
         }
     }
 }

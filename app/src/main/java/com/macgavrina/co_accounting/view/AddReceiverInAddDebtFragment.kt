@@ -54,7 +54,9 @@ class AddReceiverInAddDebtFragment: Fragment(), AddReceiverInAddDebtContract.Vie
 
     override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
         if (s != null) {
-            presenter.amountIsEdited(s.toString().toFloat())
+            if (s.isNotEmpty()) {
+                presenter.amountIsEdited(s.toString().toFloat())
+            }
         }
     }
 

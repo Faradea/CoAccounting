@@ -37,4 +37,10 @@ class Debt {
     public var status: String? = null
         set
         get
+
+    //For future functionality: to group debts in events
+    @ColumnInfo(name = "eventId")
+    public var eventId: String? = null
+        set
+        get
 }

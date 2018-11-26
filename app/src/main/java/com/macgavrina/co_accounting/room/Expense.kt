@@ -27,11 +27,6 @@ class Expense {
         set
         get
 
-    @ColumnInfo(name = "eventId")
-    public var eventId: String? = null
-        set
-        get
-
     @ColumnInfo(name = "receiversList")
     public var receiversList: String? = null
         set

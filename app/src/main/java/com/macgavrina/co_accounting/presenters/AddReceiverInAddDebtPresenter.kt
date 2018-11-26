@@ -37,6 +37,16 @@ class AddReceiverInAddDebtPresenter: BasePresenter<AddReceiverInAddDebtContract.
         MainApplication.bus.send(Events.ReceiversWithAmountInAddDebtIsSaved())
     }
 
+    override fun onReceiversWithAmountListForExpensesDeleted() {
+        super.onReceiversWithAmountListForExpensesDeleted()
+
+        receiversWithAmountList?.forEach { receiversWithAmount ->
+            receiversWithAmount.expenseId = expense?.uid.toString()
+        }
+
+        ReceiverForAmountProvider().addReceiverWithAmountList(this, receiversWithAmountList!! )
+    }
+
     override fun onContactsListLoaded(contactsList: List<Contact>) {
         super.onContactsListLoaded(contactsList)
 
@@ -62,7 +72,7 @@ class AddReceiverInAddDebtPresenter: BasePresenter<AddReceiverInAddDebtContract.
     override fun onExpenseUpdated() {
         super.onExpenseUpdated()
 
-        MainApplication.bus.send(Events.ReceiversWithAmountInAddDebtIsSaved())
+        ReceiverForAmountProvider().deleteReceiversWithAmountForExpense(this, expense?.uid.toString())
     }
 
     override fun onGetLastExpenseId(uid: Int) {
@@ -190,6 +200,8 @@ class AddReceiverInAddDebtPresenter: BasePresenter<AddReceiverInAddDebtContract.
 
         //ToDo Should be done in transaction
         var receiversListString = ""
+
+        receiversWithAmountList = mutableListOf<ReceiverWithAmountForDB>()
 
         selectedContactsList.forEach { contact ->
 

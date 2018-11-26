@@ -192,6 +192,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         loginFragment.arguments = bundle
 
         clearStack()
+
         val supportFragmentManager = supportFragmentManager
         supportFragmentManager.beginTransaction()
                 .replace(R.id.content_main_constraint_layout, loginFragment)
