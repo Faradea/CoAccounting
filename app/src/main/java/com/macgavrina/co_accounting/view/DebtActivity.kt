@@ -1,62 +1,63 @@
 package com.macgavrina.co_accounting.view
 
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.adapters.ExpensesRecyclerViewAdapter
-import com.macgavrina.co_accounting.interfaces.AddDebtContract
+import com.macgavrina.co_accounting.interfaces.DebtActivityContract
 import com.macgavrina.co_accounting.logging.Log
-import com.macgavrina.co_accounting.model.ReceiverWithAmount
-import com.macgavrina.co_accounting.presenters.AddDebtPresenter
+import com.macgavrina.co_accounting.presenters.DebtActivityPresenter
 import com.macgavrina.co_accounting.room.Expense
 import kotlinx.android.synthetic.main.add_debt_fragment.*
+import kotlinx.android.synthetic.main.app_bar_main.*
 
+class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
 
-class AddDebtFragment: Fragment(), AddDebtContract.View {
-
+    lateinit var presenter: DebtActivityPresenter
     private lateinit var viewManager: RecyclerView.LayoutManager
 
-    override fun displayToast(text: String) {
-        Toast.makeText(MainApplication.applicationContext(), text, Toast.LENGTH_SHORT).show()
-    }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-    lateinit var presenter: AddDebtPresenter
+        setContentView(R.layout.add_debt_fragment)
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+        val actionBar = supportActionBar
+        actionBar!!.setHomeButtonEnabled(true)
+        actionBar.setDisplayHomeAsUpEnabled(true)
+        actionBar.title = "Debt"
 
-        presenter = AddDebtPresenter()
+
+        presenter = DebtActivityPresenter()
         presenter.attachView(this)
+        presenter.viewIsCreated()
 
-        return inflater.inflate(R.layout.add_debt_fragment, container,
-                false)
-    }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+        val extras = intent.extras
+        val debtId = extras?.getInt(AddReceiverInAddDebtFragment.DEBT_ID_KEY)
 
-        val debtId = this.arguments?.getInt(AddReceiverInAddDebtFragment.DEBT_ID_KEY)
-        Log.d("debtId from bundle = $debtId")
-        presenter.debtIdIsReceiverFromMainActivity(debtId)
-
-        add_debt_fragment_add_button.setOnClickListener { view ->
-            presenter.addButtonIsPressed()
+        //val debtId = savedInstanceState?.getInt(AddReceiverInAddDebtFragment.DEBT_ID_KEY)
+        Log.d("debtId = $debtId")
+        if (debtId == -1) {
+            presenter.debtIdIsReceiverFromMainActivity(null)
+        } else {
+            presenter.debtIdIsReceiverFromMainActivity(debtId)
         }
 
         add_debt_fragment_add_receiver_tv.setOnClickListener { view ->
             presenter.addReceiverButtonIsPressed()
         }
-
     }
 
     override fun onResume() {
@@ -73,14 +74,39 @@ class AddDebtFragment: Fragment(), AddDebtContract.View {
         presenter.viewIsReady()
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
+    override fun onDestroy() {
+        super.onDestroy()
         presenter.detachView()
     }
 
+    //For back button in action bar
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        when (item.itemId) {
+            R.id.action_menu_done -> {
+                presenter.addButtonIsPressed()
+                return true
+            }
+        }
+
+        onBackPressed()
+        return true
+    }
+
+    //For action bar
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_done, menu)
+        return true
+    }
+
+
+    override fun displayToast(text: String) {
+        Toast.makeText(MainApplication.applicationContext(), text, Toast.LENGTH_SHORT).show()
+    }
+
     override fun setSender(senderName: String) {
-            //ToDo setup sender with value saved in DB
-            //add_debt_fragment_sender_spinner.selectedItem
+        //ToDo setup sender with value saved in DB
+        //add_debt_fragment_sender_spinner.selectedItem
     }
 
     override fun setAmount(amount: String) {
@@ -125,12 +151,12 @@ class AddDebtFragment: Fragment(), AddDebtContract.View {
     }
 
     override fun setAddButtonEnabled(areEnabled: Boolean) {
-        add_debt_fragment_add_button.isEnabled = areEnabled
+        //ToDo
     }
 
     override fun hideKeyboard() {
-        val inputMethodManager: InputMethodManager = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.hideSoftInputFromWindow(view?.windowToken, 0)
+        val inputMethodManager: InputMethodManager = this.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(this.currentFocus?.windowToken, 0)
     }
 
     override fun setupSenderSpinner(contactsList: Array<String?>) {
@@ -149,5 +175,9 @@ class AddDebtFragment: Fragment(), AddDebtContract.View {
     override fun initializeExpensesList(expenseList: List<Expense>) {
         add_debt_fragment_reciever_recyclerview.adapter = ExpensesRecyclerViewAdapter(expenseList)
         add_debt_fragment_reciever_recyclerview.layoutManager = viewManager
+    }
+
+    override fun finishSelf() {
+        finish()
     }
 }

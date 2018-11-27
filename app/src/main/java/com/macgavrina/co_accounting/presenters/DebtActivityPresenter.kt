@@ -1,7 +1,7 @@
 package com.macgavrina.co_accounting.presenters
 
 import com.macgavrina.co_accounting.MainApplication
-import com.macgavrina.co_accounting.interfaces.AddDebtContract
+import com.macgavrina.co_accounting.interfaces.DebtActivityContract
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.model.ReceiverWithAmount
 import com.macgavrina.co_accounting.providers.ContactsProvider
@@ -11,16 +11,15 @@ import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.room.Debt
 import com.macgavrina.co_accounting.room.Expense
 import com.macgavrina.co_accounting.rxjava.Events
-import kotlin.math.exp
 
-class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.Presenter, DebtsProvider.DatabaseCallback, ContactsProvider.DatabaseCallback, ExpenseProvider.DatabaseCallback {
+class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActivityContract.Presenter, DebtsProvider.DatabaseCallback, ContactsProvider.DatabaseCallback, ExpenseProvider.DatabaseCallback {
 
     lateinit var debt: Debt
     lateinit var contactsIdToNameMap: Map<String, Contact>
     lateinit var receiverWithAmountList: MutableList<ReceiverWithAmount>
     lateinit var friendsList: Array<String?>
 
-    override fun attachView(baseViewContract: AddDebtContract.View) {
+    override fun attachView(baseViewContract: DebtActivityContract.View) {
         super.attachView(baseViewContract)
 
         MainApplication
@@ -39,6 +38,23 @@ class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.P
                         }
                     }
                 }
+    }
+
+
+    override fun viewIsReady() {
+        Log.d("DebtActivity view id ready")
+        //ToDo написать условия при который кнопка "добавить" активна
+        addDebtButtonEnabled = true
+        //getView()?.getEmail()?.length!! > 0
+
+        getView()?.setAddButtonEnabled(addDebtButtonEnabled)
+        getView()?.hideProgress()
+
+        ContactsProvider().getAll(this)
+    }
+
+    override fun viewIsCreated() {
+        super.viewIsCreated()
     }
 
     override fun onContactsListLoaded(contactsList: List<com.macgavrina.co_accounting.room.Contact>) {
@@ -65,7 +81,8 @@ class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.P
     override fun onDebtUpdated() {
         getView()?.hideProgress()
 
-        MainApplication.bus.send(Events.DebtIsAdded())
+        //MainApplication.bus.send(Events.DebtIsAdded())
+        getView()?.finishSelf()
     }
 
     override fun onDebtLoaded(debt: Debt) {
@@ -142,21 +159,9 @@ class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.P
         getView()?.setAddButtonEnabled(addDebtButtonEnabled)
     }
 
-    override fun viewIsReady() {
-
-        //ToDo написать условия при который кнопка "добавить" активна
-        addDebtButtonEnabled = true
-                //getView()?.getEmail()?.length!! > 0
-
-        getView()?.setAddButtonEnabled(addDebtButtonEnabled)
-        getView()?.hideProgress()
-
-        ContactsProvider().getAll(this)
-
-    }
-
     override fun addButtonIsPressed() {
 
+        Log.d("handle add button pressed")
         getView()?.hideKeyboard()
         getView()?.showProgress()
 
@@ -170,20 +175,23 @@ class AddDebtPresenter: BasePresenter<AddDebtContract.View>(), AddDebtContract.P
     }
 
     override fun addReceiverButtonIsPressed() {
-        getView()?.hideKeyboard()
 
+        //ToDo переделать на вызов активити
+//        getView()?.hideKeyboard()
+//
 //        val receiverWithAmount = RecieverWithAmount("TestName", 220.0f, receiverWithAmountList.size)
 //        receiverWithAmountList.add(receiverWithAmount)
 //
 //        getView()?.initializeReceiversList(receiverWithAmountList, friendsList)
-        MainApplication.bus.send(Events.AddReceiverButtonInAddDebtFragment(debt.uid))
+//        MainApplication.bus.send(Events.AddReceiverButtonInAddDebtFragment(debt.uid))
+
     }
 
     override fun debtIdIsReceiverFromMainActivity(debtId: Int?) {
 
         Log.d("debtIdIsReceiverFromMainActivity = $debtId")
 
-        if (debtId != null) {
+        if (debtId != null && debtId != 0) {
             DebtsProvider().getDebtById(this, debtId)
         } else {
             DebtsProvider().getDebtDraft(this)

@@ -29,6 +29,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".view.DebtActivity">
+            <intent-filter>
+                <action android:name="com.macgavrina.indebt.DEBT"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
         <service
             android:name="com.macgavrina.co_accounting.sync.AuthenticatorService">
             <intent-filter>

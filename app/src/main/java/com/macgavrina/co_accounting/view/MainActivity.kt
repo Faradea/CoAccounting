@@ -18,6 +18,9 @@ import com.macgavrina.co_accounting.presenters.MainActivityPresenter
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.nav_header_main.view.*
+import android.content.Intent
+
+
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, MainActivityContract.View {
@@ -257,19 +260,29 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun displayAddDebtFragment(debtId: String?) {
 
-        val addDebtFragment = AddDebtFragment()
+//        val addDebtFragment = AddDebtFragment()
+//
+//        if (debtId != null) {
+//            val bundle = Bundle()
+//            bundle.putInt(AddReceiverInAddDebtFragment.DEBT_ID_KEY, debtId.toInt())
+//            addDebtFragment.arguments = bundle
+//        }
+//
+//        val supportFragmentManager = supportFragmentManager
+//        supportFragmentManager.beginTransaction()
+//                .replace(R.id.content_main_constraint_layout, addDebtFragment)
+//                .addToBackStack("AddDebtFragment")
+//                .commit()
 
-        if (debtId != null) {
-            val bundle = Bundle()
-            bundle.putInt(AddReceiverInAddDebtFragment.DEBT_ID_KEY, debtId.toInt())
-            addDebtFragment.arguments = bundle
+
+        val intent = Intent()
+        intent.action = "com.macgavrina.indebt.DEBT"
+        if (debtId == null) {
+            intent.putExtra(AddReceiverInAddDebtFragment.DEBT_ID_KEY, -1)
+        } else {
+            intent.putExtra(AddReceiverInAddDebtFragment.DEBT_ID_KEY, debtId?.toInt())
         }
-
-        val supportFragmentManager = supportFragmentManager
-        supportFragmentManager.beginTransaction()
-                .replace(R.id.content_main_constraint_layout, addDebtFragment)
-                .addToBackStack("AddDebtFragment")
-                .commit()
+        startActivity(intent)
     }
 
     override fun displayAddReceiverInAddDebtFragment(debtId: Int, expenseId: Int?) {

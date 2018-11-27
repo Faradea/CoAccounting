@@ -1,12 +1,10 @@
 package com.macgavrina.co_accounting.interfaces
 
-import com.macgavrina.co_accounting.model.ReceiverWithAmount
 import com.macgavrina.co_accounting.room.Expense
 
-interface AddDebtContract {
+interface DebtActivityContract {
 
     interface View:BaseViewContract {
-
         fun getSender():String
 
         fun getReceiver(): String
@@ -39,6 +37,8 @@ interface AddDebtContract {
 
         fun initializeExpensesList(expenseList: List<Expense>)
 
+        fun finishSelf()
+
     }
 
     interface Presenter:BasePresenterContract<View> {
@@ -52,4 +52,5 @@ interface AddDebtContract {
         fun debtIdIsReceiverFromMainActivity(debtId: Int?)
 
     }
+
 }
