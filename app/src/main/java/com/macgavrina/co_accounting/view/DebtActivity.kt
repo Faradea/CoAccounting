@@ -1,8 +1,6 @@
 package com.macgavrina.co_accounting.view
 
 import android.content.Context
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -10,7 +8,8 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.snackbar.Snackbar
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.macgavrina.co_accounting.MainApplication
@@ -21,7 +20,8 @@ import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.presenters.DebtActivityPresenter
 import com.macgavrina.co_accounting.room.Expense
 import kotlinx.android.synthetic.main.add_debt_fragment.*
-import kotlinx.android.synthetic.main.app_bar_main.*
+
+import kotlinx.android.synthetic.main.debt_activity.*
 
 class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
 
@@ -30,14 +30,10 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.debt_activity)
+        setSupportActionBar(toolbar)
 
-        setContentView(R.layout.add_debt_fragment)
-
-        val actionBar = supportActionBar
-        actionBar!!.setHomeButtonEnabled(true)
-        actionBar.setDisplayHomeAsUpEnabled(true)
-        actionBar.title = "Debt"
-
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         presenter = DebtActivityPresenter()
         presenter.attachView(this)
@@ -59,6 +55,7 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
             presenter.addReceiverButtonIsPressed()
         }
     }
+
 
     override fun onResume() {
         super.onResume()

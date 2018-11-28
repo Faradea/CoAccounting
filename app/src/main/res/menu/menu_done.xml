@@ -5,7 +5,7 @@
     <item android:id="@+id/action_menu_done"
         android:title="DONE"
         android:orderInCategory="100"
-        android:icon="@drawable/ic_done_black"
+        android:icon="@drawable/ic_done"
         app:showAsAction="ifRoom" />
 
 </menu>
