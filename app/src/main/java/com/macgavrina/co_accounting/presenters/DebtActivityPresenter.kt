@@ -36,6 +36,9 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
                         is Events.AddDebtFragmentRequiresRefresh -> {
                             //ToDo считать обновления из базы и обновить список во фрагменте
                         }
+                        is Events.OnClickExpenseItemList -> {
+                            getView()?.displayExpenseActivity(`object`.myDebtId, `object`.myExpenseId)
+                        }
                     }
                 }
     }
@@ -51,6 +54,10 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
         getView()?.hideProgress()
 
         ContactsProvider().getAll(this)
+
+        if (::debt.isInitialized) {
+            ExpenseProvider().getExpensesForDebt(this, debt.uid.toString())
+        }
     }
 
     override fun viewIsCreated() {
@@ -76,6 +83,11 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
     override fun onDatabaseError() {
         getView()?.displayToast("Database error")
         getView()?.hideProgress()
+    }
+
+    override fun onDebtDeleted() {
+        super.onDebtDeleted()
+        getView()?.finishSelf()
     }
 
     override fun onDebtUpdated() {
@@ -185,6 +197,8 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
 //        getView()?.initializeReceiversList(receiverWithAmountList, friendsList)
 //        MainApplication.bus.send(Events.AddReceiverButtonInAddDebtFragment(debt.uid))
 
+        getView()?.displayExpenseActivity(debt.uid, null)
+
     }
 
     override fun debtIdIsReceiverFromMainActivity(debtId: Int?) {
@@ -196,5 +210,9 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
         } else {
             DebtsProvider().getDebtDraft(this)
         }
+    }
+
+    override fun deleteButtonIsPressed() {
+        DebtsProvider().deleteDebt(this, debt)
     }
 }

@@ -95,6 +95,23 @@ class DebtsProvider() {
                 })
     }
 
+    fun deleteDebt(databaseCallback: DatabaseCallback, debt: Debt) {
+        Completable.fromAction {
+            MainApplication.db.debtDAO().deleteDebt(debt)
+        }.observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io()).subscribe(object : CompletableObserver {
+                    override fun onSubscribe(d: Disposable) {}
+
+                    override fun onComplete() {
+                        databaseCallback.onDebtDeleted()
+                    }
+
+                    override fun onError(e: Throwable) {
+                        databaseCallback.onDatabaseError()
+                    }
+                })
+    }
+
     fun addDebtDraft(databaseCallback: DatabaseCallback) {
         Completable.fromAction {
             val debt = Debt()

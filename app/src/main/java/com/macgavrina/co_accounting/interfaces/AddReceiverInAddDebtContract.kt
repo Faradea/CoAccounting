@@ -24,6 +24,8 @@ interface AddReceiverInAddDebtContract {
 
         fun setAmount(totalAmount: String?)
 
+        fun finishSelf()
+
     }
 
     interface Presenter:BasePresenterContract<View> {

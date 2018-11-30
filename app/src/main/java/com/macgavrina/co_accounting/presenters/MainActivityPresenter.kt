@@ -77,9 +77,9 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
                         is Events.OnClickDebtItemList -> {
                             getView()?.displayAddDebtFragment(`object`.myUid)
                         }
-                        is Events.OnClickExpenseItemList -> {
-                            getView()?.displayAddReceiverInAddDebtFragment(`object`.myDebtId, `object`.myExpenseId)
-                        }
+//                        is Events.OnClickExpenseItemList -> {
+//                            getView()?.displayAddReceiverInAddDebtFragment(`object`.myDebtId, `object`.myExpenseId)
+//                        }
                     }
                 }
     }

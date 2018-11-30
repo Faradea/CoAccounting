@@ -11,7 +11,7 @@ import com.macgavrina.co_accounting.room.Expense
 import com.macgavrina.co_accounting.room.ReceiverWithAmountForDB
 import com.macgavrina.co_accounting.rxjava.Events
 
-class AddReceiverInAddDebtPresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddReceiverInAddDebtContract.Presenter, ContactsProvider.DatabaseCallback, ReceiverForAmountProvider.DatabaseCallback, ExpenseProvider.DatabaseCallback {
+class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddReceiverInAddDebtContract.Presenter, ContactsProvider.DatabaseCallback, ReceiverForAmountProvider.DatabaseCallback, ExpenseProvider.DatabaseCallback {
     //ToDo переименовать в Expense
 
     var debtId: Int? = null
@@ -236,6 +236,7 @@ class AddReceiverInAddDebtPresenter: BasePresenter<AddReceiverInAddDebtContract.
             ExpenseProvider().updateExpense(this, expense!!)
         }
 
+        getView()?.finishSelf()
     }
 
     override fun deleteButtonIsPressed() {

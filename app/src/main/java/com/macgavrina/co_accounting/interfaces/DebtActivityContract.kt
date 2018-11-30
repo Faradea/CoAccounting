@@ -39,6 +39,8 @@ interface DebtActivityContract {
 
         fun finishSelf()
 
+        fun displayExpenseActivity(debtId: Int, expenseId: Int?)
+
     }
 
     interface Presenter:BasePresenterContract<View> {
@@ -50,6 +52,8 @@ interface DebtActivityContract {
         fun inputTextFieldsAreEmpty(areFilled: Boolean)
 
         fun debtIdIsReceiverFromMainActivity(debtId: Int?)
+
+        fun deleteButtonIsPressed()
 
     }
 

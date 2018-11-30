@@ -68,6 +68,21 @@
             android:authorities="com.example.android.datasync.provider"
             android:exported="false"
             android:syncable="true" />
+
+        <activity
+            android:name=".view.ExpenseActivity"
+            android:label="@string/title_activity_expense"
+            android:parentActivityName=".view.DebtActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            <intent-filter>
+                <action android:name="com.macgavrina.indebt.EXPENSE" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.macgavrina.co_accounting.view.DebtActivity" />
+        </activity>
     </application>
 
 </manifest>

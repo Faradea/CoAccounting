@@ -4,120 +4,79 @@
                                                      xmlns:app="http://schemas.android.com/apk/res-auto"
                                                      android:layout_width="match_parent"
                                                      android:layout_height="match_parent"
-                                                     android:theme="@style/AppTheme.NoActionBar">
+                                                     android:theme="@style/AppTheme.NoActionBar"
+                                                    app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/add_receiver_dialog_fragment_selected_members_lv"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/add_receiver_dialog_fragment_amount_et" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/add_receiver_dialog_fragment_selected_members_lv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/add_receiver_dialog_fragment_amount_et" />
-
-            <EditText
-                android:id="@+id/add_receiver_dialog_fragment_amount_et"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="64dp"
-                android:layout_marginEnd="8dp"
-                android:ems="10"
-                android:hint="amount"
-                android:inputType="numberDecimal"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/add_receiver_dialog_fragment_receiverlist_header_tv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:background="@color/colorPrimary"
-                android:text="Select members:"
-                android:textAlignment="center"
-                android:textColor="@color/colorBackground"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/add_receiver_dialog_fragment_selected_members_lv" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/add_receiver_dialog_fragment_receiverlist_lv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:background="@color/lightBackground"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/add_receiver_dialog_fragment_receiverlist_header_tv" />
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/add_receiver_dialog_fragment_delete_fab"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginBottom="8dp"
-                android:clickable="true"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:srcCompat="@android:drawable/ic_menu_delete" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/appbar"
+        <EditText
+            android:id="@+id/add_receiver_dialog_fragment_amount_et"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:ems="10"
+            android:hint="amount"
+            android:inputType="numberDecimal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="@color/colorPrimaryDark">
+        <TextView
+            android:id="@+id/add_receiver_dialog_fragment_receiverlist_header_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:background="@color/colorPrimary"
+            android:text="Select members:"
+            android:textAlignment="center"
+            android:textColor="@color/colorBackground"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/add_receiver_dialog_fragment_selected_members_lv" />
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/add_receiver_dialog_fragment_receiverlist_lv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:background="@color/lightBackground"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/add_receiver_dialog_fragment_receiverlist_header_tv" />
 
-                <ImageButton
-                    android:id="@+id/add_receiver_dialog_fragment_toolbar_cancel_image"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@color/colorPrimaryDark"
-                    app:srcCompat="@android:drawable/ic_menu_close_clear_cancel" />
-
-
-                <TextView
-                    android:id="@+id/add_receiver_dialog_fragment_toolbar_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingLeft="24dp"
-                    android:text="New expense"
-                    android:textColor="@color/colorBackground"
-                    android:textSize="16sp" />
-
-                <TextView
-                    android:id="@+id/add_receiver_dialog_fragment_toolbar_save_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:paddingRight="24dp"
-                    android:text="SAVE"
-                    android:textColor="@color/colorBackground"
-                    android:textSize="16sp" />
-
-            </androidx.appcompat.widget.Toolbar>
-
-
-        </com.google.android.material.appbar.AppBarLayout>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/add_receiver_dialog_fragment_delete_fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="8dp"
+            android:clickable="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@android:drawable/ic_menu_delete" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

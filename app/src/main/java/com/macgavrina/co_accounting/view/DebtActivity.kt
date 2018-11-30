@@ -1,6 +1,7 @@
 package com.macgavrina.co_accounting.view
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -41,7 +42,7 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
 
 
         val extras = intent.extras
-        val debtId = extras?.getInt(AddReceiverInAddDebtFragment.DEBT_ID_KEY)
+        val debtId = extras?.getInt("debtId")
 
         //val debtId = savedInstanceState?.getInt(AddReceiverInAddDebtFragment.DEBT_ID_KEY)
         Log.d("debtId = $debtId")
@@ -54,8 +55,11 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
         add_debt_fragment_add_receiver_tv.setOnClickListener { view ->
             presenter.addReceiverButtonIsPressed()
         }
-    }
 
+        debt_fragment_delete_fab.setOnClickListener { view ->
+            presenter.deleteButtonIsPressed()
+        }
+    }
 
     override fun onResume() {
         super.onResume()
@@ -176,5 +180,19 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
 
     override fun finishSelf() {
         finish()
+    }
+
+    override fun displayExpenseActivity(debtId: Int, expenseId: Int?) {
+
+        val intent = Intent()
+        intent.action = "com.macgavrina.indebt.EXPENSE"
+        intent.putExtra("debtId", debtId)
+        if (expenseId != null) {
+            intent.putExtra("expenseId", expenseId)
+        } else {
+            intent.putExtra("expenseId", -1)
+        }
+
+        startActivity(intent)
     }
 }

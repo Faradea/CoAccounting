@@ -278,27 +278,27 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val intent = Intent()
         intent.action = "com.macgavrina.indebt.DEBT"
         if (debtId == null) {
-            intent.putExtra(AddReceiverInAddDebtFragment.DEBT_ID_KEY, -1)
+            intent.putExtra("debtId", -1)
         } else {
-            intent.putExtra(AddReceiverInAddDebtFragment.DEBT_ID_KEY, debtId?.toInt())
+            intent.putExtra("debtId", debtId?.toInt())
         }
         startActivity(intent)
     }
 
     override fun displayAddReceiverInAddDebtFragment(debtId: Int, expenseId: Int?) {
-        val addReceiverInAddDebtFragment = AddReceiverInAddDebtFragment()
-        val bundle = Bundle()
-        bundle.putInt(AddReceiverInAddDebtFragment.DEBT_ID_KEY, debtId)
-        if (expenseId != null) {
-            bundle.putInt("expenseIdKey", expenseId)
-        }
-        addReceiverInAddDebtFragment.arguments = bundle
-
-        val supportFragmentManager = supportFragmentManager
-        supportFragmentManager.beginTransaction()
-                .replace(R.id.content_main_constraint_layout, addReceiverInAddDebtFragment)
-                .addToBackStack("AddReceiverInDebtFragment")
-                .commit()
+//        val addReceiverInAddDebtFragment = ExpenseActivity()
+//        val bundle = Bundle()
+//        bundle.putInt("debtId", debtId)
+//        if (expenseId != null) {
+//            bundle.putInt("expenseIdKey", expenseId)
+//        }
+//        addReceiverInAddDebtFragment.arguments = bundle
+//
+//        val supportFragmentManager = supportFragmentManager
+//        supportFragmentManager.beginTransaction()
+//                .replace(R.id.content_main_constraint_layout, addReceiverInAddDebtFragment)
+//                .addToBackStack("AddReceiverInDebtFragment")
+//                .commit()
     }
 
     override fun dismissAddReceiverInAddDebtFragment() {
