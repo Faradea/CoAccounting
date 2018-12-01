@@ -19,7 +19,7 @@ class DebtsRecyclerViewAdapter (debtsList: List<Debt>?) :
 
     open class ViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
 
-        val receiver = view.debts_list_item_receiver_tv
+        //val receiver = view.debts_list_item_receiver_tv
         val amount = view.debts_list_item_amount_tv
         val datetime = view.debts_list_item_datetime_tv
         val comment = view.debts_list_item_comment_tv
@@ -62,7 +62,7 @@ class DebtsRecyclerViewAdapter (debtsList: List<Debt>?) :
         val item = mItems?.get(position)
 
         //ToDo convert id to name
-        holder.receiver.text = item?.receiverId
+        //holder.receiver.text = item?.receiverId
 
         holder.amount.text = item?.spentAmount
         holder.datetime.text = item?.datetime

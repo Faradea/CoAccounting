@@ -41,37 +41,12 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:ems="10"
-        android:hint="comment"
+        android:hint="description"
         android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.503"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/add_debt_fragment_date_et" />
-
-    <TextView
-        android:id="@+id/add_debt_title_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:text="Add new debt"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.502"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/add_debt_fragment_progress_bar" />
-
-    <Spinner
-        android:id="@+id/add_debt_fragment_sender_spinner"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/add_debt_fragment_sender_tv" />
 
     <TextView
         android:id="@+id/add_debt_fragment_sender_tv"
@@ -80,8 +55,9 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="24dp"
         android:text="Who paid:"
+        android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/add_debt_title_tv" />
+        app:layout_constraintTop_toBottomOf="@+id/add_debt_fragment_date_et" />
 
     <TextView
         android:id="@+id/add_debt_fragment_receiver_tv"
@@ -90,23 +66,9 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="24dp"
         android:text="For whom:"
+        android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/add_debt_fragment_comment_et" />
-
-    <EditText
-        android:id="@+id/add_debt_fragment_amount_et"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:ems="10"
-        android:hint="total amount"
-        android:inputType="numberDecimal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.503"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/add_debt_fragment_sender_spinner" />
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 
     <EditText
         android:id="@+id/add_debt_fragment_date_et"
@@ -120,17 +82,19 @@
         android:inputType="date"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/add_debt_fragment_amount_et" />
+        app:layout_constraintTop_toBottomOf="@+id/add_debt_fragment_comment_et" />
 
     <TextView
         android:id="@+id/add_debt_fragment_add_receiver_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:layout_marginEnd="24dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
         android:text="@string/add_debt_fragment_add_reciever_tv_text"
+        app:layout_constraintBottom_toTopOf="@+id/add_debt_fragment_reciever_recyclerview"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/add_debt_fragment_comment_et" />
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/add_debt_fragment_reciever_recyclerview"
@@ -141,8 +105,44 @@
         android:layout_marginEnd="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/add_debt_fragment_receiver_tv" >
+        app:layout_constraintTop_toBottomOf="@+id/add_debt_fragment_receiver_tv">
 
     </androidx.recyclerview.widget.RecyclerView>
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/add_debt_fragment_sender_tv">
+
+        <Spinner
+            android:id="@+id/add_debt_fragment_sender_spinner"
+            android:layout_width="237dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            tools:layout_editor_absoluteX="48dp"
+            tools:layout_editor_absoluteY="210dp" />
+
+        <EditText
+            android:id="@+id/add_debt_fragment_amount_et"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="3"
+            android:ems="10"
+            android:hint="amount"
+            android:inputType="numberDecimal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.894"
+            app:layout_constraintStart_toEndOf="@+id/add_debt_fragment_sender_spinner"
+            tools:layout_editor_absoluteY="186dp" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
