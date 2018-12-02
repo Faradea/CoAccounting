@@ -12,7 +12,6 @@ import com.macgavrina.co_accounting.model.AuthResponse
 import com.macgavrina.co_accounting.rxjava.Events
 import io.reactivex.observers.DisposableSingleObserver
 
-//ToDo При повороте экрана приложение не падает, но результат логина "теряется" (а хорошо бы продолжить отображать прогресс-бар и продолжить процесс)
 class LoginPresenter: BasePresenter<LoginContract.View>(), LoginContract.Presenter {
 
     var loginButtonEnabled: Boolean = false
@@ -61,30 +60,30 @@ class LoginPresenter: BasePresenter<LoginContract.View>(), LoginContract.Present
 
             val authService: AuthService = AuthService.create()
 
-                    authService.authCall(login!!, pass!!)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribeWith(object : DisposableSingleObserver<AuthResponse>() {
-                                override fun onSuccess(t: AuthResponse) {
-                                    loginButtonEnabled = true
-                                    getView()?.setLoginButtonEnabled(loginButtonEnabled)
-                                    getView()?.hideProgress()
-                                    Log.d("Pass is ok, token = ${t.userToken}")
-                                    UserProvider().saveUserData(User(login, t.userToken))
-                                    MainApplication.bus.send(Events.LoginIsSuccessful())
-                                }
+            authService.authCall(login!!, pass!!)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeWith(object : DisposableSingleObserver<AuthResponse>() {
+                        override fun onSuccess(t: AuthResponse) {
+                            loginButtonEnabled = true
+                            getView()?.setLoginButtonEnabled(loginButtonEnabled)
+                            getView()?.hideProgress()
+                            Log.d("Pass is ok, token = ${t.userToken}")
+                            UserProvider().saveUserData(User(login, t.userToken))
+                            MainApplication.bus.send(Events.LoginIsSuccessful())
+                        }
 
-                                override fun onError(e: Throwable) {
-                                    loginButtonEnabled = true
-                                    getView()?.setLoginButtonEnabled(loginButtonEnabled)
-                                    getView()?.hideProgress()
-                                    getView()?.displayToast(e.message!!)
-                                    Log.d("Pass is NOK, error = ${e.message}")
-                                }
-                            })
-            }
-
+                        override fun onError(e: Throwable) {
+                            loginButtonEnabled = true
+                            getView()?.setLoginButtonEnabled(loginButtonEnabled)
+                            getView()?.hideProgress()
+                            getView()?.displayToast(e.message!!)
+                            Log.d("Pass is NOK, error = ${e.message}")
+                        }
+                    })
         }
+
+    }
 
     override fun recoverPassButtonIsPressed() {
         val enteredLogin = getView()?.getLoginFromEditText()

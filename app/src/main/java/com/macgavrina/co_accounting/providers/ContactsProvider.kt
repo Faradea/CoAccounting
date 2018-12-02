@@ -22,9 +22,7 @@ import com.macgavrina.co_accounting.view.MainActivity
 
 class ContactsProvider() {
 
-    //ToDo подумать насчет ContentProvider
-
-    //ToDo сделать singleton (см. пример в SyncService)
+    //ToDo REFACT сделать singleton (см. пример в SyncService): этот и все остальные провайдеры
 
     fun getAll(databaseCallback: DatabaseCallback) {
         MainApplication.db.contactDAO().getAll
@@ -40,7 +38,7 @@ class ContactsProvider() {
                     }
 
                     override fun onComplete() {
-                        Log.d("nothing")
+                        databaseCallback.onNoContacts()
                     }
                 })
     }
@@ -106,7 +104,6 @@ class ContactsProvider() {
         })
     }
 
-    //ToDo сделать удаление через update
     fun deleteContact(databaseCallback: DatabaseCallback, contact:Contact) {
         Completable.fromAction {
             MainApplication.db.contactDAO().deleteContact(contact) }
@@ -157,7 +154,7 @@ class ContactsProvider() {
     }
     */
 
-    //ToDo передавать userToken не в методе а в конструкторе ContactsProvider
+    //ToDo REFACT передавать userToken не в методе а в конструкторе ContactsProvider
     fun syncDataDownload(userToken: String) {
         // Pass the settings flags by inserting them in a bundle
         SyncService.syncData(false, true, userToken)
@@ -190,6 +187,10 @@ class ContactsProvider() {
 
         fun onContactsListLoaded(contactsList: List<Contact>) {
             Log.d("contacts list is loaded")
+        }
+
+        fun onNoContacts() {
+            Log.d("there is no contacts in DB")
         }
     }
 }

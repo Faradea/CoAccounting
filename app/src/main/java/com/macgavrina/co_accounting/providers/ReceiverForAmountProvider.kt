@@ -12,8 +12,6 @@ import io.reactivex.schedulers.Schedulers
 
 class ReceiverForAmountProvider {
 
-    //ToDo сделать singleton (см. пример в SyncService)
-
     fun getAll(databaseCallback: DatabaseCallback) {
         MainApplication.db.receiverWithAmountForDBDAO().getAll
                 .subscribeOn(Schedulers.io())

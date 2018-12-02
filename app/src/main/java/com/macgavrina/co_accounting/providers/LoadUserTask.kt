@@ -9,7 +9,7 @@ import com.macgavrina.co_accounting.preferences.MySharedPreferences
 
 class LoadUserTask(callback: LoadUserCallback) : AsyncTask<Void, Void, User>() {
 
-    //ToDo использовать RxJava вместо AsyncTask
+    //ToDo REFACT использовать RxJava вместо AsyncTask
 
     val myCallback: LoadUserCallback = callback
 

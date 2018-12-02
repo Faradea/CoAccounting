@@ -14,7 +14,7 @@ import io.reactivex.schedulers.Schedulers
 
 class SyncService() {
 
-    //ToDo сделать singleton и syncronized syncData
+    //ToDo REFACT сделать singleton и syncronized syncData
 
     companion object {
 

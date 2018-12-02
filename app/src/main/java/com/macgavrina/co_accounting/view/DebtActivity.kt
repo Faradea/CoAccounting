@@ -1,6 +1,7 @@
 package com.macgavrina.co_accounting.view
 
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
@@ -9,6 +10,7 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -64,12 +66,6 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
     override fun onResume() {
         super.onResume()
 
-        //ToDo добавить проверку заполнения обязательных полей
-//        val emailObservable: Observable<String> = LoginInputObserver.getTextWatcherObservable(add_contact_fragment_email_et)
-//        emailObservable.subscribe { it ->
-//            presenter.inputTextFieldsAreEmpty(it.isNotEmpty())
-//        }
-
         viewManager = LinearLayoutManager(MainApplication.applicationContext())
 
         presenter.viewIsReady()
@@ -105,9 +101,11 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
         Toast.makeText(MainApplication.applicationContext(), text, Toast.LENGTH_SHORT).show()
     }
 
-    override fun setSender(senderName: String) {
-        //ToDo setup sender with value saved in DB
-        //add_debt_fragment_sender_spinner.selectedItem
+    override fun setSender(contactId: Int) {
+        //ToDo REFACT Будет работать только до тех пор пока нет удаления контактов и сортиовки
+        Log.d("selected contactId = $$contactId")
+        add_debt_fragment_sender_spinner.setSelection(contactId)
+        Log.d("selected contactId set to spinner = ${add_debt_fragment_sender_spinner.selectedItemPosition}")
     }
 
     override fun setAmount(amount: String) {
@@ -122,13 +120,8 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
         add_debt_fragment_comment_et.setText(comment)
     }
 
-    override fun getSender(): String {
-        return add_debt_fragment_sender_spinner.selectedItem.toString()
-    }
-
-    override fun getReceiver(): String {
-        //return add_debt_fragment_receiver_spinner.selectedItem.toString()
-        return ""
+    override fun getSender(): Int {
+        return add_debt_fragment_sender_spinner.selectedItemPosition
     }
 
     override fun getAmount(): String {
@@ -149,10 +142,6 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
 
     override fun hideProgress() {
         add_debt_fragment_progress_bar.visibility = View.INVISIBLE
-    }
-
-    override fun setAddButtonEnabled(areEnabled: Boolean) {
-        //ToDo
     }
 
     override fun hideKeyboard() {
@@ -195,4 +184,16 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
 
         startActivity(intent)
     }
+
+    override fun showAlertAndGoToContacts(alertText: String) {
+            val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
+            alertDialogBuilder.setMessage(alertText)
+                    .setTitle("Alert")
+            alertDialogBuilder.setPositiveButton("Ok") { _, _ ->
+                //ToDo NEW открывать вкладку contacts после этого
+                finishSelf()
+            }
+        val alertDialog: AlertDialog = alertDialogBuilder.create()
+            alertDialog.show()
+        }
 }

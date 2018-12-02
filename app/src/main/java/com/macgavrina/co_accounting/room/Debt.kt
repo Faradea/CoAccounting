@@ -7,14 +7,13 @@ import androidx.room.PrimaryKey
 @Entity
 class Debt {
 
-    //ToDo Использовать не только String как тип данных
     @PrimaryKey(autoGenerate = true)
     public var uid: Int = 0
         set
         get
 
-    @ColumnInfo(name = "receiverId")
-    public var receiverId: String? = null
+    @ColumnInfo(name = "senderId")
+    public var senderId: String? = null
         set
         get
 

@@ -11,7 +11,7 @@ import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.rxjava.Events
 import kotlinx.android.synthetic.main.selected_receivers_list_item.view.*
 
-class SelectedReceiversRecyclerViewAdapter (contactsList: List<Contact>?, amountPerPerson: Float) :
+class SelectedReceiversRecyclerViewAdapter (contactsList: List<Contact>?, amountPerPerson: String) :
         RecyclerView.Adapter<SelectedReceiversRecyclerViewAdapter.ViewHolder>() {
 
     private val amountPerPerson = amountPerPerson

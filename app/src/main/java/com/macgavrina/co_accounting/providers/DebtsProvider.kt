@@ -13,10 +13,6 @@ import io.reactivex.schedulers.Schedulers
 
 class DebtsProvider() {
 
-    //ToDo подумать насчет ContentProvider
-
-    //ToDo сделать singleton (см. пример в SyncService)
-
     fun getAll(databaseCallback: DatabaseCallback) {
         Log.d("get all debts")
         MainApplication.db.debtDAO().getAll("active")
@@ -154,7 +150,6 @@ class DebtsProvider() {
 //        })
 //    }
 
-//    //ToDo сделать удаление через update
 //    fun deleteContact(databaseCallback: DatabaseCallback, contact:Contact) {
 //        Completable.fromAction {
 //            MainApplication.db.contactDAO().deleteContact(contact) }
@@ -175,7 +170,6 @@ class DebtsProvider() {
 //                    }
 //                })
 
-//    //ToDo передавать userToken не в методе а в конструкторе ContactsProvider
 //    fun syncDataDownload(userToken: String) {
 //        // Pass the settings flags by inserting them in a bundle
 //        SyncService.syncData(false, true, userToken)

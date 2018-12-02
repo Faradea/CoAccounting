@@ -37,10 +37,6 @@ class ContactsPresenter: BasePresenter<ContactsContract.View>(), ContactsContrac
         MainApplication.bus.send(Events.AddContact())
     }
 
-    override fun deleteContactsButtonIsPressed(selectedContactsIds: List<Int>) {
-        //ToDo Сделать массовое удаление контактов через actionMode
-    }
-
     override fun contactItemIsSelected(selectedContactId: Int) {
         Log.d("selectedContactId = ${selectedContactId}")
     }

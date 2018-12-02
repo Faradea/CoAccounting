@@ -7,7 +7,7 @@ import android.os.Bundle
 import android.accounts.AbstractAccountAuthenticator
 import android.content.Context
 
-//ToDo удалить всю папку если получиться сделать синхронизацию по появлению сети без этого всего
+//ToDo REFACT удалить всю папку если получиться сделать синхронизацию по появлению сети без этого всего
 
 class Authenticator(context: Context) : AbstractAccountAuthenticator(context) {
 

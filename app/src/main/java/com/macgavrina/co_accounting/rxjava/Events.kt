@@ -4,6 +4,7 @@ import com.macgavrina.co_accounting.room.Contact
 
 object Events {
 
+    //ToDo REFACT добавить подкатегории
     class FromRegisterToLoginEvent(enteredLogin: String?) {
         val myEnteredLogin = enteredLogin
     }

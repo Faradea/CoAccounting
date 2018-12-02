@@ -70,7 +70,6 @@ class ExpenseActivity : AppCompatActivity(), AddReceiverInAddDebtContract.View, 
         add_receiver_dialog_fragment_selected_members_lv.adapter = NotSelectedReceiversRecyclerViewAdapter(null)
         add_receiver_dialog_fragment_selected_members_lv.layoutManager = viewManagerForSelected
 
-        //ToDo this button should exist only for edit fragment
         add_receiver_dialog_fragment_delete_fab.setOnClickListener { _ ->
             Log.d("delete button is pressed")
             presenter.deleteButtonIsPressed()
@@ -116,6 +115,8 @@ class ExpenseActivity : AppCompatActivity(), AddReceiverInAddDebtContract.View, 
         if (s != null) {
             if (s.isNotEmpty()) {
                 presenter.amountIsEdited(s.toString().toFloat())
+            } else {
+                presenter.amountIsEdited(0.0F)
             }
         }
     }
@@ -124,7 +125,7 @@ class ExpenseActivity : AppCompatActivity(), AddReceiverInAddDebtContract.View, 
         add_receiver_dialog_fragment_receiverlist_lv.adapter = NotSelectedReceiversRecyclerViewAdapter(contactsList)
     }
 
-    override fun initializeSelectedReceiversList(contactsList: List<Contact>?, amountPerPerson: Float) {
+    override fun initializeSelectedReceiversList(contactsList: List<Contact>?, amountPerPerson: String) {
         add_receiver_dialog_fragment_selected_members_lv.adapter = SelectedReceiversRecyclerViewAdapter(contactsList, amountPerPerson)
     }
 
@@ -135,7 +136,7 @@ class ExpenseActivity : AppCompatActivity(), AddReceiverInAddDebtContract.View, 
 
     override fun getAmount(): Float {
         val etText = add_receiver_dialog_fragment_amount_et.text
-        return if (etText.isNotEmpty()) {
+        return if (etText != null && etText.isNotEmpty()) {
             etText.toString().toFloat()
         } else {
             0F

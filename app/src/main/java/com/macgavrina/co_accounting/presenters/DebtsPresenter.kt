@@ -35,10 +35,6 @@ class DebtsPresenter: BasePresenter<DebtsContract.View>(), DebtsContract.Present
         MainApplication.bus.send(Events.AddDebt())
     }
 
-    override fun deleteDebtButtonIsPressed(selectedDebtsIds: List<Int>) {
-        //ToDo Сделать массовое удаление контактов через actionMode
-    }
-
     override fun debtItemIsSelected(selectedDebtId: Int) {
         Log.d("selectedDebtId = ${selectedDebtId}")
     }

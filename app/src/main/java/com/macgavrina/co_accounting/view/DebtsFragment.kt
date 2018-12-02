@@ -15,6 +15,9 @@ import com.macgavrina.co_accounting.interfaces.DebtsContract
 import com.macgavrina.co_accounting.presenters.DebtsPresenter
 import com.macgavrina.co_accounting.room.Debt
 import kotlinx.android.synthetic.main.debts_fragment.*
+import androidx.recyclerview.widget.DividerItemDecoration
+
+
 
 class DebtsFragment: Fragment(), DebtsContract.View {
 
@@ -45,6 +48,8 @@ class DebtsFragment: Fragment(), DebtsContract.View {
         viewManager = LinearLayoutManager(MainApplication.applicationContext())
         debts_fragment_recyclerview.adapter = DebtsRecyclerViewAdapter(null)
         debts_fragment_recyclerview.layoutManager = viewManager
+//        debts_fragment_recyclerview.addItemDecoration(DividerItemDecoration(context!!,
+//                DividerItemDecoration.VERTICAL))
         presenter.viewIsReady()
     }
 

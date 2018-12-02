@@ -23,8 +23,6 @@ interface DebtsContract {
 
         fun addDebtButtonIsPressed()
 
-        fun deleteDebtButtonIsPressed(selectedContactsIds:List<Int>)
-
         fun debtItemIsSelected(selectedContactId:Int)
 
     }

@@ -99,9 +99,6 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
 
     override fun viewIsCreated() {
         super.viewIsCreated()
-        //ToDo продумать какую-то более классную логику синхронизации данных
-        //ContactsProvider().syncDataUpload()
-        //ContactsProvider().syncDataDownload()
     }
 
     override fun headerIsClicked() {

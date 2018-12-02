@@ -53,7 +53,7 @@ class ExpenseProvider() {
     }
 
 
-    //ToDo Use  Maybe<Long> in DAO after Room bugfixing
+    //ToDo REFACT Use Maybe<Long> in DAO after Room bugfixing
 //    fun addExpense(databaseCallback: DatabaseCallback, expense: Expense) {
 //        MainApplication.db.expenseDAO().insertExpense(expense)
 //                .subscribeOn(Schedulers.io())

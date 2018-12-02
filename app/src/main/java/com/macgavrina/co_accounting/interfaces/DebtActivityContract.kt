@@ -5,9 +5,7 @@ import com.macgavrina.co_accounting.room.Expense
 interface DebtActivityContract {
 
     interface View:BaseViewContract {
-        fun getSender():String
-
-        fun getReceiver(): String
+        fun getSender(): Int
 
         fun getAmount(): String
 
@@ -15,7 +13,7 @@ interface DebtActivityContract {
 
         fun getComment(): String
 
-        fun setSender(senderName: String)
+        fun setSender(contactId: Int)
 
         fun setAmount(amount: String)
 
@@ -26,8 +24,6 @@ interface DebtActivityContract {
         fun showProgress()
 
         fun hideProgress()
-
-        fun setAddButtonEnabled(areEnabled: Boolean)
 
         fun hideKeyboard()
 
@@ -40,6 +36,8 @@ interface DebtActivityContract {
         fun finishSelf()
 
         fun displayExpenseActivity(debtId: Int, expenseId: Int?)
+
+        fun showAlertAndGoToContacts(alertText: String)
 
     }
 

@@ -33,9 +33,6 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
                             Log.d("AddDebtReceiverWithAmountListIsChanged, newAmount = $newAmount, position = $positionInList")
                             receiverWithAmountList[positionInList].amount = newAmount.toFloat()
                         }
-                        is Events.AddDebtFragmentRequiresRefresh -> {
-                            //ToDo считать обновления из базы и обновить список во фрагменте
-                        }
                         is Events.OnClickExpenseItemList -> {
                             getView()?.displayExpenseActivity(`object`.myDebtId, `object`.myExpenseId)
                         }
@@ -46,13 +43,11 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
 
     override fun viewIsReady() {
         Log.d("DebtActivity view id ready")
-        //ToDo написать условия при который кнопка "добавить" активна
-        addDebtButtonEnabled = true
         //getView()?.getEmail()?.length!! > 0
 
-        getView()?.setAddButtonEnabled(addDebtButtonEnabled)
         getView()?.hideProgress()
 
+        Log.d("getting all contacts from db...")
         ContactsProvider().getAll(this)
 
         if (::debt.isInitialized) {
@@ -66,7 +61,12 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
 
     override fun onContactsListLoaded(contactsList: List<com.macgavrina.co_accounting.room.Contact>) {
 
-        //ToDo добавлять в список первым пунктом себя
+        Log.d("contacts list is loaded")
+
+        if (contactsList.isEmpty()) {
+            getView()?.showAlertAndGoToContacts("Please add at least one contact first")
+        }
+
         friendsList = arrayOfNulls<String>(contactsList.size)
         var i = 0
 
@@ -78,6 +78,10 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
         }
 
         getView()?.setupSenderSpinner(friendsList)
+
+        if (::debt.isInitialized) {
+            getView()?.setSender(debt.senderId!!.toInt())
+        }
     }
 
     override fun onDatabaseError() {
@@ -100,9 +104,11 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
     override fun onDebtLoaded(debt: Debt) {
         super.onDebtLoaded(debt)
 
-        //getView()?.setSender(debt.)
-
         this.debt = debt
+
+        if (debt.senderId != null && ::friendsList.isInitialized) {
+            getView()?.setSender(debt.senderId!!.toInt())
+        }
 
         if (debt.spentAmount != null) {
             getView()?.setAmount(debt.spentAmount!!)
@@ -121,8 +127,7 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
 
     override fun onNoDebtWithIdExist() {
         super.onNoDebtWithIdExist()
-
-        //ToDo load debt draft
+        //ToDo ErrorHandling load debt draft
     }
 
     override fun onDebtDraftAdded() {
@@ -168,7 +173,6 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
 
     override fun inputTextFieldsAreEmpty(areFilled: Boolean) {
         addDebtButtonEnabled = areFilled
-        getView()?.setAddButtonEnabled(addDebtButtonEnabled)
     }
 
     override fun addButtonIsPressed() {
@@ -177,25 +181,19 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
         getView()?.hideKeyboard()
         getView()?.showProgress()
 
-        debt.receiverId = getView()?.getReceiver()
+
+        debt.senderId = getView()?.getSender().toString()
         debt.spentAmount= getView()?.getAmount()
         debt.datetime = getView()?.getDate()
         debt.comment = getView()?.getComment()
         debt.status = "active"
 
+        Log.d("senderId saved in DB = ${debt.senderId}")
+
         DebtsProvider().updateDebt(this, debt)
     }
 
     override fun addReceiverButtonIsPressed() {
-
-        //ToDo переделать на вызов активити
-//        getView()?.hideKeyboard()
-//
-//        val receiverWithAmount = RecieverWithAmount("TestName", 220.0f, receiverWithAmountList.size)
-//        receiverWithAmountList.add(receiverWithAmount)
-//
-//        getView()?.initializeReceiversList(receiverWithAmountList, friendsList)
-//        MainApplication.bus.send(Events.AddReceiverButtonInAddDebtFragment(debt.uid))
 
         getView()?.displayExpenseActivity(debt.uid, null)
 

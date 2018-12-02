@@ -61,9 +61,6 @@ class DebtsRecyclerViewAdapter (debtsList: List<Debt>?) :
         Log.d("Bind item with position = ${position}")
         val item = mItems?.get(position)
 
-        //ToDo convert id to name
-        //holder.receiver.text = item?.receiverId
-
         holder.amount.text = item?.spentAmount
         holder.datetime.text = item?.datetime
         holder.comment.text = item?.comment

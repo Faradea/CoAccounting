@@ -24,8 +24,6 @@ interface ContactsContract {
 
         fun addContactButtonIsPressed()
 
-        fun deleteContactsButtonIsPressed(selectedContactsIds:List<Int>)
-
         fun contactItemIsSelected(selectedContactId:Int)
 
     }

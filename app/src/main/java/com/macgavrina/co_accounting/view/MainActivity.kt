@@ -56,6 +56,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         nav_view.setNavigationItemSelectedListener(this)
 
         initView()
+
+        nav_view.menu.getItem(2).isChecked = true
+        presenter.gotoDebts()
     }
 
     override fun onResume() {
@@ -111,8 +114,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     fun initView() {
         presenter.viewIsCreated()
-        //ToDo Здесь должно быть DI или что-то типа того, например:
-        //ButterKnife.bind(this);
     }
 
     override fun updateLoginText(login: String) {
@@ -319,7 +320,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    /*//ToDo метод дублируется здесь и в СontactsProvider
+    /*
     fun CreateSyncAccount(context: Context): Account? {
         // Create the account type and default account
         val newAccount = Account(SyncService.ACCOUNT, SyncService.ACCOUNT_TYPE)

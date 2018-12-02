@@ -10,14 +10,14 @@ import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.room.Expense
 import com.macgavrina.co_accounting.room.ReceiverWithAmountForDB
 import com.macgavrina.co_accounting.rxjava.Events
+import java.text.DecimalFormat
 
 class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddReceiverInAddDebtContract.Presenter, ContactsProvider.DatabaseCallback, ReceiverForAmountProvider.DatabaseCallback, ExpenseProvider.DatabaseCallback {
-    //ToDo переименовать в Expense
 
     var debtId: Int? = null
     var expenseId: Int? = null
     var expense: Expense? = null
-    var amountPerPerson: Float = 0F
+    var amountPerPerson: String = "0"
     var contactsList: List<Contact>? = null
     var notSelectedContactsList = mutableListOf<Contact>()
     var selectedContactsList = mutableListOf<Contact>()
@@ -51,7 +51,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
         super.onContactsListLoaded(contactsList)
 
         this.contactsList = contactsList
-        amountPerPerson = 0F
+        amountPerPerson = "0"
         notSelectedContactsList.clear()
         selectedContactsList.clear()
         contactsList.forEach { contact ->
@@ -99,7 +99,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
     }
 
     override fun onNoExpenseWithRequestedId() {
-        //ToDo handle error
+        //ToDo ErrorHandling
     }
 
     override fun onExpenseDeleted() {
@@ -132,9 +132,9 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
                             selectedContactsList.add(contact!!)
 
                             if (getView()?.getAmount() != null) {
-                                amountPerPerson = getView()?.getAmount()!! / selectedContactsList.size
+                                amountPerPerson = DecimalFormat("##.##").format(getView()?.getAmount()!! / selectedContactsList.size)
                             } else {
-                                amountPerPerson = 0F
+                                amountPerPerson = "0"
                             }
                             getView()?.initializeNotSelectedReceiversList(notSelectedContactsList)
                             getView()?.initializeSelectedReceiversList(selectedContactsList, amountPerPerson)
@@ -145,9 +145,9 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
                             notSelectedContactsList.add(contact)
 
                             if (getView()?.getAmount() != null) {
-                                amountPerPerson = getView()?.getAmount()!! / selectedContactsList.size
+                                amountPerPerson = DecimalFormat("##.##").format(getView()?.getAmount()!! / selectedContactsList.size)
                             } else {
-                                amountPerPerson = 0F
+                                amountPerPerson = "0"
                             }
                             getView()?.initializeNotSelectedReceiversList(notSelectedContactsList)
                             getView()?.initializeSelectedReceiversList(selectedContactsList, amountPerPerson)
@@ -170,7 +170,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
 
     override fun amountIsEdited(newAmount: Float) {
         if (selectedContactsList.isNotEmpty()) {
-            amountPerPerson = newAmount/selectedContactsList.size
+            amountPerPerson = DecimalFormat("##.##").format(newAmount/selectedContactsList.size)
             getView()?.initializeSelectedReceiversList(selectedContactsList, amountPerPerson)
         }
 
@@ -198,7 +198,6 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
 
         getView()?.hideKeyboard()
 
-        //ToDo Should be done in transaction
         var receiversListString = ""
 
         receiversWithAmountList = mutableListOf<ReceiverWithAmountForDB>()
@@ -206,7 +205,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
         selectedContactsList.forEach { contact ->
 
             val receiverWithAmount = ReceiverWithAmountForDB()
-            receiverWithAmount.amount = amountPerPerson.toString()
+            receiverWithAmount.amount = amountPerPerson
             receiverWithAmount.contactId = contact.uid.toString()
             receiversWithAmountList.add(receiverWithAmount)
 
@@ -220,7 +219,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
 
         if (expense == null) {
             expense = Expense()
-            expense!!.totalAmount = getView()?.getAmount().toString()
+            expense!!.totalAmount = DecimalFormat("##.##").format(getView()?.getAmount())
             expense!!.receiversList = receiversListString
             expense!!.debtId = debtId
 
@@ -229,7 +228,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
             ExpenseProvider().addExpense(this, expense!!)
 
         } else {
-            expense!!.totalAmount = getView()?.getAmount().toString()
+            expense!!.totalAmount = DecimalFormat("##.##").format(getView()?.getAmount())
             expense!!.receiversList = receiversListString
             expense!!.debtId = debtId
 
@@ -259,9 +258,10 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
             }
 
             if (getView()?.getAmount() != null) {
-                amountPerPerson = getView()?.getAmount()!! / selectedContactsList.size
+                amountPerPerson =  DecimalFormat("##.##").format(getView()?.getAmount()!! / selectedContactsList.size)
+
             } else {
-                amountPerPerson = 0F
+                amountPerPerson = "0"
             }
 
             getView()?.initializeNotSelectedReceiversList(notSelectedContactsList)
