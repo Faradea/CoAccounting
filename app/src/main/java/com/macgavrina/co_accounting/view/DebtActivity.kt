@@ -1,8 +1,9 @@
 package com.macgavrina.co_accounting.view
 
+import android.app.DatePickerDialog
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -11,8 +12,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import com.google.android.material.snackbar.Snackbar
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.macgavrina.co_accounting.MainApplication
@@ -22,12 +22,18 @@ import com.macgavrina.co_accounting.interfaces.DebtActivityContract
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.presenters.DebtActivityPresenter
 import com.macgavrina.co_accounting.room.Expense
+import com.macgavrina.co_accounting.support.DateFormatter
 import kotlinx.android.synthetic.main.add_debt_fragment.*
-
 import kotlinx.android.synthetic.main.debt_activity.*
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.*
+
 
 class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
 
+    var datePickerDialog: DatePickerDialog? = null
+    var senderId: Int? = null
     lateinit var presenter: DebtActivityPresenter
     private lateinit var viewManager: RecyclerView.LayoutManager
 
@@ -61,6 +67,11 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
         debt_fragment_delete_fab.setOnClickListener { view ->
             presenter.deleteButtonIsPressed()
         }
+
+        add_debt_fragment_date_et.setOnClickListener { view ->
+            Log.d("date_edit_text_is_clicked")
+            presenter.date_edit_text_is_clicked()
+        }
     }
 
     override fun onResume() {
@@ -69,6 +80,11 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
         viewManager = LinearLayoutManager(MainApplication.applicationContext())
 
         presenter.viewIsReady()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        presenter.viewIsPaused()
     }
 
     override fun onDestroy() {
@@ -97,11 +113,57 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
     }
 
 
+    override fun displayDatePickerDialog() {
+
+        if (datePickerDialog != null) return
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+
+            datePickerDialog = DatePickerDialog(this)
+
+            val calendar = Calendar.getInstance()
+
+            datePickerDialog?.setOnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+                calendar.set(Calendar.YEAR, year)
+                calendar.set(Calendar.MONTH, monthOfYear)
+                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                add_debt_fragment_date_et.setText(DateFormatter().formatDateFromTimestamp(calendar.timeInMillis))
+                datePickerDialog = null
+            }
+
+            datePickerDialog?.setOnCancelListener{
+                datePickerDialog = null
+            }
+
+            datePickerDialog?.show()
+
+            if (getDate() != null && getDate().isNotEmpty()) {
+                Log.d("initialize calendar with ${getDate()}")
+                calendar.timeInMillis = DateFormatter().getTimestampFromFormattedDate(getDate())!!
+
+                val mYear = calendar.get(Calendar.YEAR)
+                val mMonth = calendar.get(Calendar.MONTH)
+                val mDay = calendar.get(Calendar.DAY_OF_MONTH)
+
+                datePickerDialog?.updateDate(mYear, mMonth, mDay)
+
+            } else {
+                Log.d("initialize calendar with sysdate")
+            }
+
+        } else {
+            TODO("VERSION.SDK_INT < N")
+        }
+    }
+
+
     override fun displayToast(text: String) {
         Toast.makeText(MainApplication.applicationContext(), text, Toast.LENGTH_SHORT).show()
     }
 
     override fun setSender(contactId: Int) {
+
+        senderId = contactId
         //ToDo REFACT Будет работать только до тех пор пока нет удаления контактов и сортиовки
         Log.d("selected contactId = $$contactId")
         add_debt_fragment_sender_spinner.setSelection(contactId)
@@ -151,6 +213,7 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
 
     override fun setupSenderSpinner(contactsList: Array<String?>) {
 
+        Log.d("setupSenderSpinner")
         val adapter = ArrayAdapter<String>(
                 MainApplication.applicationContext(),
                 android.R.layout.simple_spinner_item,
@@ -160,6 +223,10 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
 
         add_debt_fragment_sender_spinner.adapter = adapter
+
+        if (senderId != null) {
+            setSender(senderId!!)
+        }
     }
 
     override fun initializeExpensesList(expenseList: List<Expense>) {
@@ -168,7 +235,8 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
     }
 
     override fun finishSelf() {
-        finish()
+        Log.d("finishSelf")
+        onBackPressed()
     }
 
     override fun displayExpenseActivity(debtId: Int, expenseId: Int?) {

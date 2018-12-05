@@ -157,12 +157,12 @@ class ContactsProvider() {
     //ToDo REFACT передавать userToken не в методе а в конструкторе ContactsProvider
     fun syncDataDownload(userToken: String) {
         // Pass the settings flags by inserting them in a bundle
-        SyncService.syncData(false, true, userToken)
+        //SyncService.syncData(false, true, userToken)
     }
 
     fun syncDataUpload(userToken: String) {
         // Pass the settings flags by inserting them in a bundle
-        SyncService.syncData(true, false, userToken)
+        //SyncService.syncData(true, false, userToken)
     }
 
     interface DatabaseCallback {

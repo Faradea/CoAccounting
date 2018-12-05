@@ -112,6 +112,7 @@ class DebtsProvider() {
         Completable.fromAction {
             val debt = Debt()
             debt.status = "draft"
+            debt.datetime = System.currentTimeMillis().toString()
             MainApplication.db.debtDAO().insertDebt(debt)
         }.observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io()).subscribe(object : CompletableObserver {

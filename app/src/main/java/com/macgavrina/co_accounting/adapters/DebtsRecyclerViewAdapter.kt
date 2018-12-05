@@ -10,6 +10,7 @@ import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.Debt
 import com.macgavrina.co_accounting.rxjava.Events
+import com.macgavrina.co_accounting.support.DateFormatter
 import kotlinx.android.synthetic.main.debts_list_item.view.*
 
 class DebtsRecyclerViewAdapter (debtsList: List<Debt>?) :
@@ -62,8 +63,15 @@ class DebtsRecyclerViewAdapter (debtsList: List<Debt>?) :
         val item = mItems?.get(position)
 
         holder.amount.text = item?.spentAmount
-        holder.datetime.text = item?.datetime
-        holder.comment.text = item?.comment
+        if (item?.datetime != null && item.datetime!!.isNotEmpty()) {
+            holder.datetime.text = DateFormatter().formatDateFromTimestamp(item?.datetime!!.toLong())
+        }
+
+        if (item?.comment != null && item.comment!!.isNotEmpty()) {
+            holder.comment.text = item.comment
+        } else {
+            holder.comment.text = "..."
+        }
         holder.setItem(mItems?.get(position)!!)
     }
 

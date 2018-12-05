@@ -10,10 +10,13 @@ import com.macgavrina.co_accounting.providers.UserProvider
 import com.macgavrina.co_accounting.rxjava.Events
 import com.macgavrina.co_accounting.services.AuthService
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.schedulers.Schedulers
 
 class RegisterPresenter: BasePresenter<RegisterContract.View>(), RegisterContract.Presenter {
+
+    private var subscriptionToBus: Disposable? = null
 
     var isRegisterButtonEnabled:Boolean = false
 
@@ -60,6 +63,7 @@ class RegisterPresenter: BasePresenter<RegisterContract.View>(), RegisterContrac
 
             val authService: AuthService = AuthService.create()
 
+            //ToDo REFACT unsubscribe from EventBus
             authService.registerPostCall(login!!, pass!!)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())

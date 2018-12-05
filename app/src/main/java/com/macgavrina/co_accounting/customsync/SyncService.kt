@@ -16,37 +16,37 @@ class SyncService() {
 
     //ToDo REFACT сделать singleton и syncronized syncData
 
-    companion object {
-
-        const val SYNC_UPLOAD = "upload"
-        const val SYNC_DOWNLOAD = "download"
-
-        fun syncData(syncUpload: Boolean, syncDownload: Boolean, userToken: String) {
-
-            if (syncUpload) {
-                Log.d("start syncUpload")
-                val contactsService: ContactsService = ContactsService.create()
-
-                contactsService.addContact(userToken, "testEmail", "testAlias")
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeWith(object : DisposableSingleObserver<DefaultServiceResponse>() {
-                            override fun onSuccess(t: DefaultServiceResponse) {
-                                Log.d("test contact is added")
-                            }
-
-                            override fun onError(e: Throwable) {
-                                Log.d("adding test contact failed with error = ${e.message}")
-
-                            }
-                        })
-
-            }
-
-            if (syncDownload) {
-                Log.d("syncDownload")
-            }
-
-        }
-    }
+//    companion object {
+//
+//        const val SYNC_UPLOAD = "upload"
+//        const val SYNC_DOWNLOAD = "download"
+//
+//        fun syncData(syncUpload: Boolean, syncDownload: Boolean, userToken: String) {
+//
+//            if (syncUpload) {
+//                Log.d("start syncUpload")
+//                val contactsService: ContactsService = ContactsService.create()
+//
+//                contactsService.addContact(userToken, "testEmail", "testAlias")
+//                        .subscribeOn(Schedulers.io())
+//                        .observeOn(AndroidSchedulers.mainThread())
+//                        .subscribeWith(object : DisposableSingleObserver<DefaultServiceResponse>() {
+//                            override fun onSuccess(t: DefaultServiceResponse) {
+//                                Log.d("test contact is added")
+//                            }
+//
+//                            override fun onError(e: Throwable) {
+//                                Log.d("adding test contact failed with error = ${e.message}")
+//
+//                            }
+//                        })
+//
+//            }
+//
+//            if (syncDownload) {
+//                Log.d("syncDownload")
+//            }
+//
+//        }
+//    }
 }

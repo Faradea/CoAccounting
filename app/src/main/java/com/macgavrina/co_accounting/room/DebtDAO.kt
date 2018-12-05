@@ -5,7 +5,7 @@ import io.reactivex.Maybe
 
 @Dao
 interface DebtDAO {
-    @Query("SELECT * FROM debt WHERE status IN (:status)")
+    @Query("SELECT * FROM debt WHERE status IN (:status) ORDER BY datetime DESC")
     fun getAll(status: String): Maybe<List<Debt>>
 
     @Query("SELECT * FROM debt WHERE uid IN (:debtId)")

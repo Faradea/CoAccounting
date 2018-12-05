@@ -156,6 +156,6 @@ class ExpenseActivity : AppCompatActivity(), AddReceiverInAddDebtContract.View, 
     }
 
     override fun finishSelf() {
-        finish()
+        onBackPressed()
     }
 }

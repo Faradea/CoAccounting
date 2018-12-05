@@ -39,6 +39,8 @@ interface DebtActivityContract {
 
         fun showAlertAndGoToContacts(alertText: String)
 
+        fun displayDatePickerDialog()
+
     }
 
     interface Presenter:BasePresenterContract<View> {
@@ -52,6 +54,10 @@ interface DebtActivityContract {
         fun debtIdIsReceiverFromMainActivity(debtId: Int?)
 
         fun deleteButtonIsPressed()
+
+        fun viewIsPaused()
+
+        fun date_edit_text_is_clicked()
 
     }
 

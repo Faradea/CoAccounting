@@ -10,9 +10,12 @@ import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.room.Expense
 import com.macgavrina.co_accounting.room.ReceiverWithAmountForDB
 import com.macgavrina.co_accounting.rxjava.Events
+import io.reactivex.disposables.Disposable
 import java.text.DecimalFormat
 
 class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddReceiverInAddDebtContract.Presenter, ContactsProvider.DatabaseCallback, ReceiverForAmountProvider.DatabaseCallback, ExpenseProvider.DatabaseCallback {
+
+    private var subscriptionToBus: Disposable? = null
 
     var debtId: Int? = null
     var expenseId: Int? = null
@@ -34,7 +37,8 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
         super.onReceiverWithAmountListAdded()
         Log.d("receiver with amount list is added")
 
-        MainApplication.bus.send(Events.ReceiversWithAmountInAddDebtIsSaved())
+        getView()?.finishSelf()
+        //MainApplication.bus.send(Events.ReceiversWithAmountInAddDebtIsSaved())
     }
 
     override fun onReceiversWithAmountListForExpensesDeleted() {
@@ -104,7 +108,8 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
 
     override fun onExpenseDeleted() {
         super.onExpenseDeleted()
-        MainApplication.bus.send(Events.HideAddReceiverInAddDebtFragment(true))
+        getView()?.finishSelf()
+        //MainApplication.bus.send(Events.HideAddReceiverInAddDebtFragment(true))
     }
 
     override fun onReceiversWithAmountForExpenseListLoaded(receiversWithAmountList: List<ReceiverWithAmountForDB>) {
@@ -119,44 +124,62 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
     override fun attachView(baseViewContract: AddReceiverInAddDebtContract.View) {
         super.attachView(baseViewContract)
 
+        subscribeToEventBus()
+
         ContactsProvider().getAll(this)
 
-        MainApplication
-                .bus
-                .toObservable()
-                .subscribe { `object` ->
-                    when (`object`) {
-                        is Events.NewContactIsAddedToSelectedReceiversList -> {
-                            val contact = `object`.myContact
-                            notSelectedContactsList.remove(contact)
-                            selectedContactsList.add(contact!!)
-
-                            if (getView()?.getAmount() != null) {
-                                amountPerPerson = DecimalFormat("##.##").format(getView()?.getAmount()!! / selectedContactsList.size)
-                            } else {
-                                amountPerPerson = "0"
-                            }
-                            getView()?.initializeNotSelectedReceiversList(notSelectedContactsList)
-                            getView()?.initializeSelectedReceiversList(selectedContactsList, amountPerPerson)
-                        }
-                        is Events.onClickSelectedReceiverOnAddExpenseFragment -> {
-                            val contact = `object`.myContact
-                            selectedContactsList.remove(contact)
-                            notSelectedContactsList.add(contact)
-
-                            if (getView()?.getAmount() != null) {
-                                amountPerPerson = DecimalFormat("##.##").format(getView()?.getAmount()!! / selectedContactsList.size)
-                            } else {
-                                amountPerPerson = "0"
-                            }
-                            getView()?.initializeNotSelectedReceiversList(notSelectedContactsList)
-                            getView()?.initializeSelectedReceiversList(selectedContactsList, amountPerPerson)
-
-                        }
-                    }
-                }
     }
 
+    override fun detachView() {
+        super.detachView()
+        unsubscribeFromEventBus()
+    }
+
+    private fun subscribeToEventBus() {
+        if (subscriptionToBus == null) {
+            subscriptionToBus = MainApplication
+                    .bus
+                    .toObservable()
+                    .subscribe { `object` ->
+                        when (`object`) {
+                            is Events.NewContactIsAddedToSelectedReceiversList -> {
+                                val contact = `object`.myContact
+                                notSelectedContactsList.remove(contact)
+                                selectedContactsList.add(contact!!)
+
+                                if (getView()?.getAmount() != null) {
+                                    amountPerPerson = DecimalFormat("##.##").format(getView()?.getAmount()!! / selectedContactsList.size)
+                                } else {
+                                    amountPerPerson = "0"
+                                }
+                                getView()?.initializeNotSelectedReceiversList(notSelectedContactsList)
+                                getView()?.initializeSelectedReceiversList(selectedContactsList, amountPerPerson)
+                            }
+                            is Events.onClickSelectedReceiverOnAddExpenseFragment -> {
+                                val contact = `object`.myContact
+                                selectedContactsList.remove(contact)
+                                notSelectedContactsList.add(contact)
+
+                                if (getView()?.getAmount() != null) {
+                                    amountPerPerson = DecimalFormat("##.##").format(getView()?.getAmount()!! / selectedContactsList.size)
+                                } else {
+                                    amountPerPerson = "0"
+                                }
+                                getView()?.initializeNotSelectedReceiversList(notSelectedContactsList)
+                                getView()?.initializeSelectedReceiversList(selectedContactsList, amountPerPerson)
+
+                            }
+                        }
+                    }
+        }
+    }
+
+    private fun unsubscribeFromEventBus() {
+        if (subscriptionToBus != null) {
+            subscriptionToBus?.dispose()
+            subscriptionToBus = null
+        }
+    }
 
     override fun debtIdIsReceiverFromMainActivity(debtId: Int) {
         this.debtId = debtId
@@ -234,8 +257,6 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
 
             ExpenseProvider().updateExpense(this, expense!!)
         }
-
-        getView()?.finishSelf()
     }
 
     override fun deleteButtonIsPressed() {
