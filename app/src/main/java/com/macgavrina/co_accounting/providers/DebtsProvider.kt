@@ -5,7 +5,6 @@ import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.Debt
 import io.reactivex.Completable
 import io.reactivex.CompletableObserver
-import io.reactivex.Maybe
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.observers.DisposableMaybeObserver
@@ -29,6 +28,7 @@ class DebtsProvider() {
                     }
 
                     override fun onComplete() {
+                        //ToDo REFACT call dispose() here and in all onComplete
                         Log.d("nothing")
                     }
                 })
@@ -128,6 +128,26 @@ class DebtsProvider() {
                 })
     }
 
+    fun checkDebtsForContact(databaseCallback: DatabaseCallback, contactId: String) {
+        Log.d("contactId = $contactId")
+        MainApplication.db.debtDAO().checkDebtsForContact(contactId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : DisposableMaybeObserver<List<Debt>>() {
+                    override fun onComplete() {
+                        databaseCallback.onDebtsForContactCheckedWithEmptyResult()
+                    }
+
+                    override fun onSuccess(t: List<Debt>) {
+                        databaseCallback.onDebtsForContactChecked(t)
+                    }
+
+                    override fun onError(e: Throwable) {
+                        Log.d(e.toString())
+                    }
+                })
+    }
+
 
 //    fun updateContact(databaseCallback: DatabaseCallback, contact: Contact) {
 //        Completable.fromAction(object : Action {
@@ -219,6 +239,14 @@ class DebtsProvider() {
 
         fun onNoDebtWithIdExist() {
             Log.d("debt with sent id doesn't exist")
+        }
+
+        fun onDebtsForContactChecked(list: List<Debt>) {
+            Log.d("onDebtsForContactChecked, list = $list")
+        }
+
+        fun onDebtsForContactCheckedWithEmptyResult() {
+            Log.d("onDebtsForContactCheckedWithEmptyResult")
         }
     }
 }

@@ -23,7 +23,7 @@ class DebtsRecyclerViewAdapter (debtsList: List<Debt>?) :
         //val receiver = view.debts_list_item_receiver_tv
         val amount = view.debts_list_item_amount_tv
         val datetime = view.debts_list_item_datetime_tv
-        val comment = view.debts_list_item_comment_tv
+        val comment = view.contacts_list_item_alias_tv
 
         private var mItem: Debt? = null
 

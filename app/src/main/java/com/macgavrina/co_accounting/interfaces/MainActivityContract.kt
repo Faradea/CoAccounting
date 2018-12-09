@@ -28,7 +28,7 @@ interface MainActivityContract {
 
         fun displayContactsFragment()
 
-        fun displayAddContactFragment()
+        fun displayAddContactFragment(contactId: String?)
 
         fun displayEditContactFragment(uid: String?)
 

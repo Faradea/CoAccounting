@@ -25,4 +25,9 @@ class Contact {
     public var friendId: String? = null
     set
     get
+
+    @ColumnInfo(name = "status")
+    public var status: String? = "active"
+        set
+        get
 }

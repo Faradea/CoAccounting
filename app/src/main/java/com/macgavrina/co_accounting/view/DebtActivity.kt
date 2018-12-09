@@ -1,6 +1,7 @@
 package com.macgavrina.co_accounting.view
 
 import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -28,11 +29,15 @@ import kotlinx.android.synthetic.main.debt_activity.*
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
+import android.widget.TimePicker
+
+
 
 
 class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
 
     var datePickerDialog: DatePickerDialog? = null
+    var timePickerDialog: TimePickerDialog? = null
     var senderId: Int? = null
     lateinit var presenter: DebtActivityPresenter
     private lateinit var viewManager: RecyclerView.LayoutManager
@@ -69,8 +74,11 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
         }
 
         add_debt_fragment_date_et.setOnClickListener { view ->
-            Log.d("date_edit_text_is_clicked")
-            presenter.date_edit_text_is_clicked()
+            displayDatePickerDialog()
+        }
+
+        add_debt_fragment_time_et.setOnClickListener { view ->
+            displayTimePickerDialog()
         }
     }
 
@@ -106,14 +114,47 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
         return true
     }
 
+    override fun onBackPressed() {
+        presenter.saveDebtDraft()
+        super.onBackPressed()
+    }
+
     //For action bar
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_done, menu)
         return true
     }
 
+    private fun displayTimePickerDialog() {
+        if (timePickerDialog != null) return
 
-    override fun displayDatePickerDialog() {
+        var mcurrentTime = Calendar.getInstance()
+
+        if (getTime() != null && getTime().isNotEmpty()) {
+            Log.d("initialize timepicker with ${getTime()}")
+            mcurrentTime.timeInMillis = DateFormatter().
+                    getTimestampFromFormattedDateTime("${getDate()} ${getTime()}")!!
+        } else {
+            Log.d("initialize timepicker with sysdate")
+        }
+
+        val hour = mcurrentTime.get(Calendar.HOUR_OF_DAY)
+        val minute = mcurrentTime.get(Calendar.MINUTE)
+
+        timePickerDialog = TimePickerDialog(this, TimePickerDialog.OnTimeSetListener {
+            timePicker, selectedHour, selectedMinute ->
+            add_debt_fragment_time_et.setText("$selectedHour:$selectedMinute")
+            timePickerDialog = null
+        }, hour, minute, true)
+
+        timePickerDialog?.setOnCancelListener {
+            timePickerDialog = null
+        }
+
+        timePickerDialog?.show()
+    }
+
+    private fun displayDatePickerDialog() {
 
         if (datePickerDialog != null) return
 
@@ -139,6 +180,7 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
 
             if (getDate() != null && getDate().isNotEmpty()) {
                 Log.d("initialize calendar with ${getDate()}")
+
                 calendar.timeInMillis = DateFormatter().getTimestampFromFormattedDate(getDate())!!
 
                 val mYear = calendar.get(Calendar.YEAR)
@@ -161,12 +203,11 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
         Toast.makeText(MainApplication.applicationContext(), text, Toast.LENGTH_SHORT).show()
     }
 
-    override fun setSender(contactId: Int) {
+    override fun setSender(position: Int) {
 
-        senderId = contactId
-        //ToDo REFACT Будет работать только до тех пор пока нет удаления контактов и сортиовки
-        Log.d("selected contactId = $$contactId")
-        add_debt_fragment_sender_spinner.setSelection(contactId)
+        senderId = position
+        Log.d("selected contactId = $$position")
+        add_debt_fragment_sender_spinner.setSelection(position)
         Log.d("selected contactId set to spinner = ${add_debt_fragment_sender_spinner.selectedItemPosition}")
     }
 
@@ -176,6 +217,10 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
 
     override fun setDate(date: String) {
         add_debt_fragment_date_et.setText(date)
+    }
+
+    override fun setTime(time: String) {
+        add_debt_fragment_time_et.setText(time)
     }
 
     override fun setComment(comment: String) {
@@ -188,6 +233,10 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
 
     override fun getAmount(): String {
         return add_debt_fragment_amount_et.text.toString()
+    }
+
+    override fun getTime(): String {
+        return add_debt_fragment_time_et.text.toString()
     }
 
     override fun getDate(): String {

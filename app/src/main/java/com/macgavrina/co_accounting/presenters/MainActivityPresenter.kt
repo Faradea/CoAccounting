@@ -59,7 +59,7 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
                                 getView()?.displayRecoverPassFragment(`object`.myEnteredLogin)
                             }
                             is Events.AddContact -> {
-                                getView()?.displayAddContactFragment()
+                                getView()?.displayAddContactFragment(null)
                             }
                             is Events.ContactIsAdded -> {
                                 getView()?.displayContactsFragment()

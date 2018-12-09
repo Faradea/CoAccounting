@@ -25,7 +25,7 @@ class ContactsProvider() {
     //ToDo REFACT сделать singleton (см. пример в SyncService): этот и все остальные провайдеры
 
     fun getAll(databaseCallback: DatabaseCallback) {
-        MainApplication.db.contactDAO().getAll
+        MainApplication.db.contactDAO().getAll("active")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(object : DisposableMaybeObserver<List<com.macgavrina.co_accounting.room.Contact>>() {
@@ -106,7 +106,7 @@ class ContactsProvider() {
 
     fun deleteContact(databaseCallback: DatabaseCallback, contact:Contact) {
         Completable.fromAction {
-            MainApplication.db.contactDAO().deleteContact(contact) }
+            MainApplication.db.contactDAO().deleteContact(contact.uid.toString(), "deleted") }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(object : CompletableObserver {

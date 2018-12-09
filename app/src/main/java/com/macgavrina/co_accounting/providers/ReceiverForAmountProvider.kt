@@ -5,6 +5,8 @@ import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.ReceiverWithAmountForDB
 import io.reactivex.Completable
 import io.reactivex.CompletableObserver
+import io.reactivex.Single
+import io.reactivex.SingleObserver
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.observers.DisposableMaybeObserver
@@ -50,6 +52,25 @@ class ReceiverForAmountProvider {
                     override fun onComplete() {
                         Log.d("nothing")
                     }
+                })
+    }
+
+    fun checkReceiverWithAmountForContact(databaseCallback: DatabaseCallback, contactId: String) {
+        MainApplication.db.receiverWithAmountForDBDAO().checkReceiverWithAmountForContact(contactId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : SingleObserver<Int> {
+                    override fun onSubscribe(d: Disposable) {
+                    }
+
+                    override fun onSuccess(t: Int) {
+                        databaseCallback.onCheckReceiversForContact(t)
+                    }
+
+                    override fun onError(e: Throwable) {
+                        Log.d("error, ${e.toString()}")
+                    }
+
                 })
     }
 
@@ -131,6 +152,10 @@ class ReceiverForAmountProvider {
 
         fun onReceiversWithAmountListForExpensesDeleted() {
             Log.d("all receivers with amount for expense are deleted")
+        }
+
+        fun onCheckReceiversForContact(count: Int) {
+            Log.d("onCheckReceiversForContact result, count = $count")
         }
     }
 }

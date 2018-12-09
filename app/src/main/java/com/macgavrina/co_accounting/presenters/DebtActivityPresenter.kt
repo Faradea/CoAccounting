@@ -26,7 +26,9 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
 
     var senderId: Int? = null
     lateinit var debt: Debt
-    lateinit var contactsIdToNameMap: Map<String, Contact>
+    lateinit var contactsIdToNameMap: MutableMap<String, Contact>
+    lateinit var positionToContactIdMap: MutableMap<Int, Contact>
+    lateinit var contactIdToPositionMap: MutableMap<Int, Int>
     lateinit var receiverWithAmountList: MutableList<ReceiverWithAmount>
     lateinit var friendsList: Array<String?>
 
@@ -84,12 +86,21 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
 
         if (::friendsList.isInitialized && senderId != null) {
             Log.d("view is ready, set senderId = $senderId")
-            getView()?.setSender(senderId!!)
+
+            if (::contactIdToPositionMap.isInitialized && contactIdToPositionMap[senderId!!]!=null) {
+                getView()?.setSender(contactIdToPositionMap[senderId!!]!!)
+            }
         }
     }
 
     override fun viewIsPaused() {
-        senderId = getView()?.getSender()
+
+        Log.d("viewIsPaused, saving senderId...")
+        Log.d("getView()?.getSender() = ${getView()?.getSender()}")
+        Log.d("positionToContactIdMap = $positionToContactIdMap")
+        Log.d("positionToContactIdMap[getView()?.getSender()]?.uid = ${positionToContactIdMap[getView()?.getSender()]?.uid}")
+
+        senderId = positionToContactIdMap[getView()?.getSender()]?.uid
         //Log.d("view is paused, save senderId = $senderId")
     }
 
@@ -106,21 +117,36 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
         }
 
         friendsList = arrayOfNulls<String>(contactsList.size)
+        contactsIdToNameMap = mutableMapOf()
+        positionToContactIdMap = mutableMapOf()
+        contactIdToPositionMap = mutableMapOf()
         var i = 0
 
-        contactsIdToNameMap = mapOf<String, Contact>()
         contactsList.forEach { contact ->
             friendsList[i] = contact.alias.toString()
-            contactsIdToNameMap.plus(Pair(contact.uid, contact))
+
+            contactsIdToNameMap[contact.uid.toString()] = contact
+            positionToContactIdMap[i] = contact
+            contactIdToPositionMap[contact.uid] = i
             i = i + 1
         }
+
+        Log.d("$contactsList")
+        Log.d("contactsIdToNameMap = $contactsIdToNameMap")
+        Log.d("positionToContactIdMap = $positionToContactIdMap")
+        Log.d("contactIdToPositionMap = $contactIdToPositionMap")
+
 
         getView()?.setupSenderSpinner(friendsList)
 
         if (senderId == null) {
-            if (::debt.isInitialized && debt.senderId != null && debt.senderId!!.isNotEmpty()) {
-                Log.d("setSender")
-                getView()?.setSender(debt.senderId!!.toInt())
+
+            if (::debt.isInitialized &&  debt.senderId != null && debt.senderId!!.isNotEmpty() && debt.senderId != "null") {
+                Log.d("setSender, ${debt.senderId}")
+
+                    if (::contactIdToPositionMap.isInitialized && contactIdToPositionMap[debt.senderId?.toInt()] != null) {
+                        getView()?.setSender(contactIdToPositionMap[debt.senderId?.toInt()]!!)
+                    }
             }
         }
     }
@@ -212,14 +238,22 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
         getView()?.hideKeyboard()
         getView()?.showProgress()
 
-
-        debt.senderId = getView()?.getSender().toString()
+        debt.senderId = positionToContactIdMap[getView()?.getSender()]?.uid.toString()
         debt.spentAmount= getView()?.getAmount()
 
         if (getView()?.getDate() != null) {
-            val formattedDate = DateFormatter().getTimestampFromFormattedDate(getView()?.getDate()!!)
-            if (formattedDate != null) {
-                debt.datetime = formattedDate.toString()
+
+            if (getView()?.getTime() == null) {
+                val formattedDate = DateFormatter().getTimestampFromFormattedDate(getView()?.getDate()!!)
+                if (formattedDate != null) {
+                    debt.datetime = formattedDate.toString()
+                }
+            } else {
+                val formattedDateTime = DateFormatter().getTimestampFromFormattedDateTime(
+                        "${getView()?.getDate()!!} ${getView()?.getTime()!!}")
+                if (formattedDateTime != null) {
+                    debt.datetime = formattedDateTime.toString()
+                }
             }
         }
 
@@ -227,10 +261,6 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
         debt.status = "active"
 
         DebtsProvider().updateDebt(this, debt)
-    }
-
-    override fun date_edit_text_is_clicked() {
-        getView()?.displayDatePickerDialog()
     }
 
     override fun addReceiverButtonIsPressed() {
@@ -243,7 +273,7 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
 
         Log.d("debtIdIsReceiverFromMainActivity = $debtId")
 
-        if (debtId != null && debtId != 0) {
+        if (debtId != null && debtId != -1) {
             DebtsProvider().getDebtById(this, debtId)
         } else {
             DebtsProvider().getDebtDraft(this)
@@ -254,11 +284,44 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
         DebtsProvider().deleteDebt(this, debt)
     }
 
+    override fun saveDebtDraft() {
+        if (!::debt.isInitialized || debt.status != "draft") return
+
+        Log.d("handle back button pressed - save debt draft")
+
+
+        debt.senderId = positionToContactIdMap[getView()?.getSender()]?.uid.toString()
+        debt.spentAmount= getView()?.getAmount()
+
+        if (getView()?.getDate() != null) {
+
+            if (getView()?.getTime() == null) {
+                val formattedDate = DateFormatter().getTimestampFromFormattedDate(getView()?.getDate()!!)
+                if (formattedDate != null) {
+                    debt.datetime = formattedDate.toString()
+                }
+            } else {
+                val formattedDateTime = DateFormatter().getTimestampFromFormattedDateTime(
+                        "${getView()?.getDate()!!} ${getView()?.getTime()!!}")
+                if (formattedDateTime != null) {
+                    debt.datetime = formattedDateTime.toString()
+                }
+            }
+        }
+
+        debt.comment = getView()?.getComment()
+
+        DebtsProvider().updateDebt(this, debt)
+    }
+
     private fun displayDebtData() {
         if (senderId == null) {
             if (debt.senderId != null && ::friendsList.isInitialized) {
                 Log.d("setSender")
-                getView()?.setSender(debt.senderId!!.toInt())
+
+                if (::contactIdToPositionMap.isInitialized && contactIdToPositionMap[debt.senderId!!.toInt()]!=null) {
+                    getView()?.setSender(contactIdToPositionMap[debt.senderId!!.toInt()]!!)
+                }
             }
         }
 
@@ -268,6 +331,7 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
 
         if (debt.datetime != null) {
                 getView()?.setDate(DateFormatter().formatDateFromTimestamp(debt.datetime!!.toLong()))
+                getView()?.setTime(DateFormatter().formatTimeFromTimestamp(debt.datetime!!.toLong()))
             } else {
                 TODO("VERSION.SDK_INT < N")
             }

@@ -12,18 +12,26 @@ interface AddContactContract {
 
         fun hideProgress()
 
-        fun setAddButtonEnabled(areEnabled: Boolean)
-
         fun hideKeyboard()
 
         fun displayToast(text: String)
+
+        fun finishSelf()
+
+        fun displayContactData(alias: String, email: String)
+
+        fun displayAlert(text: String, title: String)
+
+        fun hideDeleteButton()
     }
 
     interface Presenter:BasePresenterContract<View> {
 
         fun addButtonIsPressed()
 
-        fun inputTextFieldsAreEmpty(areFilled: Boolean)
+        fun deleteButtonIsPressed()
+
+        fun contactIdIsReceiverFromMainActivity(contactId: String?)
 
     }
 }

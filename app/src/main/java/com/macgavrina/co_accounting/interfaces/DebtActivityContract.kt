@@ -11,6 +11,8 @@ interface DebtActivityContract {
 
         fun getDate(): String
 
+        fun getTime(): String
+
         fun getComment(): String
 
         fun setSender(contactId: Int)
@@ -18,6 +20,8 @@ interface DebtActivityContract {
         fun setAmount(amount: String)
 
         fun setDate(date: String)
+
+        fun setTime(time: String)
 
         fun setComment(comment: String)
 
@@ -39,7 +43,6 @@ interface DebtActivityContract {
 
         fun showAlertAndGoToContacts(alertText: String)
 
-        fun displayDatePickerDialog()
 
     }
 
@@ -57,7 +60,7 @@ interface DebtActivityContract {
 
         fun viewIsPaused()
 
-        fun date_edit_text_is_clicked()
+        fun saveDebtDraft()
 
     }
 

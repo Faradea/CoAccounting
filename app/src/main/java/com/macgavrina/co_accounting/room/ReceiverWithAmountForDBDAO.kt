@@ -2,6 +2,7 @@ package com.macgavrina.co_accounting.room
 
 import androidx.room.*
 import io.reactivex.Maybe
+import io.reactivex.Single
 
 @Dao
 interface ReceiverWithAmountForDBDAO {
@@ -17,6 +18,9 @@ interface ReceiverWithAmountForDBDAO {
 
     @Query("DELETE FROM receiverwithamountfordb WHERE expenseId IN (:expenseId)")
     fun deleteReceiversWithAmountForExpense(expenseId: String)
+
+    @Query ("SELECT COUNT(*) FROM receiverwithamountfordb WHERE contactId IN (:contactId)")
+    fun checkReceiverWithAmountForContact(contactId: String): Single<Int>
 
     @Insert
     fun insertReceiverWithAmount(receiverForAmountForDB: ReceiverWithAmountForDB)

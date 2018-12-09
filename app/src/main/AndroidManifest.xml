@@ -10,16 +10,16 @@
     <application
         android:name=".MainApplication"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/app_icon"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/app_icon_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MaterialComponents">
         <activity
             android:name=".view.MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"
-            android:launchMode="singleTask">
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -29,9 +29,9 @@
         <activity
             android:name=".view.DebtActivity"
             android:label="@string/title_activity_debt"
-            android:windowSoftInputMode="adjustPan"
             android:launchMode="singleTask"
-            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar">
+            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"
+            android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="com.macgavrina.indebt.DEBT" />
 
@@ -70,11 +70,21 @@
         <activity
             android:name=".view.ExpenseActivity"
             android:label="@string/title_activity_expense"
-            android:windowSoftInputMode="adjustPan"
             android:launchMode="singleTask"
-            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar">
+            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"
+            android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="com.macgavrina.indebt.EXPENSE" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".view.ContactActivity"
+            android:launchMode="singleTask"
+            android:label="Contact"
+            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar">
+            <intent-filter>
+                <action android:name="com.macgavrina.indebt.CONTACT" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>

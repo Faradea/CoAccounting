@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         initView()
 
-        nav_view.menu.getItem(2).isChecked = true
+        nav_view.menu.getItem(1).isChecked = true
         presenter.gotoDebts()
     }
 
@@ -77,29 +77,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Handle navigation view item clicks here.
         when (item.itemId) {
-            R.id.nav_camera -> {
-                // Handle the camera action
-            }
             R.id.nav_contacts -> {
                 presenter.gotoContactsEvent()
             }
             R.id.nav_debts -> {
                 presenter.gotoDebts()
-            }
-            R.id.nav_gallery -> {
-
-            }
-            R.id.nav_slideshow -> {
-
-            }
-            R.id.nav_manage -> {
-
-            }
-            R.id.nav_share -> {
-
-            }
-            R.id.nav_send -> {
-
             }
         }
 
@@ -150,16 +132,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .commit()
     }
 
-    override fun displayEditContactFragment(uid: String?) {
-        val supportFragmentManager = supportFragmentManager
-        val editContactFragment:EditContactFragment = EditContactFragment()
-        val bundle:Bundle = Bundle()
-        bundle.putString(EditContactFragment.CONTACT_UID_KEY, uid)
-        editContactFragment.arguments = bundle
-        supportFragmentManager.beginTransaction()
-                .replace(R.id.content_main_constraint_layout, editContactFragment)
-                .addToBackStack("EditContactFragment")
-                .commit()
+    override fun displayEditContactFragment(contactId: String?) {
+        val intent = Intent()
+        intent.action = "com.macgavrina.indebt.CONTACT"
+        if (contactId == null) {
+            intent.putExtra("contactId", -1)
+        } else {
+            intent.putExtra("contactId", contactId?.toInt())
+        }
+        startActivity(intent)
     }
 
     override fun displayDebtsFragment() {
@@ -251,12 +232,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .commit()
     }
 
-    override fun displayAddContactFragment() {
-        val supportFragmentManager = supportFragmentManager
-        supportFragmentManager.beginTransaction()
-                .replace(R.id.content_main_constraint_layout, AddContactFragment())
-                .addToBackStack("AddContactFragment")
-                .commit()
+    override fun displayAddContactFragment(contactId: String?) {
+
+        val intent = Intent()
+        intent.action = "com.macgavrina.indebt.CONTACT"
+        if (contactId == null) {
+            intent.putExtra("contactId", -1)
+        } else {
+            intent.putExtra("contactId", contactId?.toInt())
+        }
+        startActivity(intent)
     }
 
     override fun displayAddDebtFragment(debtId: String?) {
