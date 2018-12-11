@@ -3,6 +3,7 @@ package com.macgavrina.co_accounting.view
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.TextWatcher
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
@@ -14,6 +15,9 @@ import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.presenters.AddContactPresenter
 import kotlinx.android.synthetic.main.contact_fragment.*
 import kotlinx.android.synthetic.main.debt_activity.*
+import android.text.Editable
+
+
 
 class ContactActivity : AppCompatActivity(), AddContactContract.View {
 
@@ -44,6 +48,44 @@ class ContactActivity : AppCompatActivity(), AddContactContract.View {
         } else {
             presenter.contactIdIsReceiverFromMainActivity(contactId.toString())
         }
+
+        contact_fragment_email_et.addTextChangedListener(object : TextWatcher {
+
+            override fun afterTextChanged(s: Editable) {}
+
+            override fun beforeTextChanged(s: CharSequence, start: Int,
+                                           count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence, start: Int,
+                                       before: Int, count: Int) {
+                if (s.isEmpty()) {
+                    contact_fragment_email_til.error = "Enter email"
+                } else {
+                    contact_fragment_email_til.error = null
+                }
+            }
+        })
+
+        contact_fragment_name_et.addTextChangedListener(object : TextWatcher {
+
+            override fun afterTextChanged(s: Editable) {}
+
+            override fun beforeTextChanged(s: CharSequence, start: Int,
+                                           count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence, start: Int,
+                                       before: Int, count: Int) {
+                if (s.isEmpty()) {
+                    contact_fragment_name_til.error = "Enter name"
+                } else {
+                    contact_fragment_name_til.error = null
+                }
+            }
+        })
+
+
     }
 
     override fun onResume() {
@@ -63,8 +105,22 @@ class ContactActivity : AppCompatActivity(), AddContactContract.View {
 
         when (item.itemId) {
             R.id.action_menu_done -> {
-                presenter.addButtonIsPressed()
-                return true
+
+                if (!getEmail().isNullOrEmpty() && !getAlias().isNullOrEmpty()) {
+                    presenter.addButtonIsPressed()
+                    return true
+                } else {
+
+                    if (getEmail().isNullOrEmpty()) {
+                        contact_fragment_email_til.error = "Enter email"
+                    }
+
+                    if (getAlias().isNullOrEmpty()) {
+                        contact_fragment_name_til.error = "Enter name"
+                    }
+
+                    return true
+                }
             }
         }
 

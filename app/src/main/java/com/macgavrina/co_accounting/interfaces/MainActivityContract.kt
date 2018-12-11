@@ -44,6 +44,10 @@ interface MainActivityContract {
 
         fun displayToast(text: String)
 
+        fun displayOnDeleteContactSnackBar()
+
+        fun displayOnDeleteDebtSnackBar()
+
     }
 
     interface Presenter:BasePresenterContract<View> {
@@ -55,6 +59,10 @@ interface MainActivityContract {
         fun gotoDebts()
 
         fun addReceiverInAddDebtFragmentAfterReceiverAddedIsDisplayed()
+
+        fun undoDeleteContactButtonIsPressed()
+
+        fun undoDeleteDebtButtonIsPressed()
 
     }
 

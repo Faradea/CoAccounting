@@ -16,17 +16,14 @@ interface DebtDAO {
     fun getDebtDraft(status: String): Maybe<Debt>
 
     //ToDo REFACT заменить на count
-    @Query ("SELECT * FROM debt WHERE senderId IN (:contactId)")
-    fun checkDebtsForContact(contactId: String): Maybe<List<Debt>>
+    @Query ("SELECT * FROM debt WHERE senderId IN (:contactId) AND status IN (:contactStatus)")
+    fun checkDebtsForContact(contactId: String, contactStatus: String): Maybe<List<Debt>>
 
     @Insert
     fun insertDebt(debt: Debt)
 
-    @Delete
-    fun deleteDebt(debt: Debt)
-
-    @Delete
-    fun deleteDebts(vararg debt: Debt)
+    @Query("UPDATE debt SET status = :status WHERE uid IN (:debtId)")
+    fun deleteDebt(debtId: String, status: String)
 
     @Update
     fun updateDebt(debt: Debt)

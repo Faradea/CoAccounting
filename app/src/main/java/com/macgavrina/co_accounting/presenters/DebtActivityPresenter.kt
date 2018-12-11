@@ -158,6 +158,7 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
 
     override fun onDebtDeleted() {
         super.onDebtDeleted()
+        MainApplication.bus.send(Events.DebtIsDeleted(debt))
         getView()?.finishSelf()
     }
 

@@ -22,7 +22,7 @@ class AddContactPresenter: BasePresenter<AddContactContract.View>(), AddContactC
     override fun onContactAdded() {
         getView()?.hideProgress()
 
-        getView()?.displayToast("Contact is added")
+        //getView()?.displayToast("Contact is added")
         getView()?.finishSelf()
     }
 
@@ -34,6 +34,7 @@ class AddContactPresenter: BasePresenter<AddContactContract.View>(), AddContactC
 
     override fun addButtonIsPressed() {
         getView()?.hideKeyboard()
+
         getView()?.showProgress()
 
         if (::contact.isInitialized) {
@@ -55,16 +56,15 @@ class AddContactPresenter: BasePresenter<AddContactContract.View>(), AddContactC
     }
 
     override fun onContactDeleted() {
-        getView()?.displayToast("Contact is deleted")
+        //getView()?.displayToast("Contact is deleted")
+        MainApplication.bus.send(Events.ContactIsDeleted(contact))
         getView()?.finishSelf()
     }
 
     override fun onContactUpdated() {
-        getView()?.displayToast("Changes are saved")
+        //getView()?.displayToast("Changes are saved")
         getView()?.finishSelf()
-
     }
-
 
     override fun contactIdIsReceiverFromMainActivity(contactId: String?) {
         if (contactId != null) {

@@ -15,6 +15,7 @@ import com.macgavrina.co_accounting.presenters.ContactsPresenter
 import com.macgavrina.co_accounting.room.Contact
 import kotlinx.android.synthetic.main.contacts_fragment.*
 import android.widget.Toast
+import kotlinx.android.synthetic.main.contact_fragment.*
 
 
 class ContactsFragment: Fragment(), ContactsContract.View {

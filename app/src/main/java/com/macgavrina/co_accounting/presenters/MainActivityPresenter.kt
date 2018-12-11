@@ -4,15 +4,20 @@ import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.interfaces.MainActivityContract
 import com.macgavrina.co_accounting.logging.Log
+import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.model.User
 import com.macgavrina.co_accounting.providers.ContactsProvider
+import com.macgavrina.co_accounting.providers.DebtsProvider
 import com.macgavrina.co_accounting.providers.UserProvider
+import com.macgavrina.co_accounting.room.Debt
 import com.macgavrina.co_accounting.rxjava.Events
 import io.reactivex.disposables.Disposable
 
 
-class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActivityContract.Presenter, UserProvider.LoadUserCallback, UserProvider.CheckIfUserTokenExistCallback {
+class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActivityContract.Presenter, UserProvider.LoadUserCallback, UserProvider.CheckIfUserTokenExistCallback, ContactsProvider.DatabaseCallback, DebtsProvider.DatabaseCallback {
 
+    private var lastDeletedDebt: Debt? = null
+    private var lastDeletedContact: Contact? = null
     private var subscriptionToBus: Disposable? = null
 
     override fun attachView(baseViewContract: MainActivityContract.View) {
@@ -69,6 +74,14 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
                             }
                             is Events.ContactEditingIsFinished -> {
                                 getView()?.displayContactsFragment()
+                            }
+                            is Events.ContactIsDeleted -> {
+                                lastDeletedContact = `object`.contact
+                                getView()?.displayOnDeleteContactSnackBar()
+                            }
+                            is Events.DebtIsDeleted -> {
+                                lastDeletedDebt = `object`.debt
+                                getView()?.displayOnDeleteDebtSnackBar()
                             }
                             is Events.AddDebt -> {
                                 getView()?.displayAddDebtFragment(null)
@@ -156,5 +169,34 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
 
     override fun addReceiverInAddDebtFragmentAfterReceiverAddedIsDisplayed() {
         MainApplication.bus.send(Events.AddDebtFragmentRequiresRefresh())
+    }
+
+    override fun undoDeleteContactButtonIsPressed() {
+        if (lastDeletedContact == null) return
+
+        ContactsProvider().restoreContact(this, lastDeletedContact!!)
+    }
+
+    override fun onContactRestored() {
+        super.onContactRestored()
+        lastDeletedContact = null
+        MainApplication.bus.send(Events.DeletedContactIsRestored())
+    }
+
+    override fun undoDeleteDebtButtonIsPressed() {
+        if (lastDeletedDebt == null) return
+
+        DebtsProvider().restoreDebt(this, lastDeletedDebt!!)
+    }
+
+    override fun onDebtRestored() {
+        super.onDebtRestored()
+        lastDeletedDebt = null
+        MainApplication.bus.send(Events.DeletedDebtIsRestored())
+    }
+
+    override fun onDatabaseError() {
+        Log.d("database error")
+        getView()?.displayToast("Database error")
     }
 }

@@ -1,6 +1,7 @@
 package com.macgavrina.co_accounting.rxjava
 
 import com.macgavrina.co_accounting.room.Contact
+import com.macgavrina.co_accounting.room.Debt
 
 object Events {
 
@@ -42,6 +43,14 @@ object Events {
 
     class ContactEditingIsFinished{}
 
+    class ContactIsDeleted(inputContact: Contact) {
+        val contact = inputContact
+    }
+
+    class DebtIsDeleted(inputDebt: Debt) {
+        val debt = inputDebt
+    }
+
     class OnClickDebtItemList(uid: String?) {
         val myUid = uid
     }
@@ -79,5 +88,9 @@ object Events {
     class onClickSelectedReceiverOnAddExpenseFragment(contact: Contact) {
         val myContact = contact
     }
+
+    class DeletedContactIsRestored
+
+    class DeletedDebtIsRestored
 
 }

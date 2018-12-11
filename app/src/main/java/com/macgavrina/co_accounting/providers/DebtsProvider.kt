@@ -91,9 +91,27 @@ class DebtsProvider() {
                 })
     }
 
+    fun restoreDebt(databaseCallback: DatabaseCallback, debt: Debt) {
+        debt.status = "active"
+        Completable.fromAction {
+            MainApplication.db.debtDAO().updateDebt(debt)
+        }.observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io()).subscribe(object : CompletableObserver {
+                    override fun onSubscribe(d: Disposable) {}
+
+                    override fun onComplete() {
+                        databaseCallback.onDebtRestored()
+                    }
+
+                    override fun onError(e: Throwable) {
+                        databaseCallback.onDatabaseError()
+                    }
+                })
+    }
+
     fun deleteDebt(databaseCallback: DatabaseCallback, debt: Debt) {
         Completable.fromAction {
-            MainApplication.db.debtDAO().deleteDebt(debt)
+            MainApplication.db.debtDAO().deleteDebt(debt.uid.toString(), "deleted")
         }.observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io()).subscribe(object : CompletableObserver {
                     override fun onSubscribe(d: Disposable) {}
@@ -130,7 +148,7 @@ class DebtsProvider() {
 
     fun checkDebtsForContact(databaseCallback: DatabaseCallback, contactId: String) {
         Log.d("contactId = $contactId")
-        MainApplication.db.debtDAO().checkDebtsForContact(contactId)
+        MainApplication.db.debtDAO().checkDebtsForContact(contactId, "active")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(object : DisposableMaybeObserver<List<Debt>>() {
@@ -207,7 +225,7 @@ class DebtsProvider() {
             Log.d("debt is updated")
         }
 
-        fun onDatabaseError()
+        fun onDatabaseError() {}
 
         fun onDebtDeleted() {
             Log.d("debt is deleted")
@@ -247,6 +265,10 @@ class DebtsProvider() {
 
         fun onDebtsForContactCheckedWithEmptyResult() {
             Log.d("onDebtsForContactCheckedWithEmptyResult")
+        }
+
+        fun onDebtRestored() {
+            Log.d("Debt is restored")
         }
     }
 }

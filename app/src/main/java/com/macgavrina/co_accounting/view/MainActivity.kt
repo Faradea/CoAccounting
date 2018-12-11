@@ -19,8 +19,9 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.nav_header_main.view.*
 import android.content.Intent
-
-
+import com.google.android.material.snackbar.Snackbar
+import com.macgavrina.co_accounting.providers.ContactsProvider
+import kotlinx.android.synthetic.main.content_main.*
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, MainActivityContract.View {
@@ -46,6 +47,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         nav_view.getHeaderView(0).nav_header_main_iv.setOnClickListener {view ->
             presenter.headerIsClicked()
+        }
+
+        content_main_goto_navigation_menu_tv.setOnClickListener {
+            drawer_layout.openDrawer(GravityCompat.START)
         }
 
         val toggle = ActionBarDrawerToggle(
@@ -145,7 +150,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun displayDebtsFragment() {
         Log.d("display debts fragment")
-        //clearStack()
+        clearStack()
         val supportFragmentManager = supportFragmentManager
         supportFragmentManager.beginTransaction()
                 .replace(R.id.content_main_constraint_layout, DebtsFragment())
@@ -338,4 +343,35 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun displayToast(text:String) {
         Toast.makeText(MainApplication.applicationContext(), text, Toast.LENGTH_SHORT).show()
     }
+
+    override fun displayOnDeleteContactSnackBar() {
+        val snackBar = Snackbar.make(content_main_constraint_layout, "Contact is deleted", Snackbar.LENGTH_LONG)
+        snackBar!!.setAction("Undo") {
+            Log.d("snackBar: undo action is pressed")
+            snackBar?.dismiss()
+//            if (main_webview_fragment_webview.canGoBack()) {
+//                main_webview_fragment_webview.goBack()
+//            } else {
+//                main_webview_fragment_webview.loadUrl(MAIN_URL)
+//            }
+            presenter.undoDeleteContactButtonIsPressed()
+        }
+        snackBar?.show()
+    }
+
+    override fun displayOnDeleteDebtSnackBar() {
+        val snackBar = Snackbar.make(content_main_constraint_layout, "Debt is deleted", Snackbar.LENGTH_LONG)
+        snackBar!!.setAction("Undo") {
+            Log.d("snackBar: undo action is pressed")
+            snackBar?.dismiss()
+//            if (main_webview_fragment_webview.canGoBack()) {
+//                main_webview_fragment_webview.goBack()
+//            } else {
+//                main_webview_fragment_webview.loadUrl(MAIN_URL)
+//            }
+            presenter.undoDeleteDebtButtonIsPressed()
+        }
+        snackBar?.show()
+    }
+
 }

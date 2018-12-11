@@ -15,4 +15,5 @@
     <string name="add_debt_fragment_add_reciever_tv_text"><u>Add</u></string>
     <string name="title_activity_debt">Debt</string>
     <string name="title_activity_expense">Expense</string>
+    <string name="open_navigation_menu_tv"><u>navigation menu</u></string>
 </resources>

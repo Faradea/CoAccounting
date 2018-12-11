@@ -104,6 +104,29 @@ class ContactsProvider() {
         })
     }
 
+    fun restoreContact(databaseCallback: DatabaseCallback, contact: Contact) {
+        contact.status = "active"
+        Completable.fromAction(object : Action {
+            @Throws(Exception::class)
+            override fun run() {
+                MainApplication.db.contactDAO().updateContact(contact)
+            }
+        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(object : CompletableObserver {
+            override fun onSubscribe(d: Disposable) {
+
+            }
+
+            override fun onComplete() {
+                databaseCallback.onContactRestored()
+                //syncDataUpload()
+            }
+
+            override fun onError(e: Throwable) {
+                databaseCallback.onDatabaseError()
+            }
+        })
+    }
+
     fun deleteContact(databaseCallback: DatabaseCallback, contact:Contact) {
         Completable.fromAction {
             MainApplication.db.contactDAO().deleteContact(contact.uid.toString(), "deleted") }
@@ -171,7 +194,9 @@ class ContactsProvider() {
             Log.d("contact is updated")
         }
 
-        fun onDatabaseError()
+        fun onDatabaseError() {
+            Log.d("database error")
+        }
 
         fun onContactDeleted() {
             Log.d("contact is deleted")
@@ -191,6 +216,10 @@ class ContactsProvider() {
 
         fun onNoContacts() {
             Log.d("there is no contacts in DB")
+        }
+
+        fun onContactRestored() {
+            Log.d("contact is restored")
         }
     }
 }
