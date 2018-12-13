@@ -91,6 +91,27 @@ class DebtsProvider() {
                 })
     }
 
+    fun clearDebtDraft(databaseCallback: DatabaseCallback, debt: Debt) {
+        debt.datetime = System.currentTimeMillis().toString()
+        debt.spentAmount = ""
+        debt.comment = ""
+        debt.senderId = ""
+        Completable.fromAction {
+            MainApplication.db.debtDAO().updateDebt(debt)
+        }.observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io()).subscribe(object : CompletableObserver {
+                    override fun onSubscribe(d: Disposable) {}
+
+                    override fun onComplete() {
+                        databaseCallback.onDebtDraftCleared()
+                    }
+
+                    override fun onError(e: Throwable) {
+                        databaseCallback.onDatabaseError()
+                    }
+                })
+    }
+
     fun restoreDebt(databaseCallback: DatabaseCallback, debt: Debt) {
         debt.status = "active"
         Completable.fromAction {
@@ -269,6 +290,10 @@ class DebtsProvider() {
 
         fun onDebtRestored() {
             Log.d("Debt is restored")
+        }
+
+        fun onDebtDraftCleared() {
+            Log.d("Debt draft is cleared")
         }
     }
 }

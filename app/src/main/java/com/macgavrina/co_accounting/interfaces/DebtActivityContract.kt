@@ -35,7 +35,7 @@ interface DebtActivityContract {
 
         fun setupSenderSpinner(contactsList: Array<String?>)
 
-        fun initializeExpensesList(expenseList: List<Expense>)
+        fun initializeExpensesList(expenseList: List<Expense>?)
 
         fun finishSelf()
 
@@ -43,7 +43,13 @@ interface DebtActivityContract {
 
         fun showAlertAndGoToContacts(alertText: String)
 
+        fun hideDeleteButton()
 
+        fun showDeleteButton()
+
+        fun hideClearButton()
+
+        fun showClearButton()
     }
 
     interface Presenter:BasePresenterContract<View> {
@@ -61,6 +67,8 @@ interface DebtActivityContract {
         fun viewIsPaused()
 
         fun saveDebtDraft()
+
+        fun clearButtonIsPressed()
 
     }
 

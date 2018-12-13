@@ -17,6 +17,9 @@ interface ExpenseDAO {
     @Query("SELECT * FROM expense WHERE debtId IN (:debtId) ORDER BY uid")
     fun getExpensesForDebt(debtId: String): Maybe<List<Expense>>
 
+    @Query("DELETE FROM expense WHERE debtId IN (:debtId)")
+    fun deleteExpensesForDebt(debtId: String)
+
     @Insert
     fun insertExpense(expense: Expense)
 

@@ -1,8 +1,5 @@
 package com.macgavrina.co_accounting.presenters
 
-import android.icu.text.SimpleDateFormat
-import android.os.Build
-import android.widget.Toast
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.interfaces.DebtActivityContract
 import com.macgavrina.co_accounting.logging.Log
@@ -16,9 +13,6 @@ import com.macgavrina.co_accounting.room.Expense
 import com.macgavrina.co_accounting.rxjava.Events
 import com.macgavrina.co_accounting.support.DateFormatter
 import io.reactivex.disposables.Disposable
-import kotlinx.android.synthetic.main.add_debt_fragment.*
-import java.text.ParseException
-import java.util.*
 
 class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActivityContract.Presenter, DebtsProvider.DatabaseCallback, ContactsProvider.DatabaseCallback, ExpenseProvider.DatabaseCallback {
 
@@ -106,6 +100,9 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
 
     override fun viewIsCreated() {
         super.viewIsCreated()
+
+        getView()?.hideDeleteButton()
+        getView()?.hideClearButton()
     }
 
     override fun onContactsListLoaded(contactsList: List<com.macgavrina.co_accounting.room.Contact>) {
@@ -162,6 +159,20 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
         getView()?.finishSelf()
     }
 
+    override fun onDebtDraftCleared() {
+        super.onDebtDraftCleared()
+
+        ExpenseProvider().deleteExpensesForDebt(this, debt.uid.toString())
+    }
+
+    override fun onExpensesForDebtDeleted() {
+        super.onExpensesForDebtDeleted()
+
+        //getView()?.initializeExpensesList(null)
+
+        DebtsProvider().getDebtDraft(this)
+    }
+
     override fun onDebtUpdated() {
         //getView()?.hideProgress()
 
@@ -175,6 +186,8 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
 
         Log.d("onDebtLoaded, display data...")
         this.debt = debt
+
+        getView()?.showDeleteButton()
 
         displayDebtData()
 
@@ -199,6 +212,8 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
 
         this.debt = debt
         displayDebtData()
+
+        getView()?.showClearButton()
 
         ExpenseProvider().getExpensesForDebt(this, debt.uid.toString())
     }
@@ -285,11 +300,14 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
         DebtsProvider().deleteDebt(this, debt)
     }
 
+    override fun clearButtonIsPressed() {
+        DebtsProvider().clearDebtDraft(this, debt)
+    }
+
     override fun saveDebtDraft() {
         if (!::debt.isInitialized || debt.status != "draft") return
 
         Log.d("handle back button pressed - save debt draft")
-
 
         debt.senderId = positionToContactIdMap[getView()?.getSender()]?.uid.toString()
         debt.spentAmount= getView()?.getAmount()
@@ -317,12 +335,16 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
 
     private fun displayDebtData() {
         if (senderId == null) {
-            if (debt.senderId != null && ::friendsList.isInitialized) {
+            if (!debt.senderId.isNullOrEmpty() && ::friendsList.isInitialized) {
                 Log.d("setSender")
 
                 if (::contactIdToPositionMap.isInitialized && contactIdToPositionMap[debt.senderId!!.toInt()]!=null) {
                     getView()?.setSender(contactIdToPositionMap[debt.senderId!!.toInt()]!!)
                 }
+            }
+
+            if (debt.senderId.isNullOrEmpty() && ::friendsList.isInitialized) {
+                getView()?.setSender(0)
             }
         }
 
@@ -333,8 +355,6 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
         if (debt.datetime != null) {
                 getView()?.setDate(DateFormatter().formatDateFromTimestamp(debt.datetime!!.toLong()))
                 getView()?.setTime(DateFormatter().formatTimeFromTimestamp(debt.datetime!!.toLong()))
-            } else {
-                TODO("VERSION.SDK_INT < N")
             }
 
         if (debt.comment != null) {

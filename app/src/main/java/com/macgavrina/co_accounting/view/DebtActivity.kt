@@ -26,12 +26,7 @@ import com.macgavrina.co_accounting.room.Expense
 import com.macgavrina.co_accounting.support.DateFormatter
 import kotlinx.android.synthetic.main.add_debt_fragment.*
 import kotlinx.android.synthetic.main.debt_activity.*
-import java.text.ParseException
-import java.text.SimpleDateFormat
 import java.util.*
-import android.widget.TimePicker
-
-
 
 
 class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
@@ -73,6 +68,10 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
             presenter.deleteButtonIsPressed()
         }
 
+        debt_fragment_clear_fab.setOnClickListener { view ->
+            presenter.clearButtonIsPressed()
+        }
+
         add_debt_fragment_date_et.setOnClickListener { view ->
             displayDatePickerDialog()
         }
@@ -80,6 +79,7 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
         add_debt_fragment_time_et.setOnClickListener { view ->
             displayTimePickerDialog()
         }
+
     }
 
     override fun onResume() {
@@ -212,18 +212,22 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
     }
 
     override fun setAmount(amount: String) {
+
         add_debt_fragment_amount_et.setText(amount)
     }
 
     override fun setDate(date: String) {
+
         add_debt_fragment_date_et.setText(date)
     }
 
     override fun setTime(time: String) {
+
         add_debt_fragment_time_et.setText(time)
     }
 
     override fun setComment(comment: String) {
+
         add_debt_fragment_comment_et.setText(comment)
     }
 
@@ -278,7 +282,7 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
         }
     }
 
-    override fun initializeExpensesList(expenseList: List<Expense>) {
+    override fun initializeExpensesList(expenseList: List<Expense>?) {
         add_debt_fragment_reciever_recyclerview.adapter = ExpensesRecyclerViewAdapter(expenseList)
         add_debt_fragment_reciever_recyclerview.layoutManager = viewManager
     }
@@ -313,4 +317,20 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
         val alertDialog: AlertDialog = alertDialogBuilder.create()
             alertDialog.show()
         }
+
+    override fun hideDeleteButton() {
+        debt_fragment_delete_fab.hide()
+    }
+
+    override fun showDeleteButton() {
+        debt_fragment_delete_fab.show()
+    }
+
+    override fun hideClearButton() {
+        debt_fragment_clear_fab.hide()
+    }
+
+    override fun showClearButton() {
+        debt_fragment_clear_fab.show()
+    }
 }

@@ -26,6 +26,7 @@ import kotlinx.android.synthetic.main.content_main.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, MainActivityContract.View {
 
+    var isBackPressed = false
     lateinit var presenter: MainActivityPresenter
     lateinit var account: Account
 
@@ -49,10 +50,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             presenter.headerIsClicked()
         }
 
-        content_main_goto_navigation_menu_tv.setOnClickListener {
-            drawer_layout.openDrawer(GravityCompat.START)
-        }
-
         val toggle = ActionBarDrawerToggle(
                 this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawer_layout.addDrawerListener(toggle)
@@ -72,10 +69,31 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onBackPressed() {
+
+        //ToDo REFACT Сделать нормально
         if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
             drawer_layout.closeDrawer(GravityCompat.START)
-        } else {
-            super.onBackPressed()
+            return
+        }
+
+        val supportFragmentManager = supportFragmentManager
+        var count = supportFragmentManager.getBackStackEntryCount()
+        Log.d("count = $count")
+        if (count > 0) {
+            if (count == 1) {
+
+                if (isBackPressed) {
+                    super.onBackPressed()
+                    super.onBackPressed()
+                } else {
+                    displayDebtsFragment()
+                    Toast.makeText(this, "Press back again to exit", Toast.LENGTH_SHORT).show()
+                    isBackPressed = true
+                }
+
+            } else {
+                super.onBackPressed()
+            }
         }
     }
 
@@ -138,6 +156,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun displayEditContactFragment(contactId: String?) {
+        clearStack()
         val intent = Intent()
         intent.action = "com.macgavrina.indebt.CONTACT"
         if (contactId == null) {
@@ -149,6 +168,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun displayDebtsFragment() {
+        clearStack()
         Log.d("display debts fragment")
         clearStack()
         val supportFragmentManager = supportFragmentManager
@@ -159,15 +179,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun showProgress() {
-        val supportFragmentManager = supportFragmentManager
-        supportFragmentManager.beginTransaction()
-                .replace(R.id.content_main_constraint_layout, ProgressBarFragment())
-                .commit()
+//        val supportFragmentManager = supportFragmentManager
+//        supportFragmentManager.beginTransaction()
+//                .replace(R.id.content_main_constraint_layout, ProgressBarFragment())
+//                .commit()
     }
 
     override fun hideProgress() {
-        clearStack()
-        displayMainFragment()
+//        clearStack()
+//        displayMainFragment()
     }
 
     override fun hideMenu() {
@@ -176,12 +196,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun displayLoginFragment(enteredLogin: String?) {
 
+        clearStack()
+
         val loginFragment = LoginFragment()
         val bundle:Bundle = Bundle()
         bundle.putString(LoginFragment.ENTERED_LOGIN_KEY, enteredLogin)
         loginFragment.arguments = bundle
-
-        clearStack()
 
         val supportFragmentManager = supportFragmentManager
         supportFragmentManager.beginTransaction()
@@ -191,6 +211,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun displayRecoverPassFragment(enteredLogin: String?) {
+
+        clearStack()
 
         val recoverPasswordFragment = RecoverPasswordFragment()
         val bundle:Bundle = Bundle()
@@ -231,13 +253,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun displayMainFragment() {
-        val supportFragmentManager = supportFragmentManager
-        supportFragmentManager.beginTransaction()
-                .replace(R.id.content_main_constraint_layout, MainFragment())
-                .commit()
+//        val supportFragmentManager = supportFragmentManager
+//        supportFragmentManager.beginTransaction()
+//                .replace(R.id.content_main_constraint_layout, MainFragment())
+//                .commit()
     }
 
     override fun displayAddContactFragment(contactId: String?) {
+
+        isBackPressed = false
 
         val intent = Intent()
         intent.action = "com.macgavrina.indebt.CONTACT"
@@ -251,6 +275,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun displayAddDebtFragment(debtId: String?) {
 
+        isBackPressed = false
 //        val addDebtFragment = AddDebtFragment()
 //
 //        if (debtId != null) {
@@ -302,9 +327,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun clearStack() {
+        isBackPressed = false
         val supportFragmentManager = supportFragmentManager
         var count = supportFragmentManager.getBackStackEntryCount()
-        while (count > 0) {
+        while (count >= 0) {
             supportFragmentManager.popBackStack()
             count--
         }

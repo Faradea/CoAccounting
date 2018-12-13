@@ -73,7 +73,7 @@ class ExpenseProvider() {
 //                })
 //    }
 
-        fun getLastExpenseId(databaseCallback: DatabaseCallback) {
+    fun getLastExpenseId(databaseCallback: DatabaseCallback) {
         MainApplication.db.expenseDAO().getLastExpenseId()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -119,17 +119,17 @@ class ExpenseProvider() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(object : CompletableObserver {
 
-                        override fun onSubscribe(d: Disposable) {}
+                    override fun onSubscribe(d: Disposable) {}
 
-                        override fun onError(e: Throwable) {
-                            Log.d(e.toString())
-                        }
+                    override fun onError(e: Throwable) {
+                        Log.d(e.toString())
+                    }
 
-                        override fun onComplete() {
-                            databaseCallback.onExpenseAdded()
-                        }
-                    })
-        }
+                    override fun onComplete() {
+                        databaseCallback.onExpenseAdded()
+                    }
+                })
+    }
 
     fun deleteExpense(databaseCallback: DatabaseCallback, expense: Expense) {
         Completable.fromAction {
@@ -167,6 +167,26 @@ class ExpenseProvider() {
 
                     override fun onComplete() {
                         databaseCallback.onExpenseUpdated()
+                    }
+                })
+    }
+
+    fun deleteExpensesForDebt(databaseCallback: DatabaseCallback, debtId: String) {
+        Completable.fromAction {
+            MainApplication.db.expenseDAO().deleteExpensesForDebt(debtId)
+        }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : CompletableObserver {
+
+                    override fun onSubscribe(d: Disposable) {}
+
+                    override fun onError(e: Throwable) {
+                        Log.d(e.toString())
+                    }
+
+                    override fun onComplete() {
+                        databaseCallback.onExpensesForDebtDeleted()
                     }
                 })
     }
@@ -210,6 +230,10 @@ class ExpenseProvider() {
 
         fun onExpenseUpdated() {
             Log.d("expense is updated")
+        }
+
+        fun onExpensesForDebtDeleted() {
+            Log.d("expenses for debt are deleted")
         }
     }
 }
