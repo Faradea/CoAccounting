@@ -22,6 +22,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
     var expense: Expense? = null
     var amountPerPerson: String = "0"
     var contactsList: List<Contact>? = null
+    var contactsListToIdMap: MutableMap<String, Contact>? = null
     var notSelectedContactsList = mutableListOf<Contact>()
     var selectedContactsList = mutableListOf<Contact>()
     var receiversWithAmountList = mutableListOf<ReceiverWithAmountForDB>()
@@ -58,7 +59,10 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
         amountPerPerson = "0"
         notSelectedContactsList.clear()
         selectedContactsList.clear()
+
+        contactsListToIdMap = mutableMapOf()
         contactsList.forEach { contact ->
+            contactsListToIdMap!![contact.uid.toString()] = contact
             notSelectedContactsList.add(contact)
         }
         getView()?.initializeNotSelectedReceiversList(contactsList)
@@ -272,9 +276,8 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
 
                 val contactId = receiversWithAmount.contactId
                 Log.d("go throw receiversWithAmountList, for contactId = $contactId")
-                val contact = contactsList!![contactId!!.toInt()-1]
-
-                selectedContactsList.add(contact)
+                val contact = contactsListToIdMap!![contactId!!]
+                selectedContactsList.add(contact!!)
                 notSelectedContactsList.remove(contact)
             }
 

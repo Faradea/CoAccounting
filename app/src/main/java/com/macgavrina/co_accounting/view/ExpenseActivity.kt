@@ -6,6 +6,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -126,7 +127,13 @@ class ExpenseActivity : AppCompatActivity(), AddReceiverInAddDebtContract.View, 
     }
 
     override fun initializeSelectedReceiversList(contactsList: List<Contact>?, amountPerPerson: String) {
-        add_receiver_dialog_fragment_selected_members_lv.adapter = SelectedReceiversRecyclerViewAdapter(contactsList, amountPerPerson)
+
+        if (contactsList == null || contactsList.isEmpty()) {
+            add_expense_emplty_selected_list_layout.visibility = View.VISIBLE
+        } else {
+            add_expense_emplty_selected_list_layout.visibility = View.INVISIBLE
+            add_receiver_dialog_fragment_selected_members_lv.adapter = SelectedReceiversRecyclerViewAdapter(contactsList, amountPerPerson)
+        }
     }
 
     override fun hideKeyboard() {

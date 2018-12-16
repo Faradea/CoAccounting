@@ -6,6 +6,54 @@
     android:layout_height="match_parent"
     android:background="@color/colorBackground">
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/contacts_fragment_empty_list_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.25">
+
+        <ImageView
+            android:id="@+id/imageView5"
+            android:layout_width="359dp"
+            android:layout_height="216dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="128dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_menu_contacts" />
+
+        <TextView
+            android:id="@+id/textView12"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:text="Contact list is empty"
+            android:textColor="@color/colorTextHints"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageView5" />
+
+        <TextView
+            android:id="@+id/textView13"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:text="All added contacts will be displayed in this list"
+            android:textColor="@color/colorTextHints"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView12" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <ProgressBar
         android:id="@+id/debts_fragment_progress_bar"
         style="?android:attr/progressBarStyleHorizontal"

@@ -63,7 +63,13 @@ class ContactsFragment: Fragment(), ContactsContract.View {
     }
 
     override fun initializeList(contactsList: List<Contact>) {
-        contacts_fragment_recyclerview.adapter = ContactsRecyclerViewAdapter(contactsList)
+
+        if (contactsList.isNotEmpty()) {
+            contacts_fragment_empty_list_layout.visibility = View.INVISIBLE
+            contacts_fragment_recyclerview.adapter = ContactsRecyclerViewAdapter(contactsList)
+        } else {
+            contacts_fragment_empty_list_layout.visibility = View.VISIBLE
+        }
     }
 
     override fun updateList() {

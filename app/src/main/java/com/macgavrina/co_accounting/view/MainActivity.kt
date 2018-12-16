@@ -87,6 +87,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     super.onBackPressed()
                 } else {
                     displayDebtsFragment()
+                    nav_view.menu.getItem(1).isChecked = true
                     Toast.makeText(this, "Press back again to exit", Toast.LENGTH_SHORT).show()
                     isBackPressed = true
                 }
@@ -381,21 +382,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 //                main_webview_fragment_webview.loadUrl(MAIN_URL)
 //            }
             presenter.undoDeleteContactButtonIsPressed()
-        }
-        snackBar?.show()
-    }
-
-    override fun displayOnDeleteDebtSnackBar() {
-        val snackBar = Snackbar.make(content_main_constraint_layout, "Debt is deleted", Snackbar.LENGTH_LONG)
-        snackBar!!.setAction("Undo") {
-            Log.d("snackBar: undo action is pressed")
-            snackBar?.dismiss()
-//            if (main_webview_fragment_webview.canGoBack()) {
-//                main_webview_fragment_webview.goBack()
-//            } else {
-//                main_webview_fragment_webview.loadUrl(MAIN_URL)
-//            }
-            presenter.undoDeleteDebtButtonIsPressed()
         }
         snackBar?.show()
     }

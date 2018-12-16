@@ -17,6 +17,8 @@ interface DebtsContract {
         fun hideProgress()
 
         fun displayToast(text:String)
+
+        fun displayOnDeleteDebtSnackBar()
     }
 
     interface Presenter:BasePresenterContract<View> {
@@ -24,6 +26,8 @@ interface DebtsContract {
         fun addDebtButtonIsPressed()
 
         fun debtItemIsSelected(selectedContactId:Int)
+
+        fun undoDeleteDebtButtonIsPressed()
 
     }
 }

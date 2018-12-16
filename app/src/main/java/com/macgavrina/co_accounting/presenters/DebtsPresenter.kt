@@ -6,11 +6,13 @@ import com.macgavrina.co_accounting.interfaces.DebtsContract
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.providers.ContactsProvider
 import com.macgavrina.co_accounting.providers.DebtsProvider
+import com.macgavrina.co_accounting.room.Debt
 import com.macgavrina.co_accounting.rxjava.Events
 import io.reactivex.disposables.Disposable
 
 class DebtsPresenter: BasePresenter<DebtsContract.View>(), DebtsContract.Presenter, DebtsProvider.DatabaseCallback {
 
+    private var lastDeletedDebt: Debt? = null
     private var subscriptionToBus: Disposable? = null
 
     override fun onDebtsListLoaded(debtsList: List<com.macgavrina.co_accounting.room.Debt>) {
@@ -71,6 +73,11 @@ class DebtsPresenter: BasePresenter<DebtsContract.View>(), DebtsContract.Present
 
                                 getView()?.hideProgress()
                             }
+
+                            is Events.DebtIsDeleted -> {
+                                lastDeletedDebt = `object`.debt
+                                getView()?.displayOnDeleteDebtSnackBar()
+                            }
                         }
                     }
         }
@@ -83,5 +90,16 @@ class DebtsPresenter: BasePresenter<DebtsContract.View>(), DebtsContract.Present
         }
     }
 
+    override fun undoDeleteDebtButtonIsPressed() {
+        if (lastDeletedDebt == null) return
+
+        DebtsProvider().restoreDebt(this, lastDeletedDebt!!)
+    }
+
+    override fun onDebtRestored() {
+        super.onDebtRestored()
+        lastDeletedDebt = null
+        MainApplication.bus.send(Events.DeletedDebtIsRestored())
+    }
 
 }

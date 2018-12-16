@@ -283,8 +283,13 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
     }
 
     override fun initializeExpensesList(expenseList: List<Expense>?) {
-        add_debt_fragment_reciever_recyclerview.adapter = ExpensesRecyclerViewAdapter(expenseList)
-        add_debt_fragment_reciever_recyclerview.layoutManager = viewManager
+        if (expenseList == null || expenseList.isEmpty()) {
+            add_debt_fragment_empty_list_layout.visibility = View.VISIBLE
+        } else {
+            add_debt_fragment_empty_list_layout.visibility = View.INVISIBLE
+            add_debt_fragment_reciever_recyclerview.adapter = ExpensesRecyclerViewAdapter(expenseList)
+            add_debt_fragment_reciever_recyclerview.layoutManager = viewManager
+        }
     }
 
     override fun finishSelf() {

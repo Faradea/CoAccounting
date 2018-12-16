@@ -15,12 +15,15 @@ import com.macgavrina.co_accounting.interfaces.DebtsContract
 import com.macgavrina.co_accounting.presenters.DebtsPresenter
 import com.macgavrina.co_accounting.room.Debt
 import kotlinx.android.synthetic.main.debts_fragment.*
-import androidx.recyclerview.widget.DividerItemDecoration
+import com.google.android.material.snackbar.Snackbar
+import com.macgavrina.co_accounting.logging.Log
+import com.macgavrina.co_accounting.providers.DebtsProvider
+import io.reactivex.disposables.Disposable
 
 
+class DebtsFragment: Fragment(), DebtsContract.View, DebtsProvider.DatabaseCallback {
 
-class DebtsFragment: Fragment(), DebtsContract.View {
-
+    private var subscriptionToBus: Disposable? = null
     lateinit var presenter: DebtsPresenter
     private lateinit var viewManager: RecyclerView.LayoutManager
 
@@ -48,6 +51,7 @@ class DebtsFragment: Fragment(), DebtsContract.View {
         viewManager = LinearLayoutManager(MainApplication.applicationContext())
         debts_fragment_recyclerview.adapter = DebtsRecyclerViewAdapter(null)
         debts_fragment_recyclerview.layoutManager = viewManager
+
 //        debts_fragment_recyclerview.addItemDecoration(DividerItemDecoration(context!!,
 //                DividerItemDecoration.VERTICAL))
         presenter.viewIsReady()
@@ -66,7 +70,12 @@ class DebtsFragment: Fragment(), DebtsContract.View {
     }
 
     override fun initializeList(debtsList: List<Debt>) {
-        debts_fragment_recyclerview.adapter = DebtsRecyclerViewAdapter(debtsList)
+        if (debtsList.isEmpty()) {
+            debts_fragment_empty_list_layout.visibility = View.VISIBLE
+        } else {
+            debts_fragment_empty_list_layout.visibility = View.INVISIBLE
+            debts_fragment_recyclerview.adapter = DebtsRecyclerViewAdapter(debtsList)
+        }
     }
 
     override fun updateList() {
@@ -78,6 +87,23 @@ class DebtsFragment: Fragment(), DebtsContract.View {
 
     override fun hideProgress() {
         debts_fragment_progress_bar.visibility = View.INVISIBLE
+    }
+
+
+    override fun displayOnDeleteDebtSnackBar() {
+
+        val snackBar = Snackbar.make(debts_fragment_const_layout, "Debt is deleted", Snackbar.LENGTH_LONG)
+        snackBar!!.setAction("Undo") {
+            Log.d("snackBar: undo action is pressed")
+            snackBar?.dismiss()
+//            if (main_webview_fragment_webview.canGoBack()) {
+//                main_webview_fragment_webview.goBack()
+//            } else {
+//                main_webview_fragment_webview.loadUrl(MAIN_URL)
+//            }
+            presenter.undoDeleteDebtButtonIsPressed()
+        }
+        snackBar?.show()
     }
 
 }

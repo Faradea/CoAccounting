@@ -14,9 +14,8 @@ import com.macgavrina.co_accounting.rxjava.Events
 import io.reactivex.disposables.Disposable
 
 
-class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActivityContract.Presenter, UserProvider.LoadUserCallback, UserProvider.CheckIfUserTokenExistCallback, ContactsProvider.DatabaseCallback, DebtsProvider.DatabaseCallback {
+class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActivityContract.Presenter, UserProvider.LoadUserCallback, UserProvider.CheckIfUserTokenExistCallback, ContactsProvider.DatabaseCallback {
 
-    private var lastDeletedDebt: Debt? = null
     private var lastDeletedContact: Contact? = null
     private var subscriptionToBus: Disposable? = null
 
@@ -78,10 +77,6 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
                             is Events.ContactIsDeleted -> {
                                 lastDeletedContact = `object`.contact
                                 getView()?.displayOnDeleteContactSnackBar()
-                            }
-                            is Events.DebtIsDeleted -> {
-                                lastDeletedDebt = `object`.debt
-                                getView()?.displayOnDeleteDebtSnackBar()
                             }
                             is Events.AddDebt -> {
                                 getView()?.displayAddDebtFragment(null)
@@ -181,18 +176,6 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
         super.onContactRestored()
         lastDeletedContact = null
         MainApplication.bus.send(Events.DeletedContactIsRestored())
-    }
-
-    override fun undoDeleteDebtButtonIsPressed() {
-        if (lastDeletedDebt == null) return
-
-        DebtsProvider().restoreDebt(this, lastDeletedDebt!!)
-    }
-
-    override fun onDebtRestored() {
-        super.onDebtRestored()
-        lastDeletedDebt = null
-        MainApplication.bus.send(Events.DeletedDebtIsRestored())
     }
 
     override fun onDatabaseError() {

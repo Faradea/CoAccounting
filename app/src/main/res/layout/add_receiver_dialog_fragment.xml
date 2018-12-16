@@ -27,6 +27,32 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/add_expense_emplty_selected_list_layout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:alpha="0.25"
+                android:padding="8dp"
+                app:layout_constraintBottom_toTopOf="@+id/divider2"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView7">
+
+                <TextView
+                    android:id="@+id/textView11"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    android:padding="8dp"
+                    android:text="Please select friends from the list below"
+                    android:textColor="@color/colorTextHints"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/add_receiver_dialog_fragment_selected_members_lv"
                 android:layout_width="match_parent"
@@ -121,7 +147,7 @@
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="32dp"
+                android:layout_marginTop="40dp"
                 android:layout_marginEnd="8dp"
                 android:background="?android:attr/listDivider"
                 app:layout_constraintEnd_toEndOf="parent"
