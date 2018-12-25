@@ -8,16 +8,19 @@ import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.model.User
 import com.macgavrina.co_accounting.providers.ContactsProvider
 import com.macgavrina.co_accounting.providers.DebtsProvider
+import com.macgavrina.co_accounting.providers.ExpenseProvider
 import com.macgavrina.co_accounting.providers.UserProvider
 import com.macgavrina.co_accounting.room.Debt
+import com.macgavrina.co_accounting.room.Expense
 import com.macgavrina.co_accounting.rxjava.Events
 import io.reactivex.disposables.Disposable
 
 
-class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActivityContract.Presenter, UserProvider.LoadUserCallback, UserProvider.CheckIfUserTokenExistCallback, ContactsProvider.DatabaseCallback {
+class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActivityContract.Presenter, UserProvider.LoadUserCallback, UserProvider.CheckIfUserTokenExistCallback, ContactsProvider.DatabaseCallback, DebtsProvider.DatabaseCallback, ExpenseProvider.DatabaseCallback {
 
     private var lastDeletedContact: Contact? = null
     private var subscriptionToBus: Disposable? = null
+    private var dataToShare: String = ""
 
     override fun attachView(baseViewContract: MainActivityContract.View) {
         super.attachView(baseViewContract)
@@ -181,5 +184,49 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
     override fun onDatabaseError() {
         Log.d("database error")
         getView()?.displayToast("Database error")
+    }
+
+    override fun prepareAndShareData() {
+        ContactsProvider().getAll(this)
+    }
+
+    override fun onContactsListLoaded(contactsList: List<Contact>) {
+        super.onContactsListLoaded(contactsList)
+
+        dataToShare = dataToShare + "Contacts:" + "\n"
+
+        contactsList.forEach { contact ->
+            dataToShare = dataToShare + "\n" +"uid: ${contact.uid}, email: ${contact.email}, alias: ${contact.alias}, status: ${contact.status}"
+        }
+        dataToShare = dataToShare + "\n" + "\n"
+
+        DebtsProvider().getAll(this)
+    }
+
+    override fun onDebtsListLoaded(debtList: List<Debt>) {
+        super.onDebtsListLoaded(debtList)
+
+        dataToShare = dataToShare + "Debts:" + "\n"
+
+        debtList.forEach { debt ->
+            dataToShare = dataToShare + "\n" +"uid: ${debt.uid}, senderId:${debt.senderId}, datetime:${debt.datetime}, amount: ${debt.spentAmount}, comment:${debt.comment}, status:${debt.status}"
+        }
+
+        dataToShare = dataToShare + "\n" + "\n"
+
+        ExpenseProvider().getAll(this)
+    }
+
+    override fun onExpenseListLoaded(expenseList: List<Expense>) {
+        super.onExpenseListLoaded(expenseList)
+
+        dataToShare = dataToShare + "Expenses:" + "\n"
+
+        expenseList.forEach { expense ->
+            dataToShare = dataToShare + "\n" +"uid: ${expense.uid}, totalAmount:${expense.totalAmount}, debtId:${expense.debtId}, receiverList:${expense.receiversList}"
+        }
+
+        getView()?.startActivityToShareAllData(dataToShare)
+
     }
 }

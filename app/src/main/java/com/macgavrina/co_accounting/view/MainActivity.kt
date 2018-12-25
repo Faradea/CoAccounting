@@ -20,7 +20,6 @@ import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.nav_header_main.view.*
 import android.content.Intent
 import com.google.android.material.snackbar.Snackbar
-import com.macgavrina.co_accounting.providers.ContactsProvider
 import kotlinx.android.synthetic.main.content_main.*
 
 
@@ -107,10 +106,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.nav_debts -> {
                 presenter.gotoDebts()
             }
+            R.id.nav_share -> {
+                presenter.prepareAndShareData()
+            }
         }
 
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
+    }
+
+    override fun startActivityToShareAllData(dataToShare: String) {
+
+        val sendIntent: Intent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, dataToShare)
+            type = "text/plain"
+        }
+
+        startActivity(sendIntent)
     }
 
     override fun onDestroy() {

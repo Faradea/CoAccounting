@@ -46,6 +46,7 @@ interface MainActivityContract {
 
         fun displayOnDeleteContactSnackBar()
 
+        fun startActivityToShareAllData(dataToShare: String)
     }
 
     interface Presenter:BasePresenterContract<View> {
@@ -59,6 +60,8 @@ interface MainActivityContract {
         fun addReceiverInAddDebtFragmentAfterReceiverAddedIsDisplayed()
 
         fun undoDeleteContactButtonIsPressed()
+
+        fun prepareAndShareData()
 
     }
 
