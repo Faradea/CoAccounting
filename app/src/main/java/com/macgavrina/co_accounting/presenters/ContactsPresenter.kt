@@ -3,22 +3,16 @@ package com.macgavrina.co_accounting.presenters
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.interfaces.ContactsContract
 import com.macgavrina.co_accounting.logging.Log
-import com.macgavrina.co_accounting.providers.ContactsProvider
+import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.rxjava.Events
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import io.reactivex.observers.DisposableMaybeObserver
+import io.reactivex.schedulers.Schedulers
 
-class ContactsPresenter: BasePresenter<ContactsContract.View>(), ContactsContract.Presenter, ContactsProvider.DatabaseCallback {
+class ContactsPresenter: BasePresenter<ContactsContract.View>(), ContactsContract.Presenter {
 
     private var subscriptionToBus: Disposable? = null
-
-    override fun onContactsListLoaded(contactsList: List<com.macgavrina.co_accounting.room.Contact>) {
-        getView()?.hideProgress()
-        getView()?.initializeList(contactsList)
-    }
-    override fun onDatabaseError() {
-        getView()?.displayToast("Database error")
-    }
-
 
     override fun attachView(baseViewContract: ContactsContract.View) {
         super.attachView(baseViewContract)
@@ -37,7 +31,7 @@ class ContactsPresenter: BasePresenter<ContactsContract.View>(), ContactsContrac
 
         getView()?.showProgress()
 
-        ContactsProvider().getAll(this)
+        getAndDisplayAllContacts()
 
         getView()?.hideProgress()
 
@@ -63,7 +57,7 @@ class ContactsPresenter: BasePresenter<ContactsContract.View>(), ContactsContrac
 
                                 getView()?.showProgress()
 
-                                ContactsProvider().getAll(this)
+                                getAndDisplayAllContacts()
 
                                 getView()?.hideProgress()
                             }
@@ -77,6 +71,26 @@ class ContactsPresenter: BasePresenter<ContactsContract.View>(), ContactsContrac
             subscriptionToBus?.dispose()
             subscriptionToBus = null
         }
+    }
+
+    private fun getAndDisplayAllContacts() {
+        MainApplication.db.contactDAO().getAll("active")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : DisposableMaybeObserver<List<Contact>>() {
+                    override fun onSuccess(contactsList: List<com.macgavrina.co_accounting.room.Contact>) {
+                        getView()?.hideProgress()
+                        getView()?.initializeList(contactsList)
+                    }
+
+                    override fun onError(e: Throwable) {
+                        Log.d(e.toString())
+                        getView()?.displayToast("Database error")
+                    }
+
+                    override fun onComplete() {
+                    }
+                })
     }
 
 }

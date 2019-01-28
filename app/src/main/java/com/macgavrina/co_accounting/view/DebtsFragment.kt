@@ -17,11 +17,10 @@ import com.macgavrina.co_accounting.room.Debt
 import kotlinx.android.synthetic.main.debts_fragment.*
 import com.google.android.material.snackbar.Snackbar
 import com.macgavrina.co_accounting.logging.Log
-import com.macgavrina.co_accounting.providers.DebtsProvider
 import io.reactivex.disposables.Disposable
 
 
-class DebtsFragment: Fragment(), DebtsContract.View, DebtsProvider.DatabaseCallback {
+class DebtsFragment: Fragment(), DebtsContract.View {
 
     private var subscriptionToBus: Disposable? = null
     lateinit var presenter: DebtsPresenter

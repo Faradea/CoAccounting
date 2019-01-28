@@ -4,22 +4,19 @@ import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.interfaces.ContactsContract
 import com.macgavrina.co_accounting.interfaces.DebtsContract
 import com.macgavrina.co_accounting.logging.Log
-import com.macgavrina.co_accounting.providers.ContactsProvider
-import com.macgavrina.co_accounting.providers.DebtsProvider
 import com.macgavrina.co_accounting.room.Debt
 import com.macgavrina.co_accounting.rxjava.Events
+import io.reactivex.Completable
+import io.reactivex.CompletableObserver
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import io.reactivex.observers.DisposableMaybeObserver
+import io.reactivex.schedulers.Schedulers
 
-class DebtsPresenter: BasePresenter<DebtsContract.View>(), DebtsContract.Presenter, DebtsProvider.DatabaseCallback {
+class DebtsPresenter: BasePresenter<DebtsContract.View>(), DebtsContract.Presenter {
 
     private var lastDeletedDebt: Debt? = null
     private var subscriptionToBus: Disposable? = null
-
-    override fun onDebtsListLoaded(debtsList: List<com.macgavrina.co_accounting.room.Debt>) {
-        getView()?.hideProgress()
-        Log.d("debtsList = $debtsList")
-        getView()?.initializeList(debtsList)
-    }
 
     override fun attachView(baseViewContract: DebtsContract.View) {
         super.attachView(baseViewContract)
@@ -32,17 +29,13 @@ class DebtsPresenter: BasePresenter<DebtsContract.View>(), DebtsContract.Present
         unsubscribeFromEventBus()
     }
 
-    override fun onDatabaseError() {
-        getView()?.displayToast("Database error")
-    }
-
     override fun viewIsReady() {
 
         Log.d("view is ready")
 
         getView()?.showProgress()
 
-        DebtsProvider().getAll(this)
+        getAndDisplayAllDebts()
 
         getView()?.hideProgress()
 
@@ -57,6 +50,27 @@ class DebtsPresenter: BasePresenter<DebtsContract.View>(), DebtsContract.Present
         Log.d("selectedDebtId = ${selectedDebtId}")
     }
 
+    private fun getAndDisplayAllDebts() {
+        MainApplication.db.debtDAO().getAll("active")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : DisposableMaybeObserver<List<Debt>>() {
+                    override fun onSuccess(debtsList: List<Debt>) {
+                        getView()?.hideProgress()
+                        Log.d("debtsList = $debtsList")
+                        getView()?.initializeList(debtsList)
+                    }
+
+                    override fun onError(e: Throwable) {
+                        Log.d("error, ${e.toString()}")
+                    }
+
+                    override fun onComplete() {
+                        //ToDo REFACT call dispose() here and in all onComplete
+                        Log.d("nothing")
+                    }
+                })
+    }
 
     private fun subscribeToEventBus() {
         if (subscriptionToBus == null) {
@@ -69,7 +83,7 @@ class DebtsPresenter: BasePresenter<DebtsContract.View>(), DebtsContract.Present
 
                                 getView()?.showProgress()
 
-                                DebtsProvider().getAll(this)
+                                getAndDisplayAllDebts()
 
                                 getView()?.hideProgress()
                             }
@@ -93,13 +107,22 @@ class DebtsPresenter: BasePresenter<DebtsContract.View>(), DebtsContract.Present
     override fun undoDeleteDebtButtonIsPressed() {
         if (lastDeletedDebt == null) return
 
-        DebtsProvider().restoreDebt(this, lastDeletedDebt!!)
-    }
+        lastDeletedDebt!!.status = "active"
+        Completable.fromAction {
+            MainApplication.db.debtDAO().updateDebt(lastDeletedDebt!!)
+        }.observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io()).subscribe(object : CompletableObserver {
+                    override fun onSubscribe(d: Disposable) {}
 
-    override fun onDebtRestored() {
-        super.onDebtRestored()
-        lastDeletedDebt = null
-        MainApplication.bus.send(Events.DeletedDebtIsRestored())
+                    override fun onComplete() {
+                        lastDeletedDebt = null
+                        MainApplication.bus.send(Events.DeletedDebtIsRestored())
+                    }
+
+                    override fun onError(e: Throwable) {
+                        Log.d("Error restoring debt, $e")
+                    }
+                })
     }
 
 }

@@ -3,17 +3,19 @@ package com.macgavrina.co_accounting.presenters
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.interfaces.AddReceiverInAddDebtContract
 import com.macgavrina.co_accounting.logging.Log
-import com.macgavrina.co_accounting.providers.ContactsProvider
-import com.macgavrina.co_accounting.providers.ExpenseProvider
-import com.macgavrina.co_accounting.providers.ReceiverForAmountProvider
 import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.room.Expense
 import com.macgavrina.co_accounting.room.ReceiverWithAmountForDB
 import com.macgavrina.co_accounting.rxjava.Events
+import io.reactivex.Completable
+import io.reactivex.CompletableObserver
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import io.reactivex.observers.DisposableMaybeObserver
+import io.reactivex.schedulers.Schedulers
 import java.text.DecimalFormat
 
-class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddReceiverInAddDebtContract.Presenter, ContactsProvider.DatabaseCallback, ReceiverForAmountProvider.DatabaseCallback, ExpenseProvider.DatabaseCallback {
+class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddReceiverInAddDebtContract.Presenter {
 
     private var subscriptionToBus: Disposable? = null
 
@@ -30,107 +32,10 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
     var receiversWithAmountListIsLoaded = false
     var contactsListIsLoaded = false
 
-    override fun onDatabaseError() {
-        Log.d("database error")
-    }
-
-    override fun onReceiverWithAmountListAdded() {
-        super.onReceiverWithAmountListAdded()
-        Log.d("receiver with amount list is added")
-
-        getView()?.finishSelf()
-        //MainApplication.bus.send(Events.ReceiversWithAmountInAddDebtIsSaved())
-    }
-
-    override fun onReceiversWithAmountListForExpensesDeleted() {
-        super.onReceiversWithAmountListForExpensesDeleted()
-
-        receiversWithAmountList?.forEach { receiversWithAmount ->
-            receiversWithAmount.expenseId = expense?.uid.toString()
-        }
-
-        ReceiverForAmountProvider().addReceiverWithAmountList(this, receiversWithAmountList!! )
-    }
-
-    override fun onContactsListLoaded(contactsList: List<Contact>) {
-        super.onContactsListLoaded(contactsList)
-
-        this.contactsList = contactsList
-        amountPerPerson = "0"
-        notSelectedContactsList.clear()
-        selectedContactsList.clear()
-
-        contactsListToIdMap = mutableMapOf()
-        contactsList.forEach { contact ->
-            contactsListToIdMap!![contact.uid.toString()] = contact
-            notSelectedContactsList.add(contact)
-        }
-        getView()?.initializeNotSelectedReceiversList(contactsList)
-
-        contactsListIsLoaded = true
-        updateReceiverWithAmountListWithDataFromDB()
-    }
-
-    override fun onExpenseAdded() {
-        super.onExpenseAdded()
-
-        ExpenseProvider().getLastExpenseId(this)
-    }
-
-    override fun onExpenseUpdated() {
-        super.onExpenseUpdated()
-
-        ReceiverForAmountProvider().deleteReceiversWithAmountForExpense(this, expense?.uid.toString())
-    }
-
-    override fun onGetLastExpenseId(uid: Int) {
-        super.onGetLastExpenseId(uid)
-
-        receiversWithAmountList?.forEach { receiversWithAmount ->
-            receiversWithAmount.expenseId = uid.toString()
-        }
-
-        Log.d("saving receiverWithAmountList for expenseId = $uid")
-        ReceiverForAmountProvider().addReceiverWithAmountList(this, receiversWithAmountList!! )
-    }
-
-    override fun onExpenseByIdLoaded(expense: Expense) {
-        super.onExpenseByIdLoaded(expense)
-        this.expense = expense
-
-        getView()?.showDeleteButton()
-
-        getView()?.setAmount(expense.totalAmount)
-
-        ReceiverForAmountProvider().getReceiversWithAmountForExpense(this, expense.uid.toString())
-
-    }
-
-    override fun onNoExpenseWithRequestedId() {
-        //ToDo ErrorHandling
-    }
-
-    override fun onExpenseDeleted() {
-        super.onExpenseDeleted()
-        getView()?.finishSelf()
-        //MainApplication.bus.send(Events.HideAddReceiverInAddDebtFragment(true))
-    }
-
-    override fun onReceiversWithAmountForExpenseListLoaded(receiversWithAmountList: List<ReceiverWithAmountForDB>) {
-        super.onReceiversWithAmountForExpenseListLoaded(receiversWithAmountList)
-
-        this.receiversWithAmountList = receiversWithAmountList as MutableList<ReceiverWithAmountForDB>
-        receiversWithAmountListIsLoaded = true
-        updateReceiverWithAmountListWithDataFromDB()
-
-    }
-
     override fun attachView(baseViewContract: AddReceiverInAddDebtContract.View) {
         super.attachView(baseViewContract)
 
         subscribeToEventBus()
-
-        ContactsProvider().getAll(this)
 
     }
 
@@ -192,7 +97,46 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
     override fun expenseIdIsReceivedFromMainActivity(expenseId: Int) {
         this.expenseId = expenseId
 
-        ExpenseProvider().getExpenseById(this, expenseId)
+        MainApplication.db.expenseDAO().getExpenseByIds(expenseId.toString())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : DisposableMaybeObserver<Expense>() {
+                    override fun onSuccess(expense: Expense) {
+                        this@ExpensePresenter.expense = expense
+
+                        getView()?.showDeleteButton()
+
+                        getView()?.setAmount(expense.totalAmount)
+
+                        MainApplication.db.receiverWithAmountForDBDAO().getReceiversWithAmountForExpense(expense.uid.toString())
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(object : DisposableMaybeObserver<List<ReceiverWithAmountForDB>>() {
+                                    override fun onSuccess(receiversWithAmountList: List<ReceiverWithAmountForDB>) {
+                                        Log.d("success")
+                                        this@ExpensePresenter.receiversWithAmountList = receiversWithAmountList as MutableList<ReceiverWithAmountForDB>
+                                        receiversWithAmountListIsLoaded = true
+                                        updateReceiverWithAmountListWithDataFromDB()
+                                    }
+
+                                    override fun onError(e: Throwable) {
+                                        Log.d("error, ${e.toString()}")
+                                    }
+
+                                    override fun onComplete() {
+                                        Log.d("nothing")
+                                    }
+                                })
+                    }
+
+                    override fun onError(e: Throwable) {
+                        Log.d(e.toString())
+                    }
+
+                    override fun onComplete() {
+                        Log.d("No expense with specified id in DB")
+                    }
+                })
     }
 
     override fun amountIsEdited(newAmount: Float) {
@@ -205,13 +149,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
 
     override fun viewIsReady() {
 
-//        addDebtButtonEnabled = true
-//        //getView()?.getEmail()?.length!! > 0
-//
-//        getView()?.setAddButtonEnabled(addDebtButtonEnabled)
-//        getView()?.hideProgress()
-//
-        ContactsProvider().getAll(this)
+        getAndDisplayAllContacts()
         getView()?.hideDeleteButton()
 
     }
@@ -252,19 +190,137 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
 
             Log.d("add expense: debtId = ${expense!!.debtId}, receiversList = ${expense!!.receiversList}, amount = ${expense!!.totalAmount}")
 
-            ExpenseProvider().addExpense(this, expense!!)
+            Completable.fromAction {
+                MainApplication.db.expenseDAO().insertExpense(expense!!)
+            }
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(object : CompletableObserver {
+
+                        override fun onSubscribe(d: Disposable) {}
+
+                        override fun onError(e: Throwable) {
+                            Log.d(e.toString())
+                        }
+
+                        override fun onComplete() {
+                            MainApplication.db.expenseDAO().getLastExpenseId()
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(object : DisposableMaybeObserver<Int>() {
+                                        override fun onSuccess(uid: Int) {
+                                            receiversWithAmountList?.forEach { receiversWithAmount ->
+                                                receiversWithAmount.expenseId = uid.toString()
+                                            }
+
+                                            Log.d("saving receiverWithAmountList for expenseId = $uid")
+
+
+                                            Completable.fromAction {
+                                                MainApplication.db.receiverWithAmountForDBDAO().insertAll(*receiversWithAmountList!!.toTypedArray())
+                                            }.observeOn(AndroidSchedulers.mainThread())
+                                                    .subscribeOn(Schedulers.io()).subscribe(object : CompletableObserver {
+                                                        override fun onSubscribe(d: Disposable) {}
+
+                                                        override fun onComplete() {
+                                                            Log.d("receiver with amount list is added")
+
+                                                            getView()?.finishSelf()
+                                                            //MainApplication.bus.send(Events.ReceiversWithAmountInAddDebtIsSaved())
+                                                        }
+
+                                                        override fun onError(e: Throwable) {
+                                                            Log.d("Error adding receivers with amount for DB")
+                                                        }
+                                                    })
+                                        }
+
+                                        override fun onError(e: Throwable) {
+                                            Log.d(e.toString())
+                                        }
+
+                                        override fun onComplete() {
+                                            Log.d("nothing")
+                                        }
+                                    })
+                        }
+                    })
 
         } else {
             expense!!.totalAmount = DecimalFormat("##.##").format(getView()?.getAmount())
             expense!!.receiversList = receiversListString
             expense!!.debtId = debtId
 
-            ExpenseProvider().updateExpense(this, expense!!)
+            Completable.fromAction {
+                MainApplication.db.expenseDAO().updateExpense(expense!!)
+            }
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(object : CompletableObserver {
+
+                        override fun onSubscribe(d: Disposable) {}
+
+                        override fun onError(e: Throwable) {
+                            Log.d(e.toString())
+                        }
+
+                        override fun onComplete() {
+                            Completable.fromAction {
+                                MainApplication.db.receiverWithAmountForDBDAO().deleteReceiversWithAmountForExpense(expense?.uid.toString())
+                            }.observeOn(AndroidSchedulers.mainThread())
+                                    .subscribeOn(Schedulers.io()).subscribe(object : CompletableObserver {
+                                        override fun onSubscribe(d: Disposable) {}
+
+                                        override fun onComplete() {
+                                            receiversWithAmountList?.forEach { receiversWithAmount ->
+                                                receiversWithAmount.expenseId = expense?.uid.toString()
+                                            }
+
+                                            Completable.fromAction {
+                                                MainApplication.db.receiverWithAmountForDBDAO().insertAll(*receiversWithAmountList!!.toTypedArray())
+                                            }.observeOn(AndroidSchedulers.mainThread())
+                                                    .subscribeOn(Schedulers.io()).subscribe(object : CompletableObserver {
+                                                        override fun onSubscribe(d: Disposable) {}
+
+                                                        override fun onComplete() {
+                                                            //ToDo Hide loader
+                                                        }
+
+                                                        override fun onError(e: Throwable) {
+                                                            Log.d("$e")
+                                                        }
+                                                    })
+                                        }
+
+                                        override fun onError(e: Throwable) {
+                                            Log.d("$e")
+                                        }
+                                    })
+                        }
+                    })
         }
     }
 
     override fun deleteButtonIsPressed() {
-        ExpenseProvider().deleteExpense(this, expense!!)
+
+        Completable.fromAction {
+            MainApplication.db.expenseDAO().deleteExpense(expense!!)
+        }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : CompletableObserver {
+
+                    override fun onSubscribe(d: Disposable) {}
+
+                    override fun onError(e: Throwable) {
+                        Log.d(e.toString())
+                    }
+
+                    override fun onComplete() {
+                        getView()?.finishSelf()
+                        //MainApplication.bus.send(Events.HideAddReceiverInAddDebtFragment(true))
+                    }
+                })
     }
 
     private fun updateReceiverWithAmountListWithDataFromDB() {
@@ -292,5 +348,37 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
             getView()?.initializeSelectedReceiversList(selectedContactsList, amountPerPerson)
 
         }
+    }
+
+    private fun getAndDisplayAllContacts() {
+        MainApplication.db.contactDAO().getAll("active")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : DisposableMaybeObserver<List<com.macgavrina.co_accounting.room.Contact>>() {
+                    override fun onSuccess(contactsList: List<com.macgavrina.co_accounting.room.Contact>) {
+                        this@ExpensePresenter.contactsList = contactsList
+                        amountPerPerson = "0"
+                        notSelectedContactsList.clear()
+                        selectedContactsList.clear()
+
+                        contactsListToIdMap = mutableMapOf()
+                        contactsList.forEach { contact ->
+                            contactsListToIdMap!![contact.uid.toString()] = contact
+                            notSelectedContactsList.add(contact)
+                        }
+                        getView()?.initializeNotSelectedReceiversList(contactsList)
+
+                        contactsListIsLoaded = true
+                        updateReceiverWithAmountListWithDataFromDB()
+                    }
+
+                    override fun onError(e: Throwable) {
+                        Log.d(e.toString())
+                    }
+
+                    override fun onComplete() {
+                        Log.d("No contacts in DB")
+                    }
+                })
     }
 }

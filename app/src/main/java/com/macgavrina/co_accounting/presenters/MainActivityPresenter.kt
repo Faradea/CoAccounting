@@ -6,17 +6,21 @@ import com.macgavrina.co_accounting.interfaces.MainActivityContract
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.model.User
-import com.macgavrina.co_accounting.providers.ContactsProvider
-import com.macgavrina.co_accounting.providers.DebtsProvider
-import com.macgavrina.co_accounting.providers.ExpenseProvider
 import com.macgavrina.co_accounting.providers.UserProvider
 import com.macgavrina.co_accounting.room.Debt
 import com.macgavrina.co_accounting.room.Expense
 import com.macgavrina.co_accounting.rxjava.Events
+import com.macgavrina.co_accounting.support.DateFormatter
+import io.reactivex.Completable
+import io.reactivex.CompletableObserver
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import io.reactivex.functions.Action
+import io.reactivex.observers.DisposableMaybeObserver
+import io.reactivex.schedulers.Schedulers
 
 
-class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActivityContract.Presenter, UserProvider.LoadUserCallback, UserProvider.CheckIfUserTokenExistCallback, ContactsProvider.DatabaseCallback, DebtsProvider.DatabaseCallback, ExpenseProvider.DatabaseCallback {
+class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActivityContract.Presenter, UserProvider.LoadUserCallback, UserProvider.CheckIfUserTokenExistCallback {
 
     private var lastDeletedContact: Contact? = null
     private var subscriptionToBus: Disposable? = null
@@ -146,7 +150,6 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
         //Выполняется после получения callback с данными о пользователе от UserProvider.CheckIfUserTokenExistCallback
         if (user.login.length != 0) {
             getView()?.updateLoginText(user.login)
-            ContactsProvider().syncDataUpload(user.token)
         }
         else {
             getView()?.updateLoginText(MainApplication.applicationContext().getString(R.string.default_user_name))
@@ -172,61 +175,109 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
     override fun undoDeleteContactButtonIsPressed() {
         if (lastDeletedContact == null) return
 
-        ContactsProvider().restoreContact(this, lastDeletedContact!!)
+        lastDeletedContact!!.status = "active"
+        Completable.fromAction(object : Action {
+            @Throws(Exception::class)
+            override fun run() {
+                MainApplication.db.contactDAO().updateContact(lastDeletedContact!!)
+            }
+        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(object : CompletableObserver {
+            override fun onSubscribe(d: Disposable) {
+
+            }
+
+            override fun onComplete() {
+                lastDeletedContact = null
+                MainApplication.bus.send(Events.DeletedContactIsRestored())
+            }
+
+            override fun onError(e: Throwable) {
+            }
+        })
     }
 
-    override fun onContactRestored() {
-        super.onContactRestored()
-        lastDeletedContact = null
-        MainApplication.bus.send(Events.DeletedContactIsRestored())
-    }
-
-    override fun onDatabaseError() {
-        Log.d("database error")
-        getView()?.displayToast("Database error")
-    }
 
     override fun prepareAndShareData() {
-        ContactsProvider().getAll(this)
+
+        MainApplication.db.contactDAO().getAll("active")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : DisposableMaybeObserver<List<Contact>>() {
+                    override fun onSuccess(contactsList: List<com.macgavrina.co_accounting.room.Contact>) {
+                        dataToShare = dataToShare + "Contacts:" + "\n"
+
+                        contactsList.forEach { contact ->
+                            dataToShare = dataToShare + "\n" +"uid: ${contact.uid}, email: ${contact.email}, alias: ${contact.alias}, status: ${contact.status}"
+                        }
+                        dataToShare = dataToShare + "\n" + "\n"
+
+                        loadDebts()
+                    }
+
+                    override fun onError(e: Throwable) {
+                        Log.d(e.toString())
+                        getView()?.displayToast("Database error")
+                    }
+
+                    override fun onComplete() {
+                    }
+                })
     }
 
-    override fun onContactsListLoaded(contactsList: List<Contact>) {
-        super.onContactsListLoaded(contactsList)
+    private fun loadDebts() {
 
-        dataToShare = dataToShare + "Contacts:" + "\n"
+        MainApplication.db.debtDAO().getAll("active")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : DisposableMaybeObserver<List<Debt>>() {
+                    override fun onSuccess(debtList: List<Debt>) {
+                        Log.d("success")
+                        dataToShare = dataToShare + "Debts:" + "\n"
 
-        contactsList.forEach { contact ->
-            dataToShare = dataToShare + "\n" +"uid: ${contact.uid}, email: ${contact.email}, alias: ${contact.alias}, status: ${contact.status}"
-        }
-        dataToShare = dataToShare + "\n" + "\n"
+                        debtList.forEach { debt ->
+                            dataToShare = dataToShare + "\n" +"uid: ${debt.uid}, senderId:${debt.senderId}, datetime:${DateFormatter().formatDateFromTimestamp(debt.datetime!!.toLong())}, amount: ${debt.spentAmount}, comment:${debt.comment}, status:${debt.status}"
+                        }
 
-        DebtsProvider().getAll(this)
+                        dataToShare = dataToShare + "\n" + "\n"
+
+                        loadExpenses()
+
+                    }
+
+                    override fun onError(e: Throwable) {
+                        Log.d("error, ${e.toString()}")
+                    }
+
+                    override fun onComplete() {
+                        //ToDo REFACT call dispose() here and in all onComplete
+                        Log.d("nothing")
+                    }
+                })
     }
 
-    override fun onDebtsListLoaded(debtList: List<Debt>) {
-        super.onDebtsListLoaded(debtList)
+    private fun loadExpenses() {
 
-        dataToShare = dataToShare + "Debts:" + "\n"
+        MainApplication.db.expenseDAO().getAll
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : DisposableMaybeObserver<List<Expense>>() {
+                    override fun onSuccess(expenseList: List<Expense>) {
+                        dataToShare = dataToShare + "Expenses:" + "\n"
 
-        debtList.forEach { debt ->
-            dataToShare = dataToShare + "\n" +"uid: ${debt.uid}, senderId:${debt.senderId}, datetime:${debt.datetime}, amount: ${debt.spentAmount}, comment:${debt.comment}, status:${debt.status}"
-        }
+                        expenseList.forEach { expense ->
+                            dataToShare = dataToShare + "\n" +"uid: ${expense.uid}, totalAmount:${expense.totalAmount}, debtId:${expense.debtId}, receiverList:${expense.receiversList}"
+                        }
 
-        dataToShare = dataToShare + "\n" + "\n"
+                        getView()?.startActivityToShareAllData(dataToShare)
+                    }
 
-        ExpenseProvider().getAll(this)
-    }
+                    override fun onError(e: Throwable) {
+                        Log.d("error, ${e.toString()}")
+                    }
 
-    override fun onExpenseListLoaded(expenseList: List<Expense>) {
-        super.onExpenseListLoaded(expenseList)
-
-        dataToShare = dataToShare + "Expenses:" + "\n"
-
-        expenseList.forEach { expense ->
-            dataToShare = dataToShare + "\n" +"uid: ${expense.uid}, totalAmount:${expense.totalAmount}, debtId:${expense.debtId}, receiverList:${expense.receiversList}"
-        }
-
-        getView()?.startActivityToShareAllData(dataToShare)
-
+                    override fun onComplete() {
+                        Log.d("nothing")
+                    }
+                })
     }
 }

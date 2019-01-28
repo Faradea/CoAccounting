@@ -115,7 +115,7 @@ class ExpenseActivity : AppCompatActivity(), AddReceiverInAddDebtContract.View, 
     override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
         if (s != null) {
             if (s.isNotEmpty()) {
-                presenter.amountIsEdited(s.toString().toFloat())
+                presenter.amountIsEdited(s.toString().replace(",", ".").toFloat())
             } else {
                 presenter.amountIsEdited(0.0F)
             }
@@ -144,7 +144,7 @@ class ExpenseActivity : AppCompatActivity(), AddReceiverInAddDebtContract.View, 
     override fun getAmount(): Float {
         val etText = add_receiver_dialog_fragment_amount_et.text
         return if (etText != null && etText.isNotEmpty()) {
-            etText.toString().toFloat()
+            etText.toString().replace(",", ".").toFloat()
         } else {
             0F
         }
