@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.macgavrina.co_accounting.R
-import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.Contact
 import kotlinx.android.synthetic.main.contacts_list_item.view.*
 import com.macgavrina.co_accounting.MainApplication
@@ -33,7 +32,6 @@ class ContactsRecyclerViewAdapter (contactsList: List<Contact>?) :
         }
 
         override fun onClick(view: View) {
-            Log.d( "onClick ${mItem?.uid}")
             MainApplication.bus.send(Events.OnClickContactList(mItem?.uid.toString()))
         }
     }
@@ -56,7 +54,6 @@ class ContactsRecyclerViewAdapter (contactsList: List<Contact>?) :
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
 
-        Log.d("Bind item with position = ${position}")
         val item = mItems?.get(position)
         holder.friendAliasTV.text = item?.alias
         holder.friendEmailTV.text = item?.email

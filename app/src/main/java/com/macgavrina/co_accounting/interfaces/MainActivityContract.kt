@@ -32,7 +32,7 @@ interface MainActivityContract {
 
         fun displayEditContactFragment(uid: String?)
 
-        fun displayDebtsFragment()
+        fun displayDebtsFragment(isInitial: Boolean)
 
         fun displayAddDebtFragment(myUid: String?)
 
@@ -47,6 +47,10 @@ interface MainActivityContract {
         fun displayOnDeleteContactSnackBar()
 
         fun startActivityToShareAllData(dataToShare: String)
+
+        fun displayTripsFragment()
+
+        fun displayAddTripFragment(tripId: String?)
     }
 
     interface Presenter:BasePresenterContract<View> {
@@ -55,7 +59,9 @@ interface MainActivityContract {
 
         fun gotoContactsEvent()
 
-        fun gotoDebts()
+        fun gotoDebts(isInitial: Boolean)
+
+        fun gotoTrips()
 
         fun addReceiverInAddDebtFragmentAfterReceiverAddedIsDisplayed()
 

@@ -6,8 +6,6 @@ import java.text.ParseException
 
 class DateFormatter() {
 
-    //ToDo REFACT сделать singleton
-
     fun formatDateFromTimestamp(timestamp: Long): String {
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

@@ -11,17 +11,14 @@ import androidx.appcompat.app.AlertDialog
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.interfaces.AddContactContract
-import com.macgavrina.co_accounting.logging.Log
-import com.macgavrina.co_accounting.presenters.AddContactPresenter
+import com.macgavrina.co_accounting.presenters.ContactPresenter
 import kotlinx.android.synthetic.main.contact_fragment.*
 import kotlinx.android.synthetic.main.debt_activity.*
 import android.text.Editable
 
-
-
 class ContactActivity : AppCompatActivity(), AddContactContract.View {
 
-    lateinit var presenter: AddContactPresenter
+    lateinit var presenter: ContactPresenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,10 +27,9 @@ class ContactActivity : AppCompatActivity(), AddContactContract.View {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        presenter = AddContactPresenter()
+        presenter = ContactPresenter()
         presenter.attachView(this)
         presenter.viewIsCreated()
-
 
         contact_fragment_delete_fab.setOnClickListener { view ->
             presenter.deleteButtonIsPressed()
@@ -42,7 +38,6 @@ class ContactActivity : AppCompatActivity(), AddContactContract.View {
         val extras = intent.extras
         val contactId = extras?.getInt("contactId")
 
-        Log.d("contactId = $contactId")
         if (contactId == -1) {
             presenter.contactIdIsReceiverFromMainActivity(null)
         } else {
@@ -107,7 +102,7 @@ class ContactActivity : AppCompatActivity(), AddContactContract.View {
             R.id.action_menu_done -> {
 
                 if (!getEmail().isNullOrEmpty() && !getAlias().isNullOrEmpty()) {
-                    presenter.addButtonIsPressed()
+                    presenter.doneButtonIsPressed()
                     return true
                 } else {
 
@@ -144,7 +139,6 @@ class ContactActivity : AppCompatActivity(), AddContactContract.View {
     }
 
     override fun finishSelf() {
-        Log.d("finishSelf")
         onBackPressed()
     }
 
@@ -165,7 +159,6 @@ class ContactActivity : AppCompatActivity(), AddContactContract.View {
     }
 
     override fun displayContactData(alias: String, email: String) {
-        Log.d("displaying contact data, alias = $alias, email = $email")
         contact_fragment_name_et.setText(alias)
         contact_fragment_email_et.setText(email)
     }

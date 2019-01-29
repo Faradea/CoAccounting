@@ -12,7 +12,7 @@ class Debt {
         set
         get
 
-    //ToDo REFACT добавить в индексы
+    //ToDo REFACT add to indexes
     @ColumnInfo(name = "senderId")
     public var senderId: String? = null
         set

@@ -26,24 +26,16 @@ class ContactsPresenter: BasePresenter<ContactsContract.View>(), ContactsContrac
     }
 
     override fun viewIsReady() {
-
-        Log.d("view is ready")
-
-        getView()?.showProgress()
-
         getAndDisplayAllContacts()
-
-        getView()?.hideProgress()
-
     }
 
     override fun addContactButtonIsPressed() {
-        Log.d("is pressed")
+        Log.d("Add new contact button is pressed")
         MainApplication.bus.send(Events.AddContact())
     }
 
     override fun contactItemIsSelected(selectedContactId: Int) {
-        Log.d("selectedContactId = ${selectedContactId}")
+        Log.d("User clicked on contact, selectedContactId = ${selectedContactId}")
     }
 
     private fun subscribeToEventBus() {
@@ -54,12 +46,8 @@ class ContactsPresenter: BasePresenter<ContactsContract.View>(), ContactsContrac
                     .subscribe { `object` ->
                         when (`object`) {
                             is Events.DeletedContactIsRestored -> {
-
-                                getView()?.showProgress()
-
+                                Log.d("catch Events.DeletedContactIsRestored event, updating contacts list...")
                                 getAndDisplayAllContacts()
-
-                                getView()?.hideProgress()
                             }
                         }
                     }
@@ -74,21 +62,25 @@ class ContactsPresenter: BasePresenter<ContactsContract.View>(), ContactsContrac
     }
 
     private fun getAndDisplayAllContacts() {
+        getView()?.showProgress()
         MainApplication.db.contactDAO().getAll("active")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(object : DisposableMaybeObserver<List<Contact>>() {
                     override fun onSuccess(contactsList: List<com.macgavrina.co_accounting.room.Contact>) {
+                        Log.d("Contacts list is received from DB, size = ${contactsList.size}")
                         getView()?.hideProgress()
                         getView()?.initializeList(contactsList)
                     }
 
                     override fun onError(e: Throwable) {
-                        Log.d(e.toString())
+                        Log.d("Error loading contacts from DB, $e")
+                        getView()?.hideProgress()
                         getView()?.displayToast("Database error")
                     }
 
                     override fun onComplete() {
+                        getView()?.hideProgress()
                     }
                 })
     }

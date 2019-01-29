@@ -20,7 +20,6 @@ import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.adapters.ExpensesRecyclerViewAdapter
 import com.macgavrina.co_accounting.interfaces.DebtActivityContract
-import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.presenters.DebtActivityPresenter
 import com.macgavrina.co_accounting.room.Expense
 import com.macgavrina.co_accounting.support.DateFormatter
@@ -31,9 +30,9 @@ import java.util.*
 
 class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
 
-    var datePickerDialog: DatePickerDialog? = null
-    var timePickerDialog: TimePickerDialog? = null
-    var senderId: Int? = null
+    private var datePickerDialog: DatePickerDialog? = null
+    private var timePickerDialog: TimePickerDialog? = null
+    private var senderId: Int? = null
     lateinit var presenter: DebtActivityPresenter
     private lateinit var viewManager: RecyclerView.LayoutManager
 
@@ -53,7 +52,6 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
         val debtId = extras?.getInt("debtId")
 
         //val debtId = savedInstanceState?.getInt(AddReceiverInAddDebtFragment.DEBT_ID_KEY)
-        Log.d("debtId = $debtId")
         if (debtId == -1) {
             presenter.debtIdIsReceiverFromMainActivity(null)
         } else {
@@ -61,7 +59,7 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
         }
 
         add_debt_fragment_add_receiver_tv.setOnClickListener { view ->
-            presenter.addReceiverButtonIsPressed()
+            presenter.addExpenseButtonIsPressed()
         }
 
         debt_fragment_delete_fab.setOnClickListener { view ->
@@ -105,7 +103,7 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
 
         when (item.itemId) {
             R.id.action_menu_done -> {
-                presenter.addButtonIsPressed()
+                presenter.doneButtonIsPressed()
                 return true
             }
         }
@@ -131,11 +129,8 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
         var mcurrentTime = Calendar.getInstance()
 
         if (getTime() != null && getTime().isNotEmpty()) {
-            Log.d("initialize timepicker with ${getTime()}")
             mcurrentTime.timeInMillis = DateFormatter().
                     getTimestampFromFormattedDateTime("${getDate()} ${getTime()}")!!
-        } else {
-            Log.d("initialize timepicker with sysdate")
         }
 
         val hour = mcurrentTime.get(Calendar.HOUR_OF_DAY)
@@ -179,7 +174,6 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
             datePickerDialog?.show()
 
             if (getDate() != null && getDate().isNotEmpty()) {
-                Log.d("initialize calendar with ${getDate()}")
 
                 calendar.timeInMillis = DateFormatter().getTimestampFromFormattedDate(getDate())!!
 
@@ -189,8 +183,6 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
 
                 datePickerDialog?.updateDate(mYear, mMonth, mDay)
 
-            } else {
-                Log.d("initialize calendar with sysdate")
             }
 
         } else {
@@ -206,9 +198,7 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
     override fun setSender(position: Int) {
 
         senderId = position
-        Log.d("selected contactId = $$position")
         add_debt_fragment_sender_spinner.setSelection(position)
-        Log.d("selected contactId set to spinner = ${add_debt_fragment_sender_spinner.selectedItemPosition}")
     }
 
     override fun setAmount(amount: String) {
@@ -266,7 +256,6 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
 
     override fun setupSenderSpinner(contactsList: Array<String?>) {
 
-        Log.d("setupSenderSpinner")
         val adapter = ArrayAdapter<String>(
                 MainApplication.applicationContext(),
                 android.R.layout.simple_spinner_item,
@@ -293,7 +282,6 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
     }
 
     override fun finishSelf() {
-        Log.d("finishSelf")
         onBackPressed()
     }
 

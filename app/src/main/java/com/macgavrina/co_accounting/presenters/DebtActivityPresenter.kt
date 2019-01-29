@@ -50,10 +50,11 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
                             is Events.AddDebtReceiverWithAmountListIsChanged -> {
                                 val newAmount = `object`.myNewText
                                 val positionInList = `object`.myPositionInList
-                                Log.d("AddDebtReceiverWithAmountListIsChanged, newAmount = $newAmount, position = $positionInList")
+                                Log.d("Catch Events.AddDebtReceiverWithAmountListIsChanged event, newAmount = $newAmount, position = $positionInList")
                                 receiverWithAmountList[positionInList].amount = newAmount.toFloat()
                             }
                             is Events.OnClickExpenseItemList -> {
+                                Log.d("Catch OnClickExpenseItemList event, debtId = ${`object`.myDebtId}, expenseId = ${`object`.myExpenseId}")
                                 getView()?.displayExpenseActivity(`object`.myDebtId, `object`.myExpenseId)
                             }
                         }
@@ -69,12 +70,9 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
     }
 
     override fun viewIsReady() {
-        Log.d("DebtActivity view id ready")
-        //getView()?.getEmail()?.length!! > 0
 
         getView()?.hideProgress()
 
-        Log.d("getting all contacts from db...")
         getAllContactsFromDB()
 
         if (::debt.isInitialized) {
@@ -82,7 +80,6 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
         }
 
         if (::friendsList.isInitialized && senderId != null) {
-            Log.d("view is ready, set senderId = $senderId")
 
             if (::contactIdToPositionMap.isInitialized && contactIdToPositionMap[senderId!!]!=null) {
                 getView()?.setSender(contactIdToPositionMap[senderId!!]!!)
@@ -91,14 +88,7 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
     }
 
     override fun viewIsPaused() {
-
-        Log.d("viewIsPaused, saving senderId...")
-        Log.d("getView()?.getSender() = ${getView()?.getSender()}")
-        Log.d("positionToContactIdMap = $positionToContactIdMap")
-        Log.d("positionToContactIdMap[getView()?.getSender()]?.uid = ${positionToContactIdMap[getView()?.getSender()]?.uid}")
-
         senderId = positionToContactIdMap[getView()?.getSender()]?.uid
-        //Log.d("view is paused, save senderId = $senderId")
     }
 
     override fun viewIsCreated() {
@@ -108,138 +98,13 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
         getView()?.hideClearButton()
     }
 
-    private fun getAndDisplayExpensesForDebt(debtId: String) {
-
-        MainApplication.db.expenseDAO().getExpensesForDebt(debtId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(object : DisposableMaybeObserver<List<Expense>>() {
-                    override fun onSuccess(expenseList: List<Expense>) {
-                        getView()?.hideProgress()
-
-                        expenseList.forEach { expense ->
-                            Log.d("expense: debtId = ${expense.debtId}, amount = ${expense.totalAmount}, receiversList = ${expense.receiversList}")
-                        }
-
-                        getView()?.initializeExpensesList(expenseList)
-                    }
-
-                    override fun onError(e: Throwable) {
-                        Log.d("error, ${e.toString()}")
-                    }
-
-                    override fun onComplete() {
-                        Log.d("nothing")
-                        getView()?.hideProgress()
-                    }
-                })
-    }
-
-    private fun displayContactsList(contactsList: List<com.macgavrina.co_accounting.room.Contact>) {
-
-        Log.d("contacts list is loaded")
-
-        if (contactsList.isEmpty()) {
-            getView()?.showAlertAndGoToContacts("Please add at least one contact first")
-        }
-
-        friendsList = arrayOfNulls<String>(contactsList.size)
-        contactsIdToNameMap = mutableMapOf()
-        positionToContactIdMap = mutableMapOf()
-        contactIdToPositionMap = mutableMapOf()
-        var i = 0
-
-        contactsList.forEach { contact ->
-            friendsList[i] = contact.alias.toString()
-
-            contactsIdToNameMap[contact.uid.toString()] = contact
-            positionToContactIdMap[i] = contact
-            contactIdToPositionMap[contact.uid] = i
-            i = i + 1
-        }
-
-        Log.d("$contactsList")
-        Log.d("contactsIdToNameMap = $contactsIdToNameMap")
-        Log.d("positionToContactIdMap = $positionToContactIdMap")
-        Log.d("contactIdToPositionMap = $contactIdToPositionMap")
-
-
-        getView()?.setupSenderSpinner(friendsList)
-
-        if (senderId == null) {
-
-            if (::debt.isInitialized &&  debt.senderId != null && debt.senderId!!.isNotEmpty() && debt.senderId != "null") {
-                Log.d("setSender, ${debt.senderId}")
-
-                    if (::contactIdToPositionMap.isInitialized && contactIdToPositionMap[debt.senderId?.toInt()] != null) {
-                        getView()?.setSender(contactIdToPositionMap[debt.senderId?.toInt()]!!)
-                    }
-            }
-        }
-    }
-
-    private fun displayDatabaseError() {
-        getView()?.displayToast("Database error")
-        getView()?.hideProgress()
-    }
-
-
-    private fun getAndDisplayDebtDraft() {
-        MainApplication.db.debtDAO().getDebtDraft("draft")
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(object : DisposableMaybeObserver<Debt>() {
-                    override fun onSuccess(debt: Debt) {
-
-                        Log.d("draft debt id = ${debt.uid}")
-
-                        this@DebtActivityPresenter.debt = debt
-                        displayDebtData()
-
-                        getView()?.showClearButton()
-
-                        getAndDisplayExpensesForDebt(debt.uid.toString())
-                    }
-
-                    override fun onError(e: Throwable) {
-                        Log.d(e.toString())
-                    }
-
-                    override fun onComplete() {
-                        addAndDisplayDebtDraft()
-                    }
-                })
-    }
-
-    private fun addAndDisplayDebtDraft() {
-
-        Completable.fromAction {
-            val debt = Debt()
-            debt.status = "draft"
-            debt.datetime = System.currentTimeMillis().toString()
-            MainApplication.db.debtDAO().insertDebt(debt)
-        }.observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io()).subscribe(object : CompletableObserver {
-                    override fun onSubscribe(d: Disposable) {}
-
-                    override fun onComplete() {
-                        getAndDisplayDebtDraft()
-                    }
-
-                    override fun onError(e: Throwable) {
-                        Log.d("Error adding debt draft, $e")
-                        displayDatabaseError()
-                    }
-                })
-    }
-
     override fun inputTextFieldsAreEmpty(areFilled: Boolean) {
         addDebtButtonEnabled = areFilled
     }
 
-    override fun addButtonIsPressed() {
+    override fun doneButtonIsPressed() {
 
-        Log.d("handle add button pressed - update debt")
+        Log.d("Done button is pressed")
         getView()?.hideKeyboard()
         getView()?.showProgress()
 
@@ -268,10 +133,9 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
         updateDebtInDB(debt)
     }
 
-    override fun addReceiverButtonIsPressed() {
-
+    override fun addExpenseButtonIsPressed() {
+        Log.d("Add expense button is pressed")
         getView()?.displayExpenseActivity(debt.uid, null)
-
     }
 
     override fun debtIdIsReceiverFromMainActivity(debtId: Int?) {
@@ -286,6 +150,8 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
     }
 
     override fun deleteButtonIsPressed() {
+
+        Log.d("Delete button is pressed")
         Completable.fromAction {
             MainApplication.db.debtDAO().deleteDebt(debt.uid.toString(), "deleted")
         }.observeOn(AndroidSchedulers.mainThread())
@@ -293,6 +159,7 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
                     override fun onSubscribe(d: Disposable) {}
 
                     override fun onComplete() {
+                        Log.d("Debt is deleted")
                         MainApplication.bus.send(Events.DebtIsDeleted(debt))
                         getView()?.finishSelf()
                     }
@@ -305,10 +172,14 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
     }
 
     override fun clearButtonIsPressed() {
+
+        Log.d("Clear debt button is pressed")
+
         debt.datetime = System.currentTimeMillis().toString()
         debt.spentAmount = ""
         debt.comment = ""
         debt.senderId = ""
+
         Completable.fromAction {
             MainApplication.db.debtDAO().updateDebt(debt)
         }.observeOn(AndroidSchedulers.mainThread())
@@ -316,6 +187,7 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
                     override fun onSubscribe(d: Disposable) {}
 
                     override fun onComplete() {
+                        Log.d("Debt is updated with empty values, deleting related expenses")
                         Completable.fromAction {
                             MainApplication.db.expenseDAO().deleteExpensesForDebt(debt.uid.toString())
                         }
@@ -326,10 +198,11 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
                                     override fun onSubscribe(d: Disposable) {}
 
                                     override fun onError(e: Throwable) {
-                                        Log.d(e.toString())
+                                        Log.d("Error deleting expenses from DB, $e")
                                     }
 
                                     override fun onComplete() {
+                                        Log.d("Expenses for debt are deleted")
                                         getAndDisplayDebtDraft()
                                     }
                                 })
@@ -370,41 +243,67 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
         updateDebtInDB(debt)
     }
 
-    private fun updateDebtInDB(debt: Debt) {
-
-        Completable.fromAction {
-            MainApplication.db.debtDAO().updateDebt(debt)
-        }.observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io()).subscribe(object : CompletableObserver {
-                    override fun onSubscribe(d: Disposable) {}
-
-                    override fun onComplete() {
-                        //getView()?.hideProgress()
-
-                        Log.d("debt is updated")
-                        //MainApplication.bus.send(Events.DebtIsAdded())
-                        getView()?.finishSelf()
-                    }
-
-                    override fun onError(e: Throwable) {
-                        Log.d("Error updating debt, $e")
-                        displayDatabaseError()
-                    }
-                })
-    }
-
     private fun getAndDisplayDebtById(debtId: String) {
-        MainApplication.db.debtDAO().getDebtByIds(debtId.toString())
+
+        Log.d("Receiving debt data from DB")
+        MainApplication.db.debtDAO().getDebtByIds(debtId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(object : DisposableMaybeObserver<Debt>() {
                     override fun onSuccess(debt: Debt) {
-                        Log.d("onDebtLoaded, display data...")
+                        Log.d("Debt is received from DB, = $debt")
                         this@DebtActivityPresenter.debt = debt
-
                         getView()?.showDeleteButton()
-
                         displayDebtData()
+                        getAndDisplayExpensesForDebt(debt.uid.toString())
+                    }
+
+                    override fun onError(e: Throwable) {
+                        Log.d("Error receiving debt data from DB")
+                        Log.d(e.toString())
+                    }
+
+                    override fun onComplete() {
+                        Log.d("No debt for specified id exist")
+                    }
+                })
+    }
+
+    private fun getAllContactsFromDB() {
+
+        Log.d("Getting contacts from DB...")
+        MainApplication.db.contactDAO().getAll("active")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : DisposableMaybeObserver<List<com.macgavrina.co_accounting.room.Contact>>() {
+                    override fun onSuccess(contactsList: List<com.macgavrina.co_accounting.room.Contact>) {
+                        Log.d("Contacts are received from DB, size = ${contactsList.size}")
+                        displayContactsList(contactsList)
+                    }
+
+                    override fun onError(e: Throwable) {
+                        Log.d("Error getting contacts from DB, $e")
+                    }
+
+                    override fun onComplete() {
+                        Log.d("There is no contacts in DB")
+                    }
+                })
+    }
+
+    private fun getAndDisplayDebtDraft() {
+
+        Log.d("Getting debt draft from DB")
+        MainApplication.db.debtDAO().getDebtDraft("draft")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : DisposableMaybeObserver<Debt>() {
+                    override fun onSuccess(debt: Debt) {
+                        Log.d("Debt draft is received from DB, = $debt")
+                        this@DebtActivityPresenter.debt = debt
+                        displayDebtData()
+
+                        getView()?.showClearButton()
 
                         getAndDisplayExpensesForDebt(debt.uid.toString())
                     }
@@ -414,7 +313,31 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
                     }
 
                     override fun onComplete() {
-                        Log.d("No debt for specified id exist")
+                        addAndDisplayDebtDraft()
+                    }
+                })
+    }
+
+    private fun getAndDisplayExpensesForDebt(debtId: String) {
+
+        Log.d("Getting expenses for debt...")
+
+        MainApplication.db.expenseDAO().getExpensesForDebt(debtId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : DisposableMaybeObserver<List<Expense>>() {
+                    override fun onSuccess(expenseList: List<Expense>) {
+                        Log.d("Expenses are received from DB, size = ${expenseList.size}")
+                        getView()?.hideProgress()
+                        getView()?.initializeExpensesList(expenseList)
+                    }
+
+                    override fun onError(e: Throwable) {
+                        Log.d("Error getting expenses from DB, $e")
+                    }
+
+                    override fun onComplete() {
+                        getView()?.hideProgress()
                     }
                 })
     }
@@ -448,21 +371,87 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
         }
     }
 
-    private fun getAllContactsFromDB() {
-        MainApplication.db.contactDAO().getAll("active")
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(object : DisposableMaybeObserver<List<com.macgavrina.co_accounting.room.Contact>>() {
-                    override fun onSuccess(contactsList: List<com.macgavrina.co_accounting.room.Contact>) {
-                        displayContactsList(contactsList)
+    private fun displayContactsList(contactsList: List<com.macgavrina.co_accounting.room.Contact>) {
+
+        if (contactsList.isEmpty()) {
+            getView()?.showAlertAndGoToContacts("Please add at least one contact first")
+        }
+
+        friendsList = arrayOfNulls<String>(contactsList.size)
+        contactsIdToNameMap = mutableMapOf()
+        positionToContactIdMap = mutableMapOf()
+        contactIdToPositionMap = mutableMapOf()
+        var i = 0
+
+        contactsList.forEach { contact ->
+            friendsList[i] = contact.alias.toString()
+
+            contactsIdToNameMap[contact.uid.toString()] = contact
+            positionToContactIdMap[i] = contact
+            contactIdToPositionMap[contact.uid] = i
+            i = i + 1
+        }
+
+
+        getView()?.setupSenderSpinner(friendsList)
+
+        if (senderId == null) {
+
+            if (::debt.isInitialized &&  debt.senderId != null && debt.senderId!!.isNotEmpty() && debt.senderId != "null") {
+
+                if (::contactIdToPositionMap.isInitialized && contactIdToPositionMap[debt.senderId?.toInt()] != null) {
+                    getView()?.setSender(contactIdToPositionMap[debt.senderId?.toInt()]!!)
+                }
+            }
+        }
+    }
+
+    private fun displayDatabaseError() {
+        getView()?.displayToast("Database error")
+        getView()?.hideProgress()
+    }
+
+    private fun updateDebtInDB(debt: Debt) {
+
+        Log.d("Updating debt in DB...")
+
+        Completable.fromAction {
+            MainApplication.db.debtDAO().updateDebt(debt)
+        }.observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io()).subscribe(object : CompletableObserver {
+                    override fun onSubscribe(d: Disposable) {}
+
+                    override fun onComplete() {
+                        Log.d("Debt is updated")
+                        getView()?.finishSelf()
                     }
 
                     override fun onError(e: Throwable) {
-                        Log.d(e.toString())
+                        Log.d("Error updating debt, $e")
+                        displayDatabaseError()
                     }
+                })
+    }
+
+    private fun addAndDisplayDebtDraft() {
+
+        Completable.fromAction {
+            val debt = Debt()
+            debt.status = "draft"
+            debt.datetime = System.currentTimeMillis().toString()
+            MainApplication.db.debtDAO().insertDebt(debt)
+        }.observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io()).subscribe(object : CompletableObserver {
+                    override fun onSubscribe(d: Disposable) {}
 
                     override fun onComplete() {
-                        Log.d("There is no contacts in DB")
+                        Log.d("Debt is added")
+                        getAndDisplayDebtDraft()
+                    }
+
+                    override fun onError(e: Throwable) {
+                        Log.d("Error adding debt draft, $e")
+                        displayDatabaseError()
                     }
                 })
     }

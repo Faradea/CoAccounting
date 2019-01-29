@@ -27,7 +27,7 @@ interface AddContactContract {
 
     interface Presenter:BasePresenterContract<View> {
 
-        fun addButtonIsPressed()
+        fun doneButtonIsPressed()
 
         fun deleteButtonIsPressed()
 

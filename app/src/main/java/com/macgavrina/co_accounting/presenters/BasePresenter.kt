@@ -38,6 +38,5 @@ abstract class BasePresenter<T : BaseViewContract> : BasePresenterContract<T> {
     }
 
     override fun viewIsCreated() {
-        Log.d("view is created")
     }
 }

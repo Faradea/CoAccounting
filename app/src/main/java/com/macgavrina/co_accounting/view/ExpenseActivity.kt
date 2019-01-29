@@ -16,7 +16,6 @@ import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.adapters.NotSelectedReceiversRecyclerViewAdapter
 import com.macgavrina.co_accounting.adapters.SelectedReceiversRecyclerViewAdapter
 import com.macgavrina.co_accounting.interfaces.AddReceiverInAddDebtContract
-import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.presenters.ExpensePresenter
 import com.macgavrina.co_accounting.room.Contact
 import kotlinx.android.synthetic.main.add_receiver_dialog_fragment.*
@@ -72,7 +71,6 @@ class ExpenseActivity : AppCompatActivity(), AddReceiverInAddDebtContract.View, 
         add_receiver_dialog_fragment_selected_members_lv.layoutManager = viewManagerForSelected
 
         add_receiver_dialog_fragment_delete_fab.setOnClickListener { _ ->
-            Log.d("delete button is pressed")
             presenter.deleteButtonIsPressed()
         }
 
@@ -89,7 +87,6 @@ class ExpenseActivity : AppCompatActivity(), AddReceiverInAddDebtContract.View, 
 
         when (item.itemId) {
             R.id.action_menu_done -> {
-                Log.d("done button is pressed")
                 presenter.saveButtonIsPressed()
                 return true
             }

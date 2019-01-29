@@ -36,7 +36,6 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
         super.attachView(baseViewContract)
 
         subscribeToEventBus()
-
     }
 
     override fun detachView() {
@@ -52,6 +51,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
                     .subscribe { `object` ->
                         when (`object`) {
                             is Events.NewContactIsAddedToSelectedReceiversList -> {
+                                Log.d("Catch Events.NewContactIsAddedToSelectedReceiversList event")
                                 val contact = `object`.myContact
                                 notSelectedContactsList.remove(contact)
                                 selectedContactsList.add(contact!!)
@@ -65,6 +65,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
                                 getView()?.initializeSelectedReceiversList(selectedContactsList, amountPerPerson)
                             }
                             is Events.onClickSelectedReceiverOnAddExpenseFragment -> {
+                                Log.d("Catch Events.onClickSelectedReceiverOnAddExpenseFragment event")
                                 val contact = `object`.myContact
                                 selectedContactsList.remove(contact)
                                 notSelectedContactsList.add(contact)
@@ -91,10 +92,12 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
     }
 
     override fun debtIdIsReceiverFromMainActivity(debtId: Int) {
+        Log.d("DebtId is received from MainActivity, = $debtId")
         this.debtId = debtId
     }
 
     override fun expenseIdIsReceivedFromMainActivity(expenseId: Int) {
+        Log.d("ExpenseId is received from MainActivity, = $expenseId, getting expense data from DB...")
         this.expenseId = expenseId
 
         MainApplication.db.expenseDAO().getExpenseByIds(expenseId.toString())
@@ -102,35 +105,36 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(object : DisposableMaybeObserver<Expense>() {
                     override fun onSuccess(expense: Expense) {
+                        Log.d("Expense is received from DB, = $expense")
                         this@ExpensePresenter.expense = expense
 
                         getView()?.showDeleteButton()
 
                         getView()?.setAmount(expense.totalAmount)
 
+                        Log.d("Getting receivers with amount for expense...")
                         MainApplication.db.receiverWithAmountForDBDAO().getReceiversWithAmountForExpense(expense.uid.toString())
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(object : DisposableMaybeObserver<List<ReceiverWithAmountForDB>>() {
                                     override fun onSuccess(receiversWithAmountList: List<ReceiverWithAmountForDB>) {
-                                        Log.d("success")
+                                        Log.d("Receivers with amount are received from DB, size = ${receiversWithAmountList.size}")
                                         this@ExpensePresenter.receiversWithAmountList = receiversWithAmountList as MutableList<ReceiverWithAmountForDB>
                                         receiversWithAmountListIsLoaded = true
                                         updateReceiverWithAmountListWithDataFromDB()
                                     }
 
                                     override fun onError(e: Throwable) {
-                                        Log.d("error, ${e.toString()}")
+                                        Log.d("Error getting receivers with amount from DB, $e")
                                     }
 
                                     override fun onComplete() {
-                                        Log.d("nothing")
                                     }
                                 })
                     }
 
                     override fun onError(e: Throwable) {
-                        Log.d(e.toString())
+                        Log.d("Error getting expense from DB, $e")
                     }
 
                     override fun onComplete() {
@@ -140,6 +144,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
     }
 
     override fun amountIsEdited(newAmount: Float) {
+        Log.d("Amount is edited, new value = $newAmount")
         if (selectedContactsList.isNotEmpty()) {
             amountPerPerson = DecimalFormat("##.##").format(newAmount/selectedContactsList.size)
             getView()?.initializeSelectedReceiversList(selectedContactsList, amountPerPerson)
@@ -148,18 +153,18 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
     }
 
     override fun viewIsReady() {
-
         getAndDisplayAllContacts()
         getView()?.hideDeleteButton()
-
     }
 
     override fun cancelButtonInToolbarIsClicked() {
+        Log.d("Cancel button in toolbar is clicked")
         getView()?.hideKeyboard()
         MainApplication.bus.send(Events.HideAddReceiverInAddDebtFragment(false))
     }
 
     override fun saveButtonIsPressed() {
+        Log.d("Save button is pressed")
 
         getView()?.hideKeyboard()
 
@@ -188,7 +193,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
             expense!!.receiversList = receiversListString
             expense!!.debtId = debtId
 
-            Log.d("add expense: debtId = ${expense!!.debtId}, receiversList = ${expense!!.receiversList}, amount = ${expense!!.totalAmount}")
+            Log.d("Adding new expense to DB, expense = $expense")
 
             Completable.fromAction {
                 MainApplication.db.expenseDAO().insertExpense(expense!!)
@@ -200,10 +205,11 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
                         override fun onSubscribe(d: Disposable) {}
 
                         override fun onError(e: Throwable) {
-                            Log.d(e.toString())
+                            Log.d("Error adding expense to DB, $e")
                         }
 
                         override fun onComplete() {
+                            Log.d("Expense is added to DB, getting it's id...")
                             MainApplication.db.expenseDAO().getLastExpenseId()
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(AndroidSchedulers.mainThread())
@@ -213,7 +219,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
                                                 receiversWithAmount.expenseId = uid.toString()
                                             }
 
-                                            Log.d("saving receiverWithAmountList for expenseId = $uid")
+                                            Log.d("Saving receiverWithAmountList for expenseId = $uid")
 
 
                                             Completable.fromAction {
@@ -223,24 +229,21 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
                                                         override fun onSubscribe(d: Disposable) {}
 
                                                         override fun onComplete() {
-                                                            Log.d("receiver with amount list is added")
-
+                                                            Log.d("Receiver with amount list is saved in DB")
                                                             getView()?.finishSelf()
-                                                            //MainApplication.bus.send(Events.ReceiversWithAmountInAddDebtIsSaved())
                                                         }
 
                                                         override fun onError(e: Throwable) {
-                                                            Log.d("Error adding receivers with amount for DB")
+                                                            Log.d("Error adding receivers with amount for DB, $e")
                                                         }
                                                     })
                                         }
 
                                         override fun onError(e: Throwable) {
-                                            Log.d(e.toString())
+                                            Log.d("Error getting added expense id from DB, $e")
                                         }
 
                                         override fun onComplete() {
-                                            Log.d("nothing")
                                         }
                                     })
                         }
@@ -251,6 +254,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
             expense!!.receiversList = receiversListString
             expense!!.debtId = debtId
 
+            Log.d("Updating existing expense in DB, $expense")
             Completable.fromAction {
                 MainApplication.db.expenseDAO().updateExpense(expense!!)
             }
@@ -261,10 +265,11 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
                         override fun onSubscribe(d: Disposable) {}
 
                         override fun onError(e: Throwable) {
-                            Log.d(e.toString())
+                            Log.d("Error updating expense, $e")
                         }
 
                         override fun onComplete() {
+                            Log.d("Expense is updated, deleting old receivers with amount for this expense...")
                             Completable.fromAction {
                                 MainApplication.db.receiverWithAmountForDBDAO().deleteReceiversWithAmountForExpense(expense?.uid.toString())
                             }.observeOn(AndroidSchedulers.mainThread())
@@ -272,6 +277,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
                                         override fun onSubscribe(d: Disposable) {}
 
                                         override fun onComplete() {
+                                            Log.d("Old receivers with amount are deleted, adding new list...")
                                             receiversWithAmountList?.forEach { receiversWithAmount ->
                                                 receiversWithAmount.expenseId = expense?.uid.toString()
                                             }
@@ -283,17 +289,18 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
                                                         override fun onSubscribe(d: Disposable) {}
 
                                                         override fun onComplete() {
-                                                            //ToDo Hide loader
+                                                            Log.d("New receivers with amount for updated expense are added")
+                                                            getView()?.finishSelf()
                                                         }
 
                                                         override fun onError(e: Throwable) {
-                                                            Log.d("$e")
+                                                            Log.d("Error adding new receivers with amount for expense, $e")
                                                         }
                                                     })
                                         }
 
                                         override fun onError(e: Throwable) {
-                                            Log.d("$e")
+                                            Log.d("Error deleting old receiver with amount for expense, $e")
                                         }
                                     })
                         }
@@ -302,6 +309,8 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
     }
 
     override fun deleteButtonIsPressed() {
+
+        Log.d("Delete button is pressed, deleting expense from DB...")
 
         Completable.fromAction {
             MainApplication.db.expenseDAO().deleteExpense(expense!!)
@@ -313,10 +322,11 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
                     override fun onSubscribe(d: Disposable) {}
 
                     override fun onError(e: Throwable) {
-                        Log.d(e.toString())
+                        Log.d("Error deleting expense, $e")
                     }
 
                     override fun onComplete() {
+                        Log.d("Expense is deleted")
                         getView()?.finishSelf()
                         //MainApplication.bus.send(Events.HideAddReceiverInAddDebtFragment(true))
                     }
@@ -327,11 +337,9 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
 
         if (receiversWithAmountListIsLoaded && contactsListIsLoaded) {
 
-            Log.d("go through receiversWithAmountList with ${receiversWithAmountList.size} items")
             receiversWithAmountList.forEach { receiversWithAmount ->
 
                 val contactId = receiversWithAmount.contactId
-                Log.d("go throw receiversWithAmountList, for contactId = $contactId")
                 val contact = contactsListToIdMap!![contactId!!]
                 selectedContactsList.add(contact!!)
                 notSelectedContactsList.remove(contact)
@@ -351,11 +359,14 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
     }
 
     private fun getAndDisplayAllContacts() {
+
+        Log.d("Getting all contacts from DB...")
         MainApplication.db.contactDAO().getAll("active")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(object : DisposableMaybeObserver<List<com.macgavrina.co_accounting.room.Contact>>() {
                     override fun onSuccess(contactsList: List<com.macgavrina.co_accounting.room.Contact>) {
+                        Log.d("Contacts are received, size = ${contactsList.size}")
                         this@ExpensePresenter.contactsList = contactsList
                         amountPerPerson = "0"
                         notSelectedContactsList.clear()
@@ -373,7 +384,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
                     }
 
                     override fun onError(e: Throwable) {
-                        Log.d(e.toString())
+                        Log.d("Error receiving contacts, $e")
                     }
 
                     override fun onComplete() {

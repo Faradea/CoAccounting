@@ -1,6 +1,5 @@
 package com.macgavrina.co_accounting.view
 
-import android.accounts.Account
 import android.content.DialogInterface
 import android.os.Bundle
 import com.google.android.material.navigation.NavigationView
@@ -13,21 +12,21 @@ import android.widget.Toast
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.interfaces.MainActivityContract
-import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.presenters.MainActivityPresenter
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.nav_header_main.view.*
 import android.content.Intent
 import com.google.android.material.snackbar.Snackbar
+import com.macgavrina.co_accounting.logging.Log
 import kotlinx.android.synthetic.main.content_main.*
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, MainActivityContract.View {
 
-    var isBackPressed = false
+    private var isBackPressed = false
+    private var debtFragmentIsDisplayed = false
     lateinit var presenter: MainActivityPresenter
-    lateinit var account: Account
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,10 +55,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         nav_view.setNavigationItemSelectedListener(this)
 
-        initView()
+        presenter.viewIsCreated()
 
         nav_view.menu.getItem(1).isChecked = true
-        presenter.gotoDebts()
+        presenter.gotoDebts(true)
     }
 
     override fun onResume() {
@@ -75,26 +74,38 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             return
         }
 
-        val supportFragmentManager = supportFragmentManager
-        var count = supportFragmentManager.getBackStackEntryCount()
-        Log.d("count = $count")
-        if (count > 0) {
-            if (count == 1) {
-
-                if (isBackPressed) {
-                    super.onBackPressed()
-                    super.onBackPressed()
-                } else {
-                    displayDebtsFragment()
-                    nav_view.menu.getItem(1).isChecked = true
-                    Toast.makeText(this, "Press back again to exit", Toast.LENGTH_SHORT).show()
-                    isBackPressed = true
-                }
-
-            } else {
-                super.onBackPressed()
-            }
+        if (debtFragmentIsDisplayed && !isBackPressed) {
+            Toast.makeText(this, "Press back again to exit", Toast.LENGTH_SHORT).show()
+            isBackPressed = true
+            return
         }
+
+        if (!debtFragmentIsDisplayed) {
+            debtFragmentIsDisplayed = true
+            nav_view.menu.getItem(1).isChecked = true
+        }
+
+        super.onBackPressed()
+
+//        val supportFragmentManager = supportFragmentManager
+//        var count = supportFragmentManager.getBackStackEntryCount()
+//        if (count > 0) {
+//            if (count == 1) {
+//
+//                if (isBackPressed) {
+//                    super.onBackPressed()
+//                    super.onBackPressed()
+//                } else {
+//                    displayDebtsFragment()
+//                    nav_view.menu.getItem(1).isChecked = true
+//                    Toast.makeText(this, "Press back again to exit", Toast.LENGTH_SHORT).show()
+//                    isBackPressed = true
+//                }
+//
+//            } else {
+//                super.onBackPressed()
+//            }
+//        }
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -104,7 +115,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 presenter.gotoContactsEvent()
             }
             R.id.nav_debts -> {
-                presenter.gotoDebts()
+                presenter.gotoDebts(false)
+            }
+            R.id.nav_events -> {
+                presenter.gotoTrips()
             }
             R.id.nav_share -> {
                 presenter.prepareAndShareData()
@@ -131,10 +145,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         presenter.detachView()
     }
 
-    fun initView() {
-        presenter.viewIsCreated()
-    }
-
     override fun updateLoginText(login: String) {
         nav_view.getHeaderView(0).nav_header_main_tv.text = login
     }
@@ -142,7 +152,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun displayProfileFragment() {
         val supportFragmentManager = supportFragmentManager
         supportFragmentManager.beginTransaction()
-                .replace(R.id.content_main_constraint_layout, ProfileFragment())
+                .add(R.id.content_main_constraint_layout, ProfileFragment())
                 .addToBackStack("ProfileFragment")
                 .commit()
     }
@@ -151,20 +161,28 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         clearStack()
         val supportFragmentManager = supportFragmentManager
         supportFragmentManager.beginTransaction()
-                .replace(R.id.content_main_constraint_layout, ContactsFragment())
+                .add(R.id.content_main_constraint_layout, ContactsFragment())
                 .addToBackStack("ContactsFragment")
+                .commit()
+    }
+
+    override fun displayTripsFragment() {
+        clearStack()
+        val supportFragmentManager = supportFragmentManager
+        supportFragmentManager.beginTransaction()
+                .add(R.id.content_main_constraint_layout, TripsFragment())
+                .addToBackStack("TripsFragment")
                 .commit()
     }
 
     override fun displayRegisterFragment(enteredLogin: String?) {
         val supportFragmentManager = supportFragmentManager
-        val registerFragment:RegisterFragment = RegisterFragment()
-        val bundle:Bundle = Bundle()
+        val registerFragment = RegisterFragment()
+        val bundle = Bundle()
         bundle.putString(LoginFragment.ENTERED_LOGIN_KEY, enteredLogin)
-        Log.d("enteredLogin = ${enteredLogin}")
         registerFragment.arguments = bundle
         supportFragmentManager.beginTransaction()
-                .replace(R.id.content_main_constraint_layout, registerFragment)
+                .add(R.id.content_main_constraint_layout, registerFragment)
                 .addToBackStack("RegisterFragment")
                 .commit()
     }
@@ -181,15 +199,23 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         startActivity(intent)
     }
 
-    override fun displayDebtsFragment() {
+    override fun displayDebtsFragment(isInitial: Boolean) {
         clearStack()
-        Log.d("display debts fragment")
-        clearStack()
-        val supportFragmentManager = supportFragmentManager
-        supportFragmentManager.beginTransaction()
-                .replace(R.id.content_main_constraint_layout, DebtsFragment())
-                .addToBackStack("DebtsFragment")
-                .commit()
+
+        debtFragmentIsDisplayed = true
+
+        if (!isInitial) {
+            val supportFragmentManager = supportFragmentManager
+            supportFragmentManager.beginTransaction()
+                    .add(R.id.content_main_constraint_layout, DebtsFragment())
+                    .addToBackStack("DebtsFragment")
+                    .commit()
+        } else {
+            val supportFragmentManager = supportFragmentManager
+            supportFragmentManager.beginTransaction()
+                    .replace(R.id.content_main_constraint_layout, DebtsFragment())
+                    .commit()
+        }
     }
 
     override fun showProgress() {
@@ -219,7 +245,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         val supportFragmentManager = supportFragmentManager
         supportFragmentManager.beginTransaction()
-                .replace(R.id.content_main_constraint_layout, loginFragment)
+                .add(R.id.content_main_constraint_layout, loginFragment)
                 .addToBackStack("LoginFragment")
                 .commit()
     }
@@ -235,7 +261,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         val supportFragmentManager = supportFragmentManager
         supportFragmentManager.beginTransaction()
-                .replace(R.id.content_main_constraint_layout, recoverPasswordFragment)
+                .add(R.id.content_main_constraint_layout, recoverPasswordFragment)
                 .addToBackStack("RecoverPasswordFragment")
                 .commit()
     }
@@ -246,7 +272,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         alertDialogBuilder.setMessage(text)
                 .setTitle(title)
         alertDialogBuilder.setPositiveButton("Ok", DialogInterface.OnClickListener { dialog, id ->
-            Log.d("ok button")
             displayLoginFragment(enteredLogin)
         })
         val alertDialog: AlertDialog = alertDialogBuilder.create()
@@ -259,7 +284,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         alertDialogBuilder.setMessage(text)
                 .setTitle(title)
         alertDialogBuilder.setPositiveButton("Ok", DialogInterface.OnClickListener { dialog, id ->
-            Log.d("ok button")
             displayMainFragment()
         })
         val alertDialog: AlertDialog = alertDialogBuilder.create()
@@ -283,6 +307,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             intent.putExtra("contactId", -1)
         } else {
             intent.putExtra("contactId", contactId?.toInt())
+        }
+        startActivity(intent)
+    }
+
+    override fun displayAddTripFragment(tripId: String?) {
+        isBackPressed = false
+
+        val intent = Intent()
+        intent.action = "com.macgavrina.indebt.TRIP"
+        if (tripId == null) {
+            intent.putExtra("tripId", -1)
+        } else {
+            intent.putExtra("tripId", tripId?.toInt())
         }
         startActivity(intent)
     }
@@ -342,6 +379,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun clearStack() {
         isBackPressed = false
+        debtFragmentIsDisplayed = false
         val supportFragmentManager = supportFragmentManager
         var count = supportFragmentManager.getBackStackEntryCount()
         while (count >= 0) {
@@ -387,7 +425,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun displayOnDeleteContactSnackBar() {
         val snackBar = Snackbar.make(content_main_constraint_layout, "Contact is deleted", Snackbar.LENGTH_LONG)
         snackBar!!.setAction("Undo") {
-            Log.d("snackBar: undo action is pressed")
             snackBar?.dismiss()
 //            if (main_webview_fragment_webview.canGoBack()) {
 //                main_webview_fragment_webview.goBack()

@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
-import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.rxjava.Events
 import kotlinx.android.synthetic.main.not_selected_receivers_list_item.view.*
@@ -33,7 +32,6 @@ class NotSelectedReceiversRecyclerViewAdapter (contactsList: List<Contact>?) :
 
         override fun onClick(view: View) {
 
-            Log.d( "onClick ${mItem?.uid}")
             MainApplication.bus.send(Events.NewContactIsAddedToSelectedReceiversList(mItem))
         }
 
@@ -55,7 +53,6 @@ class NotSelectedReceiversRecyclerViewAdapter (contactsList: List<Contact>?) :
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
 
-        Log.d("Bind item with position = ${position}")
         val item = mItems?.get(position)
         holder.receiverName.text = item?.alias
         holder.setItem(mItems?.get(position)!!)

@@ -5,7 +5,7 @@ import com.macgavrina.co_accounting.room.Debt
 
 object Events {
 
-    //ToDo REFACT добавить подкатегории
+    //ToDo REFACT add subcategories
     class FromRegisterToLoginEvent(enteredLogin: String?) {
         val myEnteredLogin = enteredLogin
     }
@@ -58,6 +58,8 @@ object Events {
     class AddDebt
 
     class DebtIsAdded
+
+    class AddTrip
 
     class AddDebtReceiverWithAmountListIsChanged(positionInList: Int, newText: String) {
         val myPositionInList = positionInList

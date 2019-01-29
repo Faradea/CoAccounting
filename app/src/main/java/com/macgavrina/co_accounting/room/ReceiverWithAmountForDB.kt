@@ -16,7 +16,7 @@ class ReceiverWithAmountForDB {
         get
 
 
-    //ToDo REFACT добавить в индексы
+    //ToDo REFACT Add to indexes
     @ColumnInfo(name = "contactId")
     public var contactId: String? = null
         set

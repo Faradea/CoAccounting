@@ -14,8 +14,6 @@ import io.reactivex.schedulers.Schedulers
 
 class SyncService() {
 
-    //ToDo REFACT сделать singleton и syncronized syncData
-
 //    companion object {
 //
 //        const val SYNC_UPLOAD = "upload"

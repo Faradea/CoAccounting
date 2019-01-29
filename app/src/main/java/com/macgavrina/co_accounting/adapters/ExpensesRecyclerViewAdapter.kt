@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
-import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.Expense
 import com.macgavrina.co_accounting.rxjava.Events
 import kotlinx.android.synthetic.main.add_receiver_list_item.view.*
@@ -34,7 +33,6 @@ class ExpensesRecyclerViewAdapter (expensesList: List<Expense>?) :
         }
 
         override fun onClick(view: View) {
-            Log.d( "onClick ${mItem?.uid}")
             MainApplication.bus.send(Events.OnClickExpenseItemList(mItem?.uid!!, mItem?.debtId!!))
         }
     }
@@ -55,7 +53,6 @@ class ExpensesRecyclerViewAdapter (expensesList: List<Expense>?) :
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
 
-        Log.d("Bind item with position = ${position}")
         val item = mItems?.get(position)
         holder.receiversList.text = item?.receiversList
         holder.amount.text = item?.totalAmount

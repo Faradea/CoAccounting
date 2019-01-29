@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
-import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.Debt
 import com.macgavrina.co_accounting.rxjava.Events
 import com.macgavrina.co_accounting.support.DateFormatter
@@ -36,7 +35,6 @@ class DebtsRecyclerViewAdapter (debtsList: List<Debt>?) :
         }
 
         override fun onClick(view: View) {
-            Log.d( "onClick ${mItem?.uid}")
             MainApplication.bus.send(Events.OnClickDebtItemList(mItem?.uid.toString()))
         }
     }
@@ -59,7 +57,6 @@ class DebtsRecyclerViewAdapter (debtsList: List<Debt>?) :
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
 
-        Log.d("Bind item with position = ${position}")
         val item = mItems?.get(position)
 
         holder.amount.text = item?.spentAmount

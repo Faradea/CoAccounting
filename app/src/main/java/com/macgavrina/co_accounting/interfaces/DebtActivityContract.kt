@@ -54,9 +54,9 @@ interface DebtActivityContract {
 
     interface Presenter:BasePresenterContract<View> {
 
-        fun addButtonIsPressed()
+        fun doneButtonIsPressed()
 
-        fun addReceiverButtonIsPressed()
+        fun addExpenseButtonIsPressed()
 
         fun inputTextFieldsAreEmpty(areFilled: Boolean)
 

@@ -25,24 +25,15 @@ class DebtsPresenter: BasePresenter<DebtsContract.View>(), DebtsContract.Present
 
     override fun detachView() {
         super.detachView()
-
         unsubscribeFromEventBus()
     }
 
     override fun viewIsReady() {
-
-        Log.d("view is ready")
-
-        getView()?.showProgress()
-
         getAndDisplayAllDebts()
-
-        getView()?.hideProgress()
-
     }
 
     override fun addDebtButtonIsPressed() {
-        Log.d("is pressed")
+        Log.d("Add debt button is pressed")
         MainApplication.bus.send(Events.AddDebt())
     }
 
@@ -51,23 +42,28 @@ class DebtsPresenter: BasePresenter<DebtsContract.View>(), DebtsContract.Present
     }
 
     private fun getAndDisplayAllDebts() {
+
+        Log.d("Getting debts from DB...")
+
+        getView()?.showProgress()
+
         MainApplication.db.debtDAO().getAll("active")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(object : DisposableMaybeObserver<List<Debt>>() {
                     override fun onSuccess(debtsList: List<Debt>) {
+                        Log.d("Debts are received from DB, size = ${debtsList.size}")
                         getView()?.hideProgress()
-                        Log.d("debtsList = $debtsList")
                         getView()?.initializeList(debtsList)
                     }
 
                     override fun onError(e: Throwable) {
-                        Log.d("error, ${e.toString()}")
+                        getView()?.hideProgress()
+                        Log.d("Error getting debts list from DB, $e")
                     }
 
                     override fun onComplete() {
-                        //ToDo REFACT call dispose() here and in all onComplete
-                        Log.d("nothing")
+                        getView()?.hideProgress()
                     }
                 })
     }
@@ -80,15 +76,12 @@ class DebtsPresenter: BasePresenter<DebtsContract.View>(), DebtsContract.Present
                     .subscribe { `object` ->
                         when (`object`) {
                             is Events.DeletedDebtIsRestored -> {
-
-                                getView()?.showProgress()
-
+                                Log.d("Catch Events.DeletedDebtIsRestore event, updating debts list...")
                                 getAndDisplayAllDebts()
-
-                                getView()?.hideProgress()
                             }
 
                             is Events.DebtIsDeleted -> {
+                                Log.d("Catch Events.DebtIsDeleted event, display snackbar for cancel...")
                                 lastDeletedDebt = `object`.debt
                                 getView()?.displayOnDeleteDebtSnackBar()
                             }
@@ -105,6 +98,8 @@ class DebtsPresenter: BasePresenter<DebtsContract.View>(), DebtsContract.Present
     }
 
     override fun undoDeleteDebtButtonIsPressed() {
+
+        Log.d("Undo delete button is pressed")
         if (lastDeletedDebt == null) return
 
         lastDeletedDebt!!.status = "active"
@@ -115,6 +110,7 @@ class DebtsPresenter: BasePresenter<DebtsContract.View>(), DebtsContract.Present
                     override fun onSubscribe(d: Disposable) {}
 
                     override fun onComplete() {
+                        Log.d("Debt is restored")
                         lastDeletedDebt = null
                         MainApplication.bus.send(Events.DeletedDebtIsRestored())
                     }

@@ -14,16 +14,18 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.observers.DisposableMaybeObserver
 import io.reactivex.schedulers.Schedulers
 
-class AddContactPresenter: BasePresenter<AddContactContract.View>(), AddContactContract.Presenter {
+class ContactPresenter: BasePresenter<AddContactContract.View>(), AddContactContract.Presenter {
 
     lateinit var contact: Contact
 
     override fun viewIsReady() {
-
         getView()?.hideProgress()
     }
 
-    override fun addButtonIsPressed() {
+    override fun doneButtonIsPressed() {
+
+        Log.d("Done button is pressed")
+
         getView()?.hideKeyboard()
 
         getView()?.showProgress()
@@ -40,6 +42,7 @@ class AddContactPresenter: BasePresenter<AddContactContract.View>(), AddContactC
                         }
 
                         override fun onComplete() {
+                            Log.d("Contact is updated")
                             getView()?.finishSelf()
                         }
 
@@ -62,8 +65,8 @@ class AddContactPresenter: BasePresenter<AddContactContract.View>(), AddContactC
                         override fun onSubscribe(d: Disposable) {}
 
                         override fun onComplete() {
+                            Log.d("Contact is added")
                             getView()?.hideProgress()
-                            //getView()?.displayToast("Contact is added")
                             getView()?.finishSelf()
                         }
 
@@ -77,6 +80,9 @@ class AddContactPresenter: BasePresenter<AddContactContract.View>(), AddContactC
     }
 
     override fun contactIdIsReceiverFromMainActivity(contactId: String?) {
+
+        Log.d("ContactId is received from main activity, = $contactId")
+
         if (contactId != null) {
 
             MainApplication.db.contactDAO().loadContactByIds(contactId)
@@ -94,7 +100,6 @@ class AddContactPresenter: BasePresenter<AddContactContract.View>(), AddContactC
                         }
 
                         override fun onComplete() {
-                            Log.d("nothing")
                         }
                     })
         } else {
@@ -103,8 +108,10 @@ class AddContactPresenter: BasePresenter<AddContactContract.View>(), AddContactC
     }
 
     override fun deleteButtonIsPressed() {
-        //getView()?.showProgress()
 
+        Log.d("Delete button is pressed")
+
+        Log.d("Check if contact is used for debts as sender...")
         MainApplication.db.debtDAO().checkDebtsForContact(contact.uid.toString(), "active")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -114,46 +121,42 @@ class AddContactPresenter: BasePresenter<AddContactContract.View>(), AddContactC
 
                     override fun onSuccess(list: List<Debt>) {
                         if (list.isEmpty()) {
-                            checkReceiversWithAmountForContact(contact.uid.toString())
+
+                            Log.d("Contact isn't used as sender in debts, checking if he is present in expenses...")
+                            MainApplication.db.receiverWithAmountForDBDAO().checkReceiverWithAmountForContact(contact.uid.toString())
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(object : SingleObserver<Int> {
+                                        override fun onSubscribe(d: Disposable) {
+                                        }
+
+                                        override fun onSuccess(count: Int) {
+                                            if (count == 0) {
+                                                Log.d("Contacts hasn't been used in debts and expenses, delete ir...")
+                                                deleteContact(contact)
+                                            } else {
+                                                getView()?.displayAlert("Contact can't be deleted until it presents in debts", "Contact can't be deleted")
+                                            }
+                                        }
+
+                                        override fun onError(e: Throwable) {
+                                            Log.d("Error getting receivers with amount from DB, $e")
+                                        }
+
+                                    })
                         } else {
                             getView()?.displayAlert("Contact can't be deleted until it presents in debts", "Contact can't be deleted")
                         }
                     }
 
                     override fun onError(e: Throwable) {
-                        Log.d(e.toString())
+                        Log.d("Error getting debts for contact from db, $e")
                     }
                 })
 
     }
 
 
-    private fun checkReceiversWithAmountForContact(contactId: String) {
-
-        MainApplication.db.receiverWithAmountForDBDAO().checkReceiverWithAmountForContact(contactId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(object : SingleObserver<Int> {
-                    override fun onSubscribe(d: Disposable) {
-                    }
-
-                    override fun onSuccess(count: Int) {
-                        if (count == 0) {
-                            Log.d("delete data")
-
-                            deleteContact(contact)
-
-                        } else {
-                            getView()?.displayAlert("Contact can't be deleted until it presents in debts", "Contact can't be deleted")
-                        }
-                    }
-
-                    override fun onError(e: Throwable) {
-                        Log.d("error, ${e.toString()}")
-                    }
-
-                })
-    }
 
     private fun deleteContact(contact: Contact) {
 
@@ -167,6 +170,7 @@ class AddContactPresenter: BasePresenter<AddContactContract.View>(), AddContactC
                     }
 
                     override fun onComplete() {
+                        Log.d("Contact is deleted")
                         MainApplication.bus.send(Events.ContactIsDeleted(contact))
                         getView()?.finishSelf()
                     }
