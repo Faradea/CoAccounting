@@ -129,6 +129,10 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
                                 Log.d("Catch Events.OnClickDebtItemList event")
                                 getView()?.displayAddDebtFragment(`object`.myUid)
                             }
+                            is Events.OnClickTripList -> {
+                                Log.d("Catch Events.OnClickTripList event")
+                                getView()?.displayAddTripFragment(`object`.tripId)
+                            }
 //                        is Events.OnClickExpenseItemList -> {
 //                            getView()?.displayAddReceiverInAddDebtFragment(`object`.myDebtId, `object`.myExpenseId)
 //                        }

@@ -3,8 +3,13 @@ package com.macgavrina.co_accounting.presenters
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.interfaces.TripsContract
 import com.macgavrina.co_accounting.logging.Log
+import com.macgavrina.co_accounting.room.Debt
+import com.macgavrina.co_accounting.room.Trip
 import com.macgavrina.co_accounting.rxjava.Events
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import io.reactivex.observers.DisposableMaybeObserver
+import io.reactivex.schedulers.Schedulers
 
 class TripsPresenter: BasePresenter<TripsContract.View>(), TripsContract.Presenter {
 
@@ -59,26 +64,26 @@ class TripsPresenter: BasePresenter<TripsContract.View>(), TripsContract.Present
 
     private fun getAndDisplayAllTrips() {
         getView()?.showProgress()
-//        MainApplication.db.contactDAO().getAll("active")
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(object : DisposableMaybeObserver<List<Contact>>() {
-//                    override fun onSuccess(contactsList: List<com.macgavrina.co_accounting.room.Contact>) {
-//                        Log.d("Contacts list is received from DB, size = ${contactsList.size}")
-//                        getView()?.hideProgress()
-//                        getView()?.initializeList(contactsList)
-//                    }
-//
-//                    override fun onError(e: Throwable) {
-//                        Log.d("Error loading contacts from DB, $e")
-//                        getView()?.hideProgress()
-//                        getView()?.displayToast("Database error")
-//                    }
-//
-//                    override fun onComplete() {
-//                        getView()?.hideProgress()
-//                    }
-//                })
+        MainApplication.db.tripDAO().getAllByStatus("active")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : DisposableMaybeObserver<List<Trip>>() {
+                    override fun onSuccess(tripsList: List<Trip>) {
+                        Log.d("Trips list is received from DB, size = ${tripsList.size}")
+                        getView()?.hideProgress()
+                        getView()?.initializeList(tripsList)
+                    }
+
+                    override fun onError(e: Throwable) {
+                        Log.d("Error loading trips from DB, $e")
+                        getView()?.hideProgress()
+                        getView()?.displayToast("Database error")
+                    }
+
+                    override fun onComplete() {
+                        getView()?.hideProgress()
+                    }
+                })
     }
 
 }

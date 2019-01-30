@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
+import com.macgavrina.co_accounting.adapters.TripsRecyclerViewAdapter
 import com.macgavrina.co_accounting.interfaces.TripsContract
 import com.macgavrina.co_accounting.presenters.TripsPresenter
 import com.macgavrina.co_accounting.room.Trip
@@ -41,10 +42,10 @@ class TripsFragment: Fragment(), TripsContract.View {
     override fun onResume() {
         super.onResume()
 
-//        viewManager = LinearLayoutManager(MainApplication.applicationContext())
-//        trips_fragment_recyclerview.adapter = TripsRecyclerViewAdapter(null)
-//        trips_fragment_recyclerview.layoutManager = viewManager
-//        presenter.viewIsReady()
+        viewManager = LinearLayoutManager(MainApplication.applicationContext())
+        trips_fragment_recyclerview.adapter = TripsRecyclerViewAdapter(null)
+        trips_fragment_recyclerview.layoutManager = viewManager
+        presenter.viewIsReady()
     }
 
     override fun onDestroyView() {
@@ -63,7 +64,7 @@ class TripsFragment: Fragment(), TripsContract.View {
 
         if (tripsList.isNotEmpty()) {
             trips_fragment_empty_list_layout.visibility = View.INVISIBLE
-//            trips_fragment_recyclerview.adapter = TripsRecyclerViewAdapter(tripsList)
+            trips_fragment_recyclerview.adapter = TripsRecyclerViewAdapter(tripsList)
         } else {
             trips_fragment_empty_list_layout.visibility = View.VISIBLE
         }

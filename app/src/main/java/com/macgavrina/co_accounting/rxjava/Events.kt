@@ -4,6 +4,9 @@ import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.room.Debt
 
 object Events {
+    class OnClickTripList(inputTripId: String) {
+        val tripId = inputTripId
+    }
 
     //ToDo REFACT add subcategories
     class FromRegisterToLoginEvent(enteredLogin: String?) {

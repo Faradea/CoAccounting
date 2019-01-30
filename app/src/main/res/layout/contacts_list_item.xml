@@ -6,7 +6,7 @@
     android:layout_height="wrap_content">
 
     <TextView
-        android:id="@+id/contacts_list_item_alias_tv"
+        android:id="@+id/contacts_list_item_title_tv"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -18,7 +18,7 @@
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/debts_list_item_image"
+        app:layout_constraintStart_toEndOf="@+id/trips_list_item_image"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -33,11 +33,11 @@
         android:text="email"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/debts_list_item_image"
-        app:layout_constraintTop_toBottomOf="@+id/contacts_list_item_alias_tv" />
+        app:layout_constraintStart_toEndOf="@+id/trips_list_item_image"
+        app:layout_constraintTop_toBottomOf="@+id/contacts_list_item_title_tv" />
 
     <ImageView
-        android:id="@+id/debts_list_item_image"
+        android:id="@+id/trips_list_item_image"
         android:layout_width="45dp"
         android:layout_height="45dp"
         android:layout_marginStart="16dp"
