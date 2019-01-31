@@ -25,6 +25,7 @@ class DebtsFragment: Fragment(), DebtsContract.View {
     private var subscriptionToBus: Disposable? = null
     lateinit var presenter: DebtsPresenter
     private lateinit var viewManager: RecyclerView.LayoutManager
+    private var debtsList = mutableListOf<Debt>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -42,14 +43,14 @@ class DebtsFragment: Fragment(), DebtsContract.View {
         debts_fragment_add_fab.setOnClickListener { view ->
             presenter.addDebtButtonIsPressed()
         }
+
+        viewManager = LinearLayoutManager(MainApplication.applicationContext())
+        debts_fragment_recyclerview.adapter = DebtsRecyclerViewAdapter(debtsList)
+        debts_fragment_recyclerview.layoutManager = viewManager
     }
 
     override fun onResume() {
         super.onResume()
-
-        viewManager = LinearLayoutManager(MainApplication.applicationContext())
-        debts_fragment_recyclerview.adapter = DebtsRecyclerViewAdapter(null)
-        debts_fragment_recyclerview.layoutManager = viewManager
 
 //        debts_fragment_recyclerview.addItemDecoration(DividerItemDecoration(context!!,
 //                DividerItemDecoration.VERTICAL))
@@ -68,12 +69,15 @@ class DebtsFragment: Fragment(), DebtsContract.View {
     override fun displayRevertChangesAction() {
     }
 
-    override fun initializeList(debtsList: List<Debt>) {
+    override fun initializeList(inputDebtsList: List<Debt>) {
+        debtsList.clear()
+        debtsList.addAll(inputDebtsList)
+
         if (debtsList.isEmpty()) {
             debts_fragment_empty_list_layout.visibility = View.VISIBLE
         } else {
             debts_fragment_empty_list_layout.visibility = View.INVISIBLE
-            debts_fragment_recyclerview.adapter = DebtsRecyclerViewAdapter(debtsList)
+            debts_fragment_recyclerview.adapter?.notifyDataSetChanged()
         }
     }
 

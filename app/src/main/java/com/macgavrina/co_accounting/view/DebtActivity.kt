@@ -35,6 +35,7 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
     private var senderId: Int? = null
     lateinit var presenter: DebtActivityPresenter
     private lateinit var viewManager: RecyclerView.LayoutManager
+    private var expenseList = mutableListOf<Expense>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,12 +79,14 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
             displayTimePickerDialog()
         }
 
+        viewManager = LinearLayoutManager(MainApplication.applicationContext())
+        add_debt_fragment_reciever_recyclerview.adapter = ExpensesRecyclerViewAdapter(expenseList)
+        add_debt_fragment_reciever_recyclerview.layoutManager = viewManager
+
     }
 
     override fun onResume() {
         super.onResume()
-
-        viewManager = LinearLayoutManager(MainApplication.applicationContext())
 
         presenter.viewIsReady()
     }
@@ -271,13 +274,18 @@ class DebtActivity : AppCompatActivity(), DebtActivityContract.View {
         }
     }
 
-    override fun initializeExpensesList(expenseList: List<Expense>?) {
+    override fun initializeExpensesList(inputExpenseList: List<Expense>?) {
+
+        expenseList.clear()
+        if (inputExpenseList != null) {
+            expenseList.addAll(inputExpenseList)
+        }
+
         if (expenseList == null || expenseList.isEmpty()) {
             add_debt_fragment_empty_list_layout.visibility = View.VISIBLE
         } else {
             add_debt_fragment_empty_list_layout.visibility = View.INVISIBLE
-            add_debt_fragment_reciever_recyclerview.adapter = ExpensesRecyclerViewAdapter(expenseList)
-            add_debt_fragment_reciever_recyclerview.layoutManager = viewManager
+            add_debt_fragment_reciever_recyclerview.adapter?.notifyDataSetChanged()
         }
     }
 

@@ -6,9 +6,9 @@ interface TripContract {
 
         fun getTripTitle():String
 
-        fun getStartDate(): String
+        fun getStartDate(): Long?
 
-        fun getEndDate(): String
+        fun getEndDate(): Long?
 
         fun getSwitchStatus(): Boolean
 
@@ -22,9 +22,11 @@ interface TripContract {
 
         fun finishSelf()
 
-        fun displayTripData(title: String?, startDate: String, endDate: String, isCurrent: Boolean)
+        fun displayTripData(title: String?, startDate: Long?, endDate: Long?, isCurrent: Boolean)
 
         fun hideDeleteButton()
+
+        fun displayAlertDialog(text: String)
     }
 
     interface Presenter:BasePresenterContract<View> {

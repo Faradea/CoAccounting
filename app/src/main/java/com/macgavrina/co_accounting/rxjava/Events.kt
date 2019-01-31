@@ -2,8 +2,18 @@ package com.macgavrina.co_accounting.rxjava
 
 import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.room.Debt
+import com.macgavrina.co_accounting.room.Trip
 
 object Events {
+    class TripIsAdded(inputTrip: Trip) {
+        val trip = inputTrip
+    }
+
+    class TripIsUpdated(inputTripId: String, inputIsCurrent: Boolean) {
+        val tripId = inputTripId
+        val isCurrent = inputIsCurrent
+    }
+
     class OnClickTripList(inputTripId: String) {
         val tripId = inputTripId
     }
@@ -97,5 +107,14 @@ object Events {
     class DeletedContactIsRestored
 
     class DeletedDebtIsRestored
+
+    class OnClickSwitchTripList(inputTripId: String, inputSwitchIsChecked: Boolean) {
+        val tripId = inputTripId
+        val switchIsChecked = inputSwitchIsChecked
+    }
+
+    class TripIsDeleted(inputTrip: Trip) {
+        val trip = inputTrip
+    }
 
 }

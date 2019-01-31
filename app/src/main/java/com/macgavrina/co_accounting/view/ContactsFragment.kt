@@ -22,6 +22,7 @@ class ContactsFragment: Fragment(), ContactsContract.View {
 
     lateinit var presenter: ContactsPresenter
     private lateinit var viewManager: RecyclerView.LayoutManager
+    private var contactsList = mutableListOf<Contact>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -45,7 +46,7 @@ class ContactsFragment: Fragment(), ContactsContract.View {
         super.onResume()
 
         viewManager = LinearLayoutManager(MainApplication.applicationContext())
-        contacts_fragment_recyclerview.adapter = ContactsRecyclerViewAdapter(null)
+        contacts_fragment_recyclerview.adapter = ContactsRecyclerViewAdapter(contactsList)
         contacts_fragment_recyclerview.layoutManager = viewManager
         presenter.viewIsReady()
     }
@@ -62,11 +63,14 @@ class ContactsFragment: Fragment(), ContactsContract.View {
     override fun displayRevertChangesAction() {
     }
 
-    override fun initializeList(contactsList: List<Contact>) {
+    override fun initializeList(inputContactsList: List<Contact>) {
+
+        contactsList.clear()
+        contactsList.addAll(inputContactsList)
 
         if (contactsList.isNotEmpty()) {
             contacts_fragment_empty_list_layout.visibility = View.INVISIBLE
-            contacts_fragment_recyclerview.adapter = ContactsRecyclerViewAdapter(contactsList)
+            contacts_fragment_recyclerview.adapter?.notifyDataSetChanged()
         } else {
             contacts_fragment_empty_list_layout.visibility = View.VISIBLE
         }

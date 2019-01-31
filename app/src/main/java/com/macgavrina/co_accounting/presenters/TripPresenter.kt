@@ -4,6 +4,7 @@ import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.interfaces.TripContract
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.Trip
+import com.macgavrina.co_accounting.rxjava.Events
 import io.reactivex.Completable
 import io.reactivex.CompletableObserver
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -43,6 +44,7 @@ class TripPresenter: BasePresenter<TripContract.View>(), TripContract.Presenter 
 
                         override fun onComplete() {
                             Log.d("Trip is updated")
+                            MainApplication.bus.send(Events.TripIsUpdated(trip.uid.toString(), trip.isCurrent))
                             getView()?.finishSelf()
                         }
 
@@ -56,8 +58,8 @@ class TripPresenter: BasePresenter<TripContract.View>(), TripContract.Presenter 
         } else {
             trip = Trip()
             trip.title = getView()?.getTripTitle()
-            trip.startdate = getView()?.getStartDate()?.toLong()
-            trip.enddate = getView()?.getEndDate()?.toLong()
+            trip.startdate = getView()?.getStartDate()
+            trip.enddate = getView()?.getEndDate()
             trip.isCurrent = getView()?.getSwitchStatus() ?: false
             trip.status = "active"
 
@@ -69,7 +71,7 @@ class TripPresenter: BasePresenter<TripContract.View>(), TripContract.Presenter 
 
                         override fun onComplete() {
                             Log.d("Trip is added")
-                            getView()?.hideProgress()
+                            MainApplication.bus.send(Events.TripIsAdded(trip))
                             getView()?.finishSelf()
                         }
 
@@ -95,7 +97,7 @@ class TripPresenter: BasePresenter<TripContract.View>(), TripContract.Presenter 
                         override fun onSuccess(loadedTrip: Trip) {
                             trip = loadedTrip
                             getView()?.hideProgress()
-                            getView()?.displayTripData(trip.title, trip.startdate.toString(), trip.enddate.toString(), trip.isCurrent)
+                            getView()?.displayTripData(trip.title, trip.startdate, trip.enddate, trip.isCurrent)
                         }
 
                         override fun onError(e: Throwable) {
@@ -114,7 +116,28 @@ class TripPresenter: BasePresenter<TripContract.View>(), TripContract.Presenter 
 
         Log.d("Delete button is pressed")
 
-        deleteTrip(trip)
+        MainApplication.db.tripDAO().getAllByStatus("active")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : DisposableMaybeObserver<List<Trip>>() {
+                    override fun onSuccess(tripsList: List<Trip>) {
+                        Log.d("Trips list is received from DB, size = ${tripsList.size}")
+                        if (tripsList.size > 1) {
+                            deleteTrip(trip)
+                        } else {
+                            getView()?.displayAlertDialog("You have only one trip - it can't be deleted")
+                        }
+                    }
+
+                    override fun onError(e: Throwable) {
+                        Log.d("Error loading trips from DB, $e")
+                        getView()?.displayToast("Database error")
+                    }
+
+                    override fun onComplete() {
+                        getView()?.hideProgress()
+                    }
+                })
     }
 
 
@@ -132,8 +155,7 @@ class TripPresenter: BasePresenter<TripContract.View>(), TripContract.Presenter 
 
                     override fun onComplete() {
                         Log.d("Trip is deleted")
-                        //ToDo
-                        //MainApplication.bus.send(Events.ContactIsDeleted(contact))
+                        MainApplication.bus.send(Events.TripIsDeleted(trip))
                         getView()?.finishSelf()
                     }
 

@@ -9,6 +9,7 @@ import com.macgavrina.co_accounting.model.User
 import com.macgavrina.co_accounting.providers.UserProvider
 import com.macgavrina.co_accounting.room.Debt
 import com.macgavrina.co_accounting.room.Expense
+import com.macgavrina.co_accounting.room.Trip
 import com.macgavrina.co_accounting.rxjava.Events
 import com.macgavrina.co_accounting.support.DateFormatter
 import io.reactivex.Completable

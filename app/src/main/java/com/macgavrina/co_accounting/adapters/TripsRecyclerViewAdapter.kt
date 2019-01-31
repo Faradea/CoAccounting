@@ -17,7 +17,7 @@ class TripsRecyclerViewAdapter (tripsList: List<Trip>?) :
 
     private val mItems: List<Trip>? = tripsList
 
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
         val titleTV = view.trips_list_item_title_tv
         val datesTV = view.trips_list_item_dates_tv
@@ -26,16 +26,19 @@ class TripsRecyclerViewAdapter (tripsList: List<Trip>?) :
         private var mItem: Trip? = null
 
         init {
-            view.setOnClickListener(this)
+            view.setOnClickListener{
+                MainApplication.bus.send(Events.OnClickTripList(mItem?.uid.toString()))
+            }
+
+            isCurrentSwitch.setOnClickListener {
+                MainApplication.bus.send(Events.OnClickSwitchTripList(mItem?.uid.toString(), isCurrentSwitch.isChecked))
+            }
         }
 
         fun setItem(item: Trip) {
             mItem = item
         }
 
-        override fun onClick(view: View) {
-            MainApplication.bus.send(Events.OnClickTripList(mItem?.uid.toString()))
-        }
     }
 
     // Create new views (invoked by the layout manager)

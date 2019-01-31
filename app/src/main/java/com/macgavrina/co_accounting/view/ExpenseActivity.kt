@@ -27,6 +27,8 @@ class ExpenseActivity : AppCompatActivity(), AddReceiverInAddDebtContract.View, 
     lateinit var presenter: ExpensePresenter
     private lateinit var viewManagerForNotSelected: RecyclerView.LayoutManager
     private lateinit var viewManagerForSelected: RecyclerView.LayoutManager
+    private var selectedReceiversList = mutableListOf<Contact>()
+    private var notSelectedReceiversList = mutableListOf<Contact>()
     var debtId: Int? = null
     var expenseId: Int? = null
 
@@ -57,22 +59,22 @@ class ExpenseActivity : AppCompatActivity(), AddReceiverInAddDebtContract.View, 
         }
 
         add_receiver_dialog_fragment_amount_et.addTextChangedListener(this)
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        viewManagerForNotSelected = LinearLayoutManager(MainApplication.applicationContext())
-        add_receiver_dialog_fragment_receiverlist_lv.adapter = NotSelectedReceiversRecyclerViewAdapter(null)
-        add_receiver_dialog_fragment_receiverlist_lv.layoutManager = viewManagerForNotSelected
-
-        viewManagerForSelected = LinearLayoutManager(MainApplication.applicationContext())
-        add_receiver_dialog_fragment_selected_members_lv.adapter = NotSelectedReceiversRecyclerViewAdapter(null)
-        add_receiver_dialog_fragment_selected_members_lv.layoutManager = viewManagerForSelected
 
         add_receiver_dialog_fragment_delete_fab.setOnClickListener { _ ->
             presenter.deleteButtonIsPressed()
         }
+
+        viewManagerForNotSelected = LinearLayoutManager(MainApplication.applicationContext())
+        add_receiver_dialog_fragment_receiverlist_lv.adapter = NotSelectedReceiversRecyclerViewAdapter(notSelectedReceiversList)
+        add_receiver_dialog_fragment_receiverlist_lv.layoutManager = viewManagerForNotSelected
+
+        viewManagerForSelected = LinearLayoutManager(MainApplication.applicationContext())
+        add_receiver_dialog_fragment_selected_members_lv.adapter = NotSelectedReceiversRecyclerViewAdapter(selectedReceiversList)
+        add_receiver_dialog_fragment_selected_members_lv.layoutManager = viewManagerForSelected
+    }
+
+    override fun onResume() {
+        super.onResume()
 
         presenter.viewIsReady()
     }
@@ -120,10 +122,19 @@ class ExpenseActivity : AppCompatActivity(), AddReceiverInAddDebtContract.View, 
     }
 
     override fun initializeNotSelectedReceiversList(contactsList: List<Contact>?) {
-        add_receiver_dialog_fragment_receiverlist_lv.adapter = NotSelectedReceiversRecyclerViewAdapter(contactsList)
+
+        notSelectedReceiversList.clear()
+
+        if (contactsList != null) {
+            notSelectedReceiversList.addAll(contactsList)
+        }
+
+        add_receiver_dialog_fragment_receiverlist_lv.adapter?.notifyDataSetChanged()
     }
 
     override fun initializeSelectedReceiversList(contactsList: List<Contact>?, amountPerPerson: String) {
+
+        //ToDo REFACT Add amountPerPerson inside selectedReceiversList and update recycler view with notifyDataSetChanged
 
         if (contactsList == null || contactsList.isEmpty()) {
             add_expense_emplty_selected_list_layout.visibility = View.VISIBLE

@@ -17,6 +17,8 @@ interface TripsContract {
         fun hideProgress()
 
         fun displayToast(text:String)
+
+        fun displayOnDeleteTripSnackBar()
     }
 
     interface Presenter:BasePresenterContract<View> {
@@ -24,6 +26,8 @@ interface TripsContract {
         fun addTripButtonIsPressed()
 
         fun tripItemIsSelected(selectedTripId:Int)
+
+        fun undoDeleteTripButtonIsPressed()
 
     }
 }
