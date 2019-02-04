@@ -170,7 +170,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         clearStack()
         val supportFragmentManager = supportFragmentManager
         supportFragmentManager.beginTransaction()
-                .add(R.id.content_main_constraint_layout, TripsFragment())
+                .add(R.id.content_main_constraint_layout, TripsFragmentMVVM())
                 .addToBackStack("TripsFragment")
                 .commit()
     }

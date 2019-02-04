@@ -89,7 +89,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".view.TripActivity"
+        <activity android:name=".view.TripActivityMVVM"
             android:launchMode="singleTask"
             android:label="Trip"
             android:theme="@style/Theme.MaterialComponents.Light.NoActionBar">

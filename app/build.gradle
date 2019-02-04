@@ -51,4 +51,7 @@ dependencies {
 
     // optional - Guava support for Room, including Optional and ListenableFuture
     implementation 'androidx.room:room-guava:2.1.0-alpha02'
+
+    // ViewModel and LiveData
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0-alpha01'
 }

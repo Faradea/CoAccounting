@@ -1,5 +1,6 @@
 package com.macgavrina.co_accounting.room
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
@@ -9,13 +10,13 @@ import io.reactivex.Maybe
 @Dao
 interface TripDAO {
     @Query("SELECT * FROM trip WHERE status IN (:status) ORDER BY uid DESC")
-    fun getAllByStatus(status: String): Maybe<List<Trip>>
+    fun getAll(status: String): LiveData<List<Trip>>
 
     @Query("SELECT uid FROM trip WHERE status IN (:status) ORDER BY uid DESC LIMIT 1")
-    fun getLastTripIdForStatus(status: String): Maybe<Int>
+    fun getLastTripId(status: String): Maybe<Int>
 
     @Query("SELECT * FROM trip WHERE uid IN (:tripId)")
-    fun getTripByIds(tripId: String): Maybe<Trip>
+    fun getTripById(tripId: String): LiveData<Trip>
 
     @Query("SELECT * FROM trip WHERE isCurrent IN (:isCurrent) AND status IN (:status) ORDER BY uid DESC LIMIT 1")
     fun getLastTripByIsCurrentValue(isCurrent: Boolean, status: String): Maybe<Trip>
