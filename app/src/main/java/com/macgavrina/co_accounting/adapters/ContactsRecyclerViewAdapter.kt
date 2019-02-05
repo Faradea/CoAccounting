@@ -12,7 +12,7 @@ import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.rxjava.Events
 
 
-class ContactsRecyclerViewAdapter (contactsList: List<Contact>?) :
+class ContactsRecyclerViewAdapter (contactsList: List<Contact>?, private val currentTripId: Int) :
         RecyclerView.Adapter<ContactsRecyclerViewAdapter.ViewHolder>() {
 
     private val mItems: List<Contact>? = contactsList
@@ -21,6 +21,7 @@ class ContactsRecyclerViewAdapter (contactsList: List<Contact>?) :
 
         val friendAliasTV = view.contacts_list_item_title_tv
         val friendEmailTV = view.contacts_list_item_email_tv
+        val linkedToCurrentTripCheckBox = view.contacts_list_item_linked_to_current_trip_checkBox
         private var mItem: Contact? = null
 
         init {
@@ -57,6 +58,7 @@ class ContactsRecyclerViewAdapter (contactsList: List<Contact>?) :
         val item = mItems?.get(position)
         holder.friendAliasTV.text = item?.alias
         holder.friendEmailTV.text = item?.email
+        holder.linkedToCurrentTripCheckBox.isChecked = true
         holder.setItem(mItems?.get(position)!!)
     }
 

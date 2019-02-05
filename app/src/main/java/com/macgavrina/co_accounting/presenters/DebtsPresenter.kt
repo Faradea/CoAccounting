@@ -1,9 +1,9 @@
 package com.macgavrina.co_accounting.presenters
 
 import com.macgavrina.co_accounting.MainApplication
-import com.macgavrina.co_accounting.interfaces.ContactsContract
 import com.macgavrina.co_accounting.interfaces.DebtsContract
 import com.macgavrina.co_accounting.logging.Log
+import com.macgavrina.co_accounting.repositories.TripRepository
 import com.macgavrina.co_accounting.room.Debt
 import com.macgavrina.co_accounting.rxjava.Events
 import io.reactivex.Completable
@@ -47,7 +47,29 @@ class DebtsPresenter: BasePresenter<DebtsContract.View>(), DebtsContract.Present
 
         getView()?.showProgress()
 
-        MainApplication.db.debtDAO().getAll("active")
+        TripRepository(MainApplication.instance).getCurrentTrip()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe ({ maybeTrip ->
+                    maybeTrip
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribeOn(Schedulers.io())
+                            .subscribe ({ trip ->
+                                Log.d("Current trip = $trip")
+                                getAndDisplayDebtsForTrip(trip.uid)
+                            }, {error ->
+                                Log.d("Error getting current trip from DB, $error")
+                                getView()?.displayToast("Database error")
+                            })
+                }, {error ->
+                    Log.d("Error getting current trip from DB, $error")
+                    getView()?.displayToast("Database error")
+                })
+    }
+
+    private fun getAndDisplayDebtsForTrip(tripId: Int) {
+
+        MainApplication.db.debtDAO().getAllForTrip("active", tripId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(object : DisposableMaybeObserver<List<Debt>>() {

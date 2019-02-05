@@ -1,7 +1,6 @@
 package com.macgavrina.co_accounting.repositories
 
 import android.app.Application
-import android.provider.ContactsContract
 import androidx.lifecycle.LiveData
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.logging.Log
@@ -25,7 +24,6 @@ class TripRepository(application: Application) {
         allTrips = tripDao.getAll("active")
     }
 
-
     fun getAll(): LiveData<List<Trip>> {
         return allTrips
     }
@@ -35,8 +33,15 @@ class TripRepository(application: Application) {
         return Observable.fromCallable { tripDao.getLastTripId("active") }
     }
 
-    fun getLastDeletedTripId() {
+    fun getCurrentTrip(): Observable<Maybe<Trip>> {
+        return Observable.fromCallable { tripDao.getLastTripByIsCurrentValue(true, "active") }
+    }
 
+    fun restoreDeletedTrip(trip: Trip): Completable {
+        trip.status = "active"
+        return Completable.fromAction {
+            tripDao.updateTrip(trip)
+        }
     }
 
     fun getTripById(tripId: String): LiveData<Trip> {

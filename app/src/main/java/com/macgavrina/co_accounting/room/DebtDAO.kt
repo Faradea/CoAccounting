@@ -9,6 +9,9 @@ interface DebtDAO {
     @Query("SELECT * FROM debt WHERE status IN (:status) ORDER BY datetime DESC")
     fun getAll(status: String): Maybe<List<Debt>>
 
+    @Query("SELECT * FROM debt WHERE status IN (:status) AND tripId IN (:tripId) ORDER BY datetime DESC")
+    fun getAllForTrip(status: String, tripId: Int): Maybe<List<Debt>>
+
     @Query("SELECT * FROM debt WHERE uid IN (:debtId)")
     fun getDebtByIds(debtId: String): Maybe<Debt>
 

@@ -14,6 +14,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import com.google.android.material.snackbar.Snackbar
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.logging.Log
@@ -51,6 +52,19 @@ class TripActivityMVVM : AppCompatActivity() {
                 displayToast(res)
             }
         })
+
+//        tripsViewModel.snackbarMessage.observe(this, Observer { text ->
+//            Log.d("snackbar text is changed, observer reacts!")
+//                val snackBar = Snackbar.make(trips_fragment_const_layout, "Trip is deleted", Snackbar.LENGTH_LONG)
+//                snackBar.setAction("Undo") {
+//                    Log.d("snackBar: undo action is pressed")
+//                    snackBar.dismiss()
+//                    tripsViewModel.restoreLastDeletedTrip()
+//                }
+//                snackBar.show()
+//        })
+
+        tripsViewModel.getAll().observe(this, Observer<List<Trip>> {})
 
         val extras = intent.extras
         if (extras?.getInt("tripId") != -1) {
@@ -164,6 +178,11 @@ class TripActivityMVVM : AppCompatActivity() {
         return true
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        tripsViewModel.viewIsDestroyed()
+    }
+
     private fun getEndDate(): Long? {
         return DateFormatter().getTimestampFromFormattedDate(trip_fragment_enddate_et.text.toString())
     }
@@ -186,6 +205,7 @@ class TripActivityMVVM : AppCompatActivity() {
     }
 
     private fun displayToast(text: String) {
+        Log.d("Display toast with text = $text")
         Toast.makeText(MainApplication.applicationContext(), text, Toast.LENGTH_SHORT).show()
     }
 
@@ -218,6 +238,7 @@ class TripActivityMVVM : AppCompatActivity() {
     }
 
     private fun displayStartDatePickerDialog() {
+
         if (startDatePickerDialog != null || endDatePickerDialog != null) return
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -273,6 +294,7 @@ class TripActivityMVVM : AppCompatActivity() {
                 calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
                 trip_fragment_enddate_et.setText(DateFormatter().formatDateFromTimestamp(calendar.timeInMillis))
                 trip_fragment_enddate_til.error = null
+                endDatePickerDialog = null
             }
 
             endDatePickerDialog?.setOnCancelListener{

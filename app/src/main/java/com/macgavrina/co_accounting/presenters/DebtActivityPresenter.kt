@@ -4,9 +4,11 @@ import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.interfaces.DebtActivityContract
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.model.ReceiverWithAmount
+import com.macgavrina.co_accounting.repositories.TripRepository
 import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.room.Debt
 import com.macgavrina.co_accounting.room.Expense
+import com.macgavrina.co_accounting.room.Trip
 import com.macgavrina.co_accounting.rxjava.Events
 import com.macgavrina.co_accounting.support.DateFormatter
 import io.reactivex.Completable
@@ -28,6 +30,7 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
     lateinit var contactIdToPositionMap: MutableMap<Int, Int>
     lateinit var receiverWithAmountList: MutableList<ReceiverWithAmount>
     lateinit var friendsList: Array<String?>
+    lateinit var currentTrip: Trip
 
     override fun attachView(baseViewContract: DebtActivityContract.View) {
         super.attachView(baseViewContract)
@@ -96,6 +99,25 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
 
         getView()?.hideDeleteButton()
         getView()?.hideClearButton()
+
+        TripRepository(MainApplication.instance).getCurrentTrip()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe ({ maybeTrip ->
+                    maybeTrip
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribeOn(Schedulers.io())
+                            .subscribe ({ trip ->
+                                Log.d("Current trip = $trip")
+                                currentTrip = trip
+                            }, {error ->
+                                Log.d("Error getting current trip from DB, $error")
+                                getView()?.displayToast("Database error")
+                            })
+                }, {error ->
+                    Log.d("Error getting current trip from DB, $error")
+                    getView()?.displayToast("Database error")
+                })
     }
 
     override fun inputTextFieldsAreEmpty(areFilled: Boolean) {
@@ -129,6 +151,7 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
 
         debt.comment = getView()?.getComment()
         debt.status = "active"
+        debt.tripId = currentTrip.uid
 
         updateDebtInDB(debt)
     }

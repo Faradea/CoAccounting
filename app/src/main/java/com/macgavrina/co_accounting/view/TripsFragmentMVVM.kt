@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,6 +17,7 @@ import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.adapters.TripsRecyclerViewAdapter
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.Trip
+import com.macgavrina.co_accounting.viewmodel.SingleLiveEvent
 import com.macgavrina.co_accounting.viewmodel.TripsViewModel
 import kotlinx.android.synthetic.main.trips_fragment.*
 
@@ -35,6 +37,8 @@ class TripsFragmentMVVM: Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+
+        Log.d("onActivityCreated")
 
         trips_fragment_add_fab.setOnClickListener { view ->
             tripsViewModel.addTripButtonIsPressed()
@@ -59,19 +63,35 @@ class TripsFragmentMVVM: Fragment() {
 
                 })
 
-        tripsViewModel.toastMessage.observe(this, Observer { res ->
-            if (res != null) {
-                displayToast(res)
-            }
-        })
+        if (!tripsViewModel.toastMessage.hasObservers()) {
+            tripsViewModel.toastMessage.removeObservers(this)
+            tripsViewModel.toastMessage.observe(this, Observer { text ->
+                Log.d("Toast text is changed to: $text, observer reacts!")
+                if (!text.isNullOrEmpty()) {
+                    displayToast(text)
+                }
+            })
+        }
+
+//        tripsViewModel.snackbarMessage.observe(this, Observer { text ->
+//            Log.d("snackbar text is changed, observer reacts!")
+//            val snackBar = Snackbar.make(trips_fragment_const_layout, "Trip is deleted", Snackbar.LENGTH_LONG)
+//            snackBar.setAction("Undo") {
+//                Log.d("snackBar: undo action is pressed")
+//                snackBar.dismiss()
+//                tripsViewModel.restoreLastDeletedTrip()
+//            }
+//            snackBar.show()
+//        })
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        //presenter.detachView()
+        tripsViewModel.viewIsDestroyed()
     }
 
     private fun displayToast(text: String) {
+        Log.d("Display toast with text = $text")
         Toast.makeText(MainApplication.applicationContext(), text, Toast.LENGTH_SHORT).show()
     }
 
@@ -82,14 +102,4 @@ class TripsFragmentMVVM: Fragment() {
     private fun hideProgress() {
         //trips_fragment_progress_bar.visibility = View.INVISIBLE
     }
-
-//    override fun displayOnDeleteTripSnackBar() {
-//        val snackBar = Snackbar.make(trips_fragment_const_layout, "Trip is deleted", Snackbar.LENGTH_LONG)
-//        snackBar!!.setAction("Undo") {
-//            Log.d("snackBar: undo action is pressed")
-//            snackBar?.dismiss()
-//            presenter.undoDeleteTripButtonIsPressed()
-//        }
-//        snackBar?.show()
-//    }
 }

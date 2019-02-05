@@ -15,7 +15,6 @@ import com.macgavrina.co_accounting.presenters.ContactsPresenter
 import com.macgavrina.co_accounting.room.Contact
 import kotlinx.android.synthetic.main.contacts_fragment.*
 import android.widget.Toast
-import kotlinx.android.synthetic.main.contact_fragment.*
 
 
 class ContactsFragment: Fragment(), ContactsContract.View {
@@ -46,7 +45,6 @@ class ContactsFragment: Fragment(), ContactsContract.View {
         super.onResume()
 
         viewManager = LinearLayoutManager(MainApplication.applicationContext())
-        contacts_fragment_recyclerview.adapter = ContactsRecyclerViewAdapter(contactsList)
         contacts_fragment_recyclerview.layoutManager = viewManager
         presenter.viewIsReady()
     }
@@ -63,7 +61,11 @@ class ContactsFragment: Fragment(), ContactsContract.View {
     override fun displayRevertChangesAction() {
     }
 
-    override fun initializeList(inputContactsList: List<Contact>) {
+    override fun initializeList(inputContactsList: List<Contact>, tripId: Int) {
+
+        if (contacts_fragment_recyclerview.adapter == null) {
+            contacts_fragment_recyclerview.adapter = ContactsRecyclerViewAdapter(contactsList, tripId)
+        }
 
         contactsList.clear()
         contactsList.addAll(inputContactsList)

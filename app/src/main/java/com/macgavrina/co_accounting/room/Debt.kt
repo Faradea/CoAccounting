@@ -12,6 +12,11 @@ class Debt {
         set
         get
 
+    @ColumnInfo(name = "tripId")
+    public var tripId: Int? = null
+        set
+        get
+
     //ToDo REFACT add to indexes
     @ColumnInfo(name = "senderId")
     public var senderId: String? = null

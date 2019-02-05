@@ -3,6 +3,7 @@ package com.macgavrina.co_accounting.presenters
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.interfaces.ContactsContract
 import com.macgavrina.co_accounting.logging.Log
+import com.macgavrina.co_accounting.repositories.TripRepository
 import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.rxjava.Events
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -62,6 +63,30 @@ class ContactsPresenter: BasePresenter<ContactsContract.View>(), ContactsContrac
     }
 
     private fun getAndDisplayAllContacts() {
+
+        getView()?.showProgress()
+
+        TripRepository(MainApplication.instance).getCurrentTrip()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe ({ maybeTrip ->
+                    maybeTrip
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribeOn(Schedulers.io())
+                            .subscribe ({ trip ->
+                                Log.d("Current trip = $trip")
+                                getAndDisplayAllContactsWithCurrentTripCheckbox(trip.uid)
+                            }, {error ->
+                                Log.d("Error getting current trip from DB, $error")
+                                getView()?.displayToast("Database error")
+                            })
+                }, {error ->
+                    Log.d("Error getting current trip from DB, $error")
+                    getView()?.displayToast("Database error")
+                })
+    }
+
+    private fun getAndDisplayAllContactsWithCurrentTripCheckbox(tripId: Int) {
         getView()?.showProgress()
         MainApplication.db.contactDAO().getAll("active")
                 .subscribeOn(Schedulers.io())
@@ -70,7 +95,7 @@ class ContactsPresenter: BasePresenter<ContactsContract.View>(), ContactsContrac
                     override fun onSuccess(contactsList: List<com.macgavrina.co_accounting.room.Contact>) {
                         Log.d("Contacts list is received from DB, size = ${contactsList.size}")
                         getView()?.hideProgress()
-                        getView()?.initializeList(contactsList)
+                        getView()?.initializeList(contactsList, tripId)
                     }
 
                     override fun onError(e: Throwable) {
