@@ -361,7 +361,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
     private fun getAndDisplayAllContacts() {
 
         Log.d("Getting all contacts from DB...")
-        MainApplication.db.contactDAO().getAll("active")
+        MainApplication.db.contactDAO().getContactsForCurrentTrip()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(object : DisposableMaybeObserver<List<com.macgavrina.co_accounting.room.Contact>>() {

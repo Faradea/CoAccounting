@@ -20,4 +20,8 @@ interface ContactDAO {
 
     @Update
     fun updateContact(contact:Contact)
+
+    @Query("SELECT contact.* FROM trip INNER JOIN contacttotriprelation ON trip.uid = contacttotriprelation.tripId INNER JOIN contact ON contacttotriprelation.contactId = contact.uid WHERE trip.isCurrent = 1 AND trip.status = \"active\" AND contact.status = \"active\"")
+    fun getContactsForCurrentTrip(): Maybe<List<Contact>>
+
 }

@@ -3,8 +3,10 @@ package com.macgavrina.co_accounting.room
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
 
 @Entity
+//@TypeConverters(ListTypeConverter::class)
 class Trip {
     @PrimaryKey(autoGenerate = true)
     public var uid: Int = 0

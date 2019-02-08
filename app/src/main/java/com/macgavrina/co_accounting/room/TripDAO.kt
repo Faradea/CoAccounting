@@ -12,6 +12,9 @@ interface TripDAO {
     @Query("SELECT * FROM trip WHERE status IN (:status) ORDER BY uid DESC")
     fun getAll(status: String): LiveData<List<Trip>>
 
+    @Query("SELECT COUNT (*) FROM trip WHERE status = \"active\" AND isCurrent = 1")
+    fun getTripsCount(): Int
+
     @Query("SELECT uid FROM trip WHERE status IN (:status) ORDER BY uid DESC LIMIT 1")
     fun getLastTripId(status: String): Maybe<Int>
 

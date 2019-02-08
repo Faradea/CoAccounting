@@ -6,18 +6,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.snackbar.Snackbar
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.adapters.TripsRecyclerViewAdapter
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.Trip
-import com.macgavrina.co_accounting.viewmodel.SingleLiveEvent
 import com.macgavrina.co_accounting.viewmodel.TripsViewModel
 import kotlinx.android.synthetic.main.trips_fragment.*
 
@@ -26,7 +22,6 @@ class TripsFragmentMVVM: Fragment() {
 
     private lateinit var tripsViewModel: TripsViewModel
     //private var tripsList: MutableList<Trip> = mutableListOf()
-    private val adapter = TripsRecyclerViewAdapter()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -45,7 +40,7 @@ class TripsFragmentMVVM: Fragment() {
         }
 
         tripsViewModel = ViewModelProviders.of(this).get(TripsViewModel::class.java)
-        adapter.setViewModel(tripsViewModel)
+        val adapter = TripsRecyclerViewAdapter(tripsViewModel)
         trips_fragment_recyclerview.adapter = adapter
         trips_fragment_recyclerview.layoutManager = LinearLayoutManager(MainApplication.applicationContext())
         tripsViewModel.getAll().observe(this,

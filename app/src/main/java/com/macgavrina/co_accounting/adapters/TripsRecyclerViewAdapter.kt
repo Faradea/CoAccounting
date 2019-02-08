@@ -3,7 +3,6 @@ package com.macgavrina.co_accounting.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
@@ -14,20 +13,19 @@ import com.macgavrina.co_accounting.support.DateFormatter
 import com.macgavrina.co_accounting.viewmodel.TripsViewModel
 import kotlinx.android.synthetic.main.trips_list_item.view.*
 
-class TripsRecyclerViewAdapter():
+class TripsRecyclerViewAdapter(private var tripsViewModel: TripsViewModel) :
         RecyclerView.Adapter<TripsRecyclerViewAdapter.ViewHolder>() {
 
     private var mItems: List<Trip>? = null
-    private var tripsViewModel: TripsViewModel? = null
 
     fun setTrips(trips: List<Trip>) {
         this.mItems = trips
         notifyDataSetChanged()
     }
 
-    fun setViewModel(tripsViewModel: TripsViewModel) {
-        this.tripsViewModel = tripsViewModel
-    }
+    //    fun setViewModel(tripsViewModel: TripsViewModel) {
+//        this.tripsViewModel = tripsViewModel
+//    }
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 

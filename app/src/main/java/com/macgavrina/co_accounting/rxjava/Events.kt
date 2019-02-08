@@ -117,4 +117,13 @@ object Events {
         val trip = inputTrip
     }
 
+    class OnClickCheckboxContactList(inputContactId: String, inputIsChecked: Boolean) {
+        val contactId = inputContactId
+        val isChecked = inputIsChecked
+    }
+
+    class ContactCannotBeDisableForTrip {
+
+    }
+
 }

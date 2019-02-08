@@ -7,6 +7,7 @@ import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.model.User
 import com.macgavrina.co_accounting.providers.UserProvider
+import com.macgavrina.co_accounting.repositories.TripRepository
 import com.macgavrina.co_accounting.room.Debt
 import com.macgavrina.co_accounting.room.Expense
 import com.macgavrina.co_accounting.room.Trip
@@ -134,6 +135,10 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
                                 Log.d("Catch Events.OnClickTripList event")
                                 getView()?.displayAddTripFragment(`object`.tripId)
                             }
+                            is Events.ContactCannotBeDisableForTrip -> {
+                                Log.d("Catch Events.ContactCannotBeDisableForTrip event")
+                                getView()?.displayAlert("Contact can't be disabled for trip until it used for debts", "Contact can't be disabled for trip")
+                            }
 //                        is Events.OnClickExpenseItemList -> {
 //                            getView()?.displayAddReceiverInAddDebtFragment(`object`.myDebtId, `object`.myExpenseId)
 //                        }
@@ -167,6 +172,7 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
 
     override fun viewIsReady() {
         UserProvider().loadUser(this)
+        checkIfAtLeastOneTripExists()
     }
 
     override fun headerIsClicked() {
@@ -314,6 +320,36 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
                     override fun onComplete() {
                         Log.d("nothing")
                     }
+                })
+    }
+
+    private fun checkIfAtLeastOneTripExists() {
+        TripRepository(MainApplication.instance).getCurrentTripsAmount()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({count ->
+                    if (count == 0) {
+                        createDefaultTrip()
+                    }
+                }, { error ->
+                    Log.d("Error getting trips from DB, $error")
+                    getView()?.displayToast("Database error")
+                })
+    }
+
+    private fun createDefaultTrip() {
+        val newTrip = Trip()
+        newTrip.title = "Unsorted"
+        newTrip.status = "active"
+        newTrip.isCurrent = true
+        TripRepository(MainApplication.instance).insertTrip(newTrip)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe ({
+                    Log.d("New default trip is created")
+                }, {e ->
+                    Log.d("Error creating default trip, $e")
+                    getView()?.displayToast("Database error")
                 })
     }
 }

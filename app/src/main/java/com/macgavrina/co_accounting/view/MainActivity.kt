@@ -436,4 +436,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         snackBar?.show()
     }
 
+    override fun displayAlert(text: String, title: String) {
+        val builder = AlertDialog.Builder(this)
+        builder.setMessage(text)
+                .setTitle(title)
+                .setPositiveButton("ok") { _, _ -> }
+        val dialog = builder.create()
+        dialog.show()
+    }
+
 }

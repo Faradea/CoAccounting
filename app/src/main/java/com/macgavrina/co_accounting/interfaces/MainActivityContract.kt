@@ -51,6 +51,8 @@ interface MainActivityContract {
         fun displayTripsFragment()
 
         fun displayAddTripFragment(tripId: String?)
+
+        fun displayAlert(text: String, title: String)
     }
 
     interface Presenter:BasePresenterContract<View> {

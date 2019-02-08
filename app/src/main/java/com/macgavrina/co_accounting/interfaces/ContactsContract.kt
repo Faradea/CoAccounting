@@ -1,6 +1,7 @@
 package com.macgavrina.co_accounting.interfaces
 
 import com.macgavrina.co_accounting.room.Contact
+import com.macgavrina.co_accounting.room.ContactToTripRelation
 
 interface ContactsContract {
 
@@ -8,7 +9,7 @@ interface ContactsContract {
 
         fun displayRevertChangesAction()
 
-        fun initializeList(contactsList: List<Contact>, tripId: Int)
+        fun initializeList(contactsList: List<Contact>, trip: List<ContactToTripRelation>?)
 
         fun updateList()
 

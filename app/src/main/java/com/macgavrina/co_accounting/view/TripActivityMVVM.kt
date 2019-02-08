@@ -320,5 +320,4 @@ class TripActivityMVVM : AppCompatActivity() {
         }
     }
 
-
 }

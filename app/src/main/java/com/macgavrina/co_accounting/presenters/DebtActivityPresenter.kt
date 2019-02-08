@@ -292,10 +292,11 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
                 })
     }
 
+
     private fun getAllContactsFromDB() {
 
         Log.d("Getting contacts from DB...")
-        MainApplication.db.contactDAO().getAll("active")
+        MainApplication.db.contactDAO().getContactsForCurrentTrip()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(object : DisposableMaybeObserver<List<com.macgavrina.co_accounting.room.Contact>>() {

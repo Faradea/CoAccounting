@@ -22,6 +22,9 @@ interface DebtDAO {
     @Query ("SELECT * FROM debt WHERE senderId IN (:contactId) AND status IN (:contactStatus)")
     fun checkDebtsForContact(contactId: String, contactStatus: String): Maybe<List<Debt>>
 
+    @Query ("SELECT debt.* FROM debt INNER JOIN trip ON debt.tripId = trip.uid WHERE debt.senderId IN (:contactId) AND debt.status IN (:contactStatus) AND trip.isCurrent = 1 AND trip.status = \"active\"")
+    fun checkDebtsForContactAndCurrentTrip(contactId: String, contactStatus: String): Maybe<List<Debt>>
+
     @Insert
     fun insertDebt(debt: Debt)
 

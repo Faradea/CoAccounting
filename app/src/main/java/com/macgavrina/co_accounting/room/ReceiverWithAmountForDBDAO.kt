@@ -22,6 +22,9 @@ interface ReceiverWithAmountForDBDAO {
     @Query ("SELECT COUNT(*) FROM receiverwithamountfordb WHERE contactId IN (:contactId)")
     fun checkReceiverWithAmountForContact(contactId: String): Single<Int>
 
+    @Query ("SELECT COUNT(*) FROM receiverwithamountfordb INNER JOIN expense ON Expense.uid = ReceiverWithAmountForDB.expenseId INNER JOIN Debt ON Expense.debtId = Debt.uid INNER JOIN trip On debt.tripId = trip.uid WHERE contactId IN (:contactId) AND debt.status IN (\"active\") AND trip.isCurrent = 1 AND trip.status = \"active\"")
+    fun checkReceiverWithAmountForContactAndCurrentTrip(contactId: String): Single<Int>
+
     @Insert
     fun insertReceiverWithAmount(receiverForAmountForDB: ReceiverWithAmountForDB)
 

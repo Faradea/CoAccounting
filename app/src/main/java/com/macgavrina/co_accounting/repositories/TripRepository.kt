@@ -1,6 +1,7 @@
 package com.macgavrina.co_accounting.repositories
 
 import android.app.Application
+import android.os.Build
 import androidx.lifecycle.LiveData
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.logging.Log
@@ -13,6 +14,7 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import java.util.stream.Collectors
 
 class TripRepository(application: Application) {
 
@@ -35,6 +37,10 @@ class TripRepository(application: Application) {
 
     fun getCurrentTrip(): Observable<Maybe<Trip>> {
         return Observable.fromCallable { tripDao.getLastTripByIsCurrentValue(true, "active") }
+    }
+
+    fun getCurrentTripsAmount(): Observable<Int> {
+        return Observable.fromCallable { tripDao.getTripsCount() }
     }
 
     fun restoreDeletedTrip(trip: Trip): Completable {
