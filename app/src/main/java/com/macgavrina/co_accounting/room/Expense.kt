@@ -27,7 +27,6 @@ class Expense {
         set
         get
 
-    @ColumnInfo(name = "receiversList")
     public var receiversList: String? = null
         set
         get
@@ -36,4 +35,8 @@ class Expense {
     public var totalAmount: String? = null
         set
         get
+
+    override fun toString(): String {
+        return "debtId = $debtId, expenseName = $expenseName, receiversList = $receiversList, totalAmount = $totalAmount"
+    }
 }

@@ -307,7 +307,7 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
                         dataToShare = dataToShare + "Expenses:" + "\n"
 
                         expenseList.forEach { expense ->
-                            dataToShare = dataToShare + "\n" +"uid: ${expense.uid}, totalAmount:${expense.totalAmount}, debtId:${expense.debtId}, receiverList:${expense.receiversList}"
+                            dataToShare = dataToShare + "\n" +"uid: ${expense.uid}, totalAmount:${expense.totalAmount}, debtId:${expense.debtId}"
                         }
 
                         getView()?.startActivityToShareAllData(dataToShare)

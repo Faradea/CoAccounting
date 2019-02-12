@@ -37,4 +37,8 @@ class Trip {
     public var status: String? = "active"
         set
         get
+
+    override fun toString(): String {
+        return "title = $title, startdate = $startdate, enddate = $enddate, isCurrent = $isCurrent, status = $status"
+    }
 }

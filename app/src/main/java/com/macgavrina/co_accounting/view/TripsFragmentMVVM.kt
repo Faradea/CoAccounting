@@ -43,11 +43,13 @@ class TripsFragmentMVVM: Fragment() {
         val adapter = TripsRecyclerViewAdapter(tripsViewModel)
         trips_fragment_recyclerview.adapter = adapter
         trips_fragment_recyclerview.layoutManager = LinearLayoutManager(MainApplication.applicationContext())
-        tripsViewModel.getAll().observe(this,
+        tripsViewModel.getAll().observe(this.viewLifecycleOwner,
                 Observer<List<Trip>> { tripsList ->
                     adapter.setTrips(tripsList!!)
 
                     if (tripsList.isNotEmpty()) {
+
+                        printAllTrips(tripsList)
                         trips_fragment_empty_list_layout.visibility = View.INVISIBLE
                         Log.d(trips_fragment_recyclerview.adapter.toString())
                         trips_fragment_recyclerview.adapter?.notifyDataSetChanged()
@@ -60,7 +62,7 @@ class TripsFragmentMVVM: Fragment() {
 
         if (!tripsViewModel.toastMessage.hasObservers()) {
             tripsViewModel.toastMessage.removeObservers(this)
-            tripsViewModel.toastMessage.observe(this, Observer { text ->
+            tripsViewModel.toastMessage.observe(this.viewLifecycleOwner, Observer { text ->
                 Log.d("Toast text is changed to: $text, observer reacts!")
                 if (!text.isNullOrEmpty()) {
                     displayToast(text)
@@ -78,6 +80,7 @@ class TripsFragmentMVVM: Fragment() {
 //            }
 //            snackBar.show()
 //        })
+
     }
 
     override fun onDestroyView() {
@@ -96,5 +99,12 @@ class TripsFragmentMVVM: Fragment() {
 
     private fun hideProgress() {
         //trips_fragment_progress_bar.visibility = View.INVISIBLE
+    }
+
+    private fun printAllTrips(tripsList: List<Trip>) {
+        Log.d("Printing all trips...")
+        tripsList.forEach { trip ->
+            Log.d(trip.toString())
+        }
     }
 }

@@ -346,12 +346,15 @@ class DebtActivityPresenter:BasePresenter<DebtActivityContract.View>(), DebtActi
 
         Log.d("Getting expenses for debt...")
 
-        MainApplication.db.expenseDAO().getExpensesForDebt(debtId)
+        MainApplication.db.expenseDAO().getExpensesForDebt(debtId, ", ")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(object : DisposableMaybeObserver<List<Expense>>() {
                     override fun onSuccess(expenseList: List<Expense>) {
                         Log.d("Expenses are received from DB, size = ${expenseList.size}")
+                        expenseList.forEach { expense ->
+                            Log.d("Expense: $expense")
+                        }
                         getView()?.hideProgress()
                         getView()?.initializeExpensesList(expenseList)
                     }

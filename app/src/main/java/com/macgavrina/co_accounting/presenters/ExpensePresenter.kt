@@ -190,7 +190,6 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
         if (expense == null) {
             expense = Expense()
             expense!!.totalAmount = DecimalFormat("##.##").format(getView()?.getAmount())
-            expense!!.receiversList = receiversListString
             expense!!.debtId = debtId
 
             Log.d("Adding new expense to DB, expense = $expense")
@@ -251,7 +250,6 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
 
         } else {
             expense!!.totalAmount = DecimalFormat("##.##").format(getView()?.getAmount())
-            expense!!.receiversList = receiversListString
             expense!!.debtId = debtId
 
             Log.d("Updating existing expense in DB, $expense")

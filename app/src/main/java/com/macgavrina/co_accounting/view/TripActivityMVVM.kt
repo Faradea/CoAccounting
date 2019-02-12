@@ -64,6 +64,7 @@ class TripActivityMVVM : AppCompatActivity() {
 //                snackBar.show()
 //        })
 
+        //ToDo REFACT Использовать фрагмент вместо activity и this.viewLifecycleOwner вместо this для всех observe
         tripsViewModel.getAll().observe(this, Observer<List<Trip>> {})
 
         val extras = intent.extras
