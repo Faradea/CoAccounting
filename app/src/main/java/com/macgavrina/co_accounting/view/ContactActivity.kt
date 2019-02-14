@@ -1,47 +1,72 @@
 package com.macgavrina.co_accounting.view
 
 import android.content.Context
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.Editable
 import android.text.TextWatcher
-import android.view.*
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
-import com.macgavrina.co_accounting.interfaces.AddContactContract
-import com.macgavrina.co_accounting.presenters.ContactPresenter
+import com.macgavrina.co_accounting.logging.Log
+import com.macgavrina.co_accounting.room.Contact
+import com.macgavrina.co_accounting.viewmodel.ContactsViewModel
+import kotlinx.android.synthetic.main.activity_contact.*
 import kotlinx.android.synthetic.main.contact_fragment.*
-import kotlinx.android.synthetic.main.debt_activity.*
-import android.text.Editable
 
-class ContactActivity : AppCompatActivity(), AddContactContract.View {
+class ContactActivity : AppCompatActivity() {
 
-    lateinit var presenter: ContactPresenter
+    private lateinit var viewModel: ContactsViewModel
+    private var contactId: Int = -1
+    private var contact: Contact? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_contact)
         setSupportActionBar(toolbar)
 
+        hideProgress()
+
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        presenter = ContactPresenter()
-        presenter.attachView(this)
-        presenter.viewIsCreated()
+        viewModel = ViewModelProviders.of(this).get(ContactsViewModel::class.java)
 
-        contact_fragment_delete_fab.setOnClickListener { view ->
-            presenter.deleteButtonIsPressed()
-        }
+        viewModel.toastMessage.observe(this, Observer { res ->
+            if (res != null) {
+                displayToast(res)
+            }
+        })
+
+        //ToDo REFACT Использовать фрагмент вместо activity и this.viewLifecycleOwner вместо this для всех observe
+        viewModel.getAllContactsForCurrentTrip().observe(this, Observer<List<Contact>> {})
 
         val extras = intent.extras
-        val contactId = extras?.getInt("contactId")
-
-        if (contactId == -1) {
-            presenter.contactIdIsReceiverFromMainActivity(null)
+        if (extras?.getInt("contactId") != null && extras.getInt("contactId") != -1) {
+            contactId = extras.getInt("contactId")
+            viewModel.getContactById(contactId.toString())
+                    .observe(this,
+                            Observer<Contact> { contact ->
+                                this.contact = contact
+                                contact_fragment_name_et.setText(contact.alias)
+                                contact_fragment_email_et.setText(contact.email)
+                            })
         } else {
-            presenter.contactIdIsReceiverFromMainActivity(contactId.toString())
+            hideDeleteButton()
+        }
+
+
+        contact_fragment_delete_fab.setOnClickListener { view ->
+            if (contact != null) {
+                viewModel.safeDeleteContact(contact!!)
+            }
+            finishSelf()
         }
 
         contact_fragment_email_et.addTextChangedListener(object : TextWatcher {
@@ -80,29 +105,31 @@ class ContactActivity : AppCompatActivity(), AddContactContract.View {
             }
         })
 
-
     }
 
-    override fun onResume() {
-        super.onResume()
-
-        presenter.viewIsReady()
-    }
-
-
-    override fun onDestroy() {
-        super.onDestroy()
-        presenter.detachView()
-    }
-
-    //For back button in action bar
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         when (item.itemId) {
             R.id.action_menu_done -> {
 
                 if (!getEmail().isNullOrEmpty() && !getAlias().isNullOrEmpty()) {
-                    presenter.doneButtonIsPressed()
+
+                    if (contact == null) {
+                        contact = Contact()
+                    }
+
+                    contact!!.email = getEmail()
+                    contact!!.alias = getAlias()
+
+                    if (contactId == -1) {
+                        viewModel.insertContact(contact!!)
+                        finishSelf()
+                    } else {
+                        contact!!.uid = contactId
+                        viewModel.updateContact(contact!!)
+                        finishSelf()
+                    }
+
                     return true
                 } else {
 
@@ -129,50 +156,52 @@ class ContactActivity : AppCompatActivity(), AddContactContract.View {
         return true
     }
 
-    override fun hideKeyboard() {
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.viewIsDestroyed()
+    }
+
+    private fun hideKeyboard() {
         val inputMethodManager: InputMethodManager = this.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.hideSoftInputFromWindow(this.currentFocus?.windowToken, 0)
     }
 
-    override fun displayToast(text: String) {
+    private fun displayToast(text: String) {
+        Log.d("Display toast with text = $text")
         Toast.makeText(MainApplication.applicationContext(), text, Toast.LENGTH_SHORT).show()
     }
 
-    override fun finishSelf() {
+    private fun finishSelf() {
         onBackPressed()
     }
 
-    override fun getAlias(): String {
+    private fun getAlias(): String {
         return contact_fragment_name_et.text.toString()
     }
 
-    override fun getEmail(): String {
+    private fun getEmail(): String {
         return contact_fragment_email_et.text.toString()
     }
 
-    override fun showProgress() {
+    private fun showProgress() {
         contact_fragment_progressBar.visibility = View.VISIBLE
     }
 
-    override fun hideProgress() {
+    private fun hideProgress() {
         contact_fragment_progressBar.visibility = View.INVISIBLE
     }
 
-    override fun displayContactData(alias: String, email: String) {
-        contact_fragment_name_et.setText(alias)
-        contact_fragment_email_et.setText(email)
-    }
-
-    override fun displayAlert(text: String, title: String) {
-        val builder = AlertDialog.Builder(this)
-        builder.setMessage(text)
-                .setTitle(title)
-                .setPositiveButton("ok") { _, _ -> }
-        val dialog = builder.create()
-        dialog.show()
-    }
-
-    override fun hideDeleteButton() {
+    private fun hideDeleteButton() {
         contact_fragment_delete_fab.hide()
     }
+
+//    private fun displayAlert(text: String, title: String) {
+//        val builder = AlertDialog.Builder(this)
+//        builder.setMessage(text)
+//                .setTitle(title)
+//                .setPositiveButton("ok") { _, _ -> }
+//        val dialog = builder.create()
+//        dialog.show()
+//    }
+
 }

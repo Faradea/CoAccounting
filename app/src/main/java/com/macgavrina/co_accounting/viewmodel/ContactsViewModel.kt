@@ -72,21 +72,6 @@ class ContactsViewModel(application: Application) : AndroidViewModel(MainApplica
         compositeDisposable.add(subscription)
     }
 
-    fun deleteContact(contact: Contact) {
-        lastDeletedContact = contact
-        snackbarMessage.value = "Contact is deleted"
-            val subscription = repository.deleteContact(contact)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeOn(Schedulers.io())
-                    .subscribe ({
-                        Log.d("Contact is deleted")
-                    }, {error ->
-                        Log.d("Error deleting contact, $error")
-                        toastMessage.value = "Database error"
-                    })
-            compositeDisposable.add(subscription)
-        }
-
     fun addContactButtonIsPressed() {
         MainApplication.bus.send(Events.AddContact())
     }
@@ -194,5 +179,66 @@ class ContactsViewModel(application: Application) : AndroidViewModel(MainApplica
                     }
                 })
 
+    }
+
+    fun safeDeleteContact(contact: Contact) {
+        MainApplication.db.debtDAO().checkDebtsForContact(contact.uid.toString(), "active")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : DisposableMaybeObserver<List<Debt>>() {
+                    override fun onComplete() {
+                    }
+
+                    override fun onSuccess(list: List<Debt>) {
+                        if (list.isEmpty()) {
+
+                            Log.d("Contact isn't used as sender in debts, checking if he is present in expenses...")
+                            MainApplication.db.receiverWithAmountForDBDAO().checkReceiverWithAmountForContact(contact.uid.toString())
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(object : SingleObserver<Int> {
+                                        override fun onSubscribe(d: Disposable) {
+                                        }
+
+                                        override fun onSuccess(count: Int) {
+                                            if (count == 0) {
+                                                Log.d("Contacts hasn't been used in debts and expenses, delete ir...")
+                                                deleteContact(contact)
+                                            } else {
+                                                toastMessage.value = "Contact can't be deleted until it presents in debts"
+                                                //getView()?.displayAlert("Contact can't be deleted until it presents in debts", "Contact can't be deleted")
+                                            }
+                                        }
+
+                                        override fun onError(e: Throwable) {
+                                            Log.d("Error getting receivers with amount from DB, $e")
+                                        }
+
+                                    })
+                        } else {
+                            toastMessage.value = "Contact can't be deleted until it presents in debts"
+                            //getView()?.displayAlert("Contact can't be deleted until it presents in debts", "Contact can't be deleted")
+                        }
+                    }
+
+                    override fun onError(e: Throwable) {
+                        Log.d("Error getting debts for contact from db, $e")
+                    }
+                })
+    }
+
+    private fun deleteContact(contact: Contact) {
+        lastDeletedContact = contact
+        snackbarMessage.value = "Contact is deleted"
+        val subscription = repository.deleteContact(contact)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe ({
+                    Log.d("Contact is deleted")
+                }, {error ->
+                    Log.d("Error deleting contact, $error")
+                    toastMessage.value = "Database error"
+                })
+        compositeDisposable.add(subscription)
     }
 }

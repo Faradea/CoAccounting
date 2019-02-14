@@ -160,7 +160,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         clearStack()
         val supportFragmentManager = supportFragmentManager
         supportFragmentManager.beginTransaction()
-                .add(R.id.content_main_constraint_layout, ContactsFragmentMVVM())
+                .add(R.id.content_main_constraint_layout, ContactsFragment())
                 .addToBackStack("ContactsFragment")
                 .commit()
     }
