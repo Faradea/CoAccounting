@@ -33,4 +33,8 @@ class Contact {
     public var status: String? = "active"
         set
         get
+
+    public var isActiveForCurrentTrip: Boolean = false
+        set
+        get
 }

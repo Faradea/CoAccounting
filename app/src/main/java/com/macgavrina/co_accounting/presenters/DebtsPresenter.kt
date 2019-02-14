@@ -47,7 +47,7 @@ class DebtsPresenter: BasePresenter<DebtsContract.View>(), DebtsContract.Present
 
         getView()?.showProgress()
 
-        TripRepository(MainApplication.instance).getCurrentTrip()
+        TripRepository().getCurrentTrip()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe ({ maybeTrip ->

@@ -21,7 +21,7 @@ class TripsViewModel(application: Application) : AndroidViewModel(MainApplicatio
     internal val toastMessage = SingleLiveEvent<String>()
     internal val snackbarMessage = SingleLiveEvent<String>()
 
-    private var repository: TripRepository = TripRepository(application)
+    private var repository: TripRepository = TripRepository()
     private var allTrips: LiveData<List<Trip>> = repository.getAll()
 
     private var lastDeletedTrip: Trip? = null
@@ -229,7 +229,7 @@ class TripsViewModel(application: Application) : AndroidViewModel(MainApplicatio
 
                                 override fun onComplete() {
                                     Log.d("There is no trips with isCurrent=false in DB, so set isCurrent=true for the only one trip")
-                                    //toastMessage.value = "The only one trip in the list can't be deactivated"
+                                    toastMessage.value = "The only one trip in the list can't be deactivated"
                                     repository.updateTripIsCurrentField(exceptTripId, true)
                                 }
                             })

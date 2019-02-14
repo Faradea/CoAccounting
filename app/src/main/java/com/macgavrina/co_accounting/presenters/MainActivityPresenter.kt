@@ -135,10 +135,10 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
                                 Log.d("Catch Events.OnClickTripList event")
                                 getView()?.displayAddTripFragment(`object`.tripId)
                             }
-                            is Events.ContactCannotBeDisableForTrip -> {
-                                Log.d("Catch Events.ContactCannotBeDisableForTrip event")
-                                getView()?.displayAlert("Contact can't be disabled for trip until it used for debts", "Contact can't be disabled for trip")
-                            }
+//                            is Events.ContactCannotBeDisableForTrip -> {
+//                                Log.d("Catch Events.ContactCannotBeDisableForTrip event")
+//                                getView()?.displayAlert("Contact can't be disabled for trip until it used for debts", "Contact can't be disabled for trip")
+//                            }
 //                        is Events.OnClickExpenseItemList -> {
 //                            getView()?.displayAddReceiverInAddDebtFragment(`object`.myDebtId, `object`.myExpenseId)
 //                        }
@@ -324,7 +324,7 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
     }
 
     private fun checkIfAtLeastOneTripExists() {
-        TripRepository(MainApplication.instance).getCurrentTripsAmount()
+        TripRepository().getTripsAmount()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({count ->
@@ -342,7 +342,7 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
         newTrip.title = "Unsorted"
         newTrip.status = "active"
         newTrip.isCurrent = true
-        TripRepository(MainApplication.instance).insertTrip(newTrip)
+        TripRepository().insertTrip(newTrip)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe ({

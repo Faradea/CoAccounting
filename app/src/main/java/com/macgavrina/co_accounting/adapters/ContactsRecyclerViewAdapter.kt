@@ -9,15 +9,18 @@ import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.room.Contact
 import kotlinx.android.synthetic.main.contacts_list_item.view.*
 import com.macgavrina.co_accounting.MainApplication
-import com.macgavrina.co_accounting.logging.Log
-import com.macgavrina.co_accounting.room.ContactToTripRelation
 import com.macgavrina.co_accounting.rxjava.Events
 
 
-class ContactsRecyclerViewAdapter (contactsList: List<Contact>?, private val contactsActiveForTrip: List<ContactToTripRelation>?) :
+class ContactsRecyclerViewAdapter:
         RecyclerView.Adapter<ContactsRecyclerViewAdapter.ViewHolder>() {
 
-    private val mItems: List<Contact>? = contactsList
+    private var mItems: List<Contact>? = null
+
+    fun setContacts(contacts: List<Contact>) {
+        this.mItems = contacts
+        notifyDataSetChanged()
+    }
 
     open class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
@@ -61,28 +64,21 @@ class ContactsRecyclerViewAdapter (contactsList: List<Contact>?, private val con
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
 
+        if (mItems == null) return
+
         val item = mItems?.get(position) ?: return
 
         holder.friendAliasTV.text = item.alias
         holder.friendEmailTV.text = item.email
+        holder.linkedToCurrentTripCheckBox.isChecked = item.isActiveForCurrentTrip
 
-        Log.d("contactsActiveForTrip = $contactsActiveForTrip")
-        holder.linkedToCurrentTripCheckBox.isChecked = false
-        if (contactsActiveForTrip != null && contactsActiveForTrip.isNotEmpty()) {
-            contactsActiveForTrip.forEach { contactToTripRelation ->
-                if (item.uid == contactToTripRelation.contactId) {
-                    holder.linkedToCurrentTripCheckBox.isChecked = true
-                }
-            }
-        }
-
-        holder.setItem(mItems[position])
+        holder.setItem(mItems!![position])
     }
 
     // Return the size of your dataset (invoked by the layout manager)
     override fun getItemCount(): Int {
         if (mItems != null) {
-            return mItems.size
+            return mItems!!.size
         }
         return -1
     }

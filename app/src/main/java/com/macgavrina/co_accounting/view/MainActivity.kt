@@ -18,7 +18,6 @@ import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.nav_header_main.view.*
 import android.content.Intent
 import com.google.android.material.snackbar.Snackbar
-import com.macgavrina.co_accounting.logging.Log
 import kotlinx.android.synthetic.main.content_main.*
 
 
@@ -161,7 +160,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         clearStack()
         val supportFragmentManager = supportFragmentManager
         supportFragmentManager.beginTransaction()
-                .add(R.id.content_main_constraint_layout, ContactsFragment())
+                .add(R.id.content_main_constraint_layout, ContactsFragmentMVVM())
                 .addToBackStack("ContactsFragment")
                 .commit()
     }
@@ -170,7 +169,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         clearStack()
         val supportFragmentManager = supportFragmentManager
         supportFragmentManager.beginTransaction()
-                .add(R.id.content_main_constraint_layout, TripsFragmentMVVM())
+                .add(R.id.content_main_constraint_layout, TripsFragment())
                 .addToBackStack("TripsFragment")
                 .commit()
     }

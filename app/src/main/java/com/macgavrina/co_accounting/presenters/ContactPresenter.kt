@@ -83,28 +83,28 @@ class ContactPresenter: BasePresenter<AddContactContract.View>(), AddContactCont
 
         Log.d("ContactId is received from main activity, = $contactId")
 
-        if (contactId != null) {
-
-            MainApplication.db.contactDAO().loadContactByIds(contactId)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(object : DisposableMaybeObserver<Contact>() {
-                        override fun onSuccess(loadedContact: com.macgavrina.co_accounting.room.Contact) {
-                            contact = loadedContact
-                            getView()?.hideProgress()
-                            getView()?.displayContactData(contact.alias!!, contact.email!!)
-                        }
-
-                        override fun onError(e: Throwable) {
-                            Log.d(e.toString())
-                        }
-
-                        override fun onComplete() {
-                        }
-                    })
-        } else {
-            getView()?.hideDeleteButton()
-        }
+//        if (contactId != null) {
+//
+//            MainApplication.db.contactDAO().getContactByIds(contactId)
+//                    .subscribeOn(Schedulers.io())
+//                    .observeOn(AndroidSchedulers.mainThread())
+//                    .subscribe(object : DisposableMaybeObserver<Contact>() {
+//                        override fun onSuccess(loadedContact: com.macgavrina.co_accounting.room.Contact) {
+//                            contact = loadedContact
+//                            getView()?.hideProgress()
+//                            getView()?.displayContactData(contact.alias!!, contact.email!!)
+//                        }
+//
+//                        override fun onError(e: Throwable) {
+//                            Log.d(e.toString())
+//                        }
+//
+//                        override fun onComplete() {
+//                        }
+//                    })
+//        } else {
+//            getView()?.hideDeleteButton()
+//        }
     }
 
     override fun deleteButtonIsPressed() {
@@ -160,25 +160,25 @@ class ContactPresenter: BasePresenter<AddContactContract.View>(), AddContactCont
 
     private fun deleteContact(contact: Contact) {
 
-        Completable.fromAction {
-            MainApplication.db.contactDAO().deleteContact(contact.uid.toString(), "deleted") }
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(object : CompletableObserver {
-                    override fun onSubscribe(d: Disposable) {
-
-                    }
-
-                    override fun onComplete() {
-                        Log.d("Contact is deleted")
-                        MainApplication.bus.send(Events.ContactIsDeleted(contact))
-                        getView()?.finishSelf()
-                    }
-
-                    override fun onError(e: Throwable) {
-                        Log.d("Error deleting contact, $e")
-                    }
-                })
+//        Completable.fromAction {
+//            MainApplication.db.contactDAO().deleteContact(contact.uid, "deleted") }
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(object : CompletableObserver {
+//                    override fun onSubscribe(d: Disposable) {
+//
+//                    }
+//
+//                    override fun onComplete() {
+//                        Log.d("Contact is deleted")
+//                        MainApplication.bus.send(Events.ContactIsDeleted(contact))
+//                        getView()?.finishSelf()
+//                    }
+//
+//                    override fun onError(e: Throwable) {
+//                        Log.d("Error deleting contact, $e")
+//                    }
+//                })
     }
 
 }

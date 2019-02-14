@@ -16,7 +16,7 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import java.util.stream.Collectors
 
-class TripRepository(application: Application) {
+class TripRepository {
 
     private var tripDao: TripDAO = MainApplication.db.tripDAO()
 
@@ -27,6 +27,7 @@ class TripRepository(application: Application) {
     }
 
     fun getAll(): LiveData<List<Trip>> {
+        Log.d("get all trips, list size = ${allTrips.value?.size}")
         return allTrips
     }
 
@@ -39,7 +40,7 @@ class TripRepository(application: Application) {
         return Observable.fromCallable { tripDao.getLastTripByIsCurrentValue(true, "active") }
     }
 
-    fun getCurrentTripsAmount(): Observable<Int> {
+    fun getTripsAmount(): Observable<Int> {
         return Observable.fromCallable { tripDao.getTripsCount() }
     }
 
@@ -104,7 +105,7 @@ class TripRepository(application: Application) {
                     override fun onSubscribe(d: Disposable) {}
 
                     override fun onComplete() {
-                        Log.d("Trip's isCurrent field is updated")
+                        Log.d("Trip's isCurrent field is updated, isCurrent = $isCurrent")
                     }
 
                     override fun onError(e: Throwable) {

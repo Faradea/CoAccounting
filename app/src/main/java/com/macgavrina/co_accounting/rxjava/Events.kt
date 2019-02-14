@@ -122,8 +122,4 @@ object Events {
         val isChecked = inputIsChecked
     }
 
-    class ContactCannotBeDisableForTrip {
-
-    }
-
 }
