@@ -10,4 +10,6 @@
     <color name="lightBackground">#c8e6c9</color>
     <color name="colorOnSecondary">#ffffff</color>
     <color name="colorTextHints">#000000</color>
+    <color name="colorOwed">#2e7d32</color>
+    <color name="colorOwes">#d32f2f</color>
 </resources>

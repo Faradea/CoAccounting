@@ -52,7 +52,7 @@ class TripsFragment: Fragment() {
                         printAllTrips(tripsList)
                         trips_fragment_empty_list_layout.visibility = View.INVISIBLE
                         Log.d(trips_fragment_recyclerview.adapter.toString())
-                        trips_fragment_recyclerview.adapter?.notifyDataSetChanged()
+                        //trips_fragment_recyclerview.adapter?.notifyDataSetChanged()
                         //trips_fragment_recyclerview.adapter = TripsRecyclerViewAdapter(tripsList)
                     } else {
                         trips_fragment_empty_list_layout.visibility = View.VISIBLE

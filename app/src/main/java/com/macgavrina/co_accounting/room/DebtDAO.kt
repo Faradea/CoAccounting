@@ -1,5 +1,6 @@
 package com.macgavrina.co_accounting.room
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import io.reactivex.Maybe
 import io.reactivex.Single
@@ -33,4 +34,20 @@ interface DebtDAO {
 
     @Update
     fun updateDebt(debt: Debt)
+
+    @Query("SELECT alias as contactAlias, contactId, SUM(amount) as totalAmount " +
+            "FROM (select Contact.alias, Debt.senderId as contactId, Debt.spentAmount as amount from Debt " +
+            "INNER JOIN Contact ON Contact.uid = Debt.senderId " +
+            "INNER JOIN trip ON Debt.tripId = Trip.uid " +
+            "WHERE Trip.isCurrent = 1 AND trip.status = \"active\" AND debt.status = \"active\" " +
+            "UNION ALL " +
+            "select Contact.alias, ReceiverWithAmountForDB.contactId, -SUM(ReceiverWithAmountForDB.amount) as amount from ReceiverWithAmountForDB " +
+            "LEFT JOIN Expense ON ReceiverWithAmountForDB.expenseId = Expense.uid " +
+            "INNER JOIN Contact ON ReceiverWithAmountForDB.contactId = Contact.uid " +
+            "INNER JOIN debt ON debt.uid = Expense.debtId " +
+            "INNER JOIN trip ON debt.tripId = Trip.uid " +
+            "WHERE Trip.isCurrent = 1 AND trip.status = \"active\" AND debt.status = \"active\" " +
+            "GROUP BY ReceiverWithAmountForDB.contactId) " +
+            "GROUP BY contactId")
+    fun getAllCalculationsForCurrentTrip(): LiveData<List<Calculation>>
 }

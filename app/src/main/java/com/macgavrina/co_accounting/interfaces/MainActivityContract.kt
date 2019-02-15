@@ -30,8 +30,6 @@ interface MainActivityContract {
 
         fun displayAddContactFragment(contactId: String?)
 
-        fun displayEditContactFragment(uid: String?)
-
         fun displayDebtsFragment(isInitial: Boolean)
 
         fun displayAddDebtFragment(myUid: String?)
@@ -53,6 +51,8 @@ interface MainActivityContract {
         fun displayAddTripFragment(tripId: String?)
 
         fun displayAlert(text: String, title: String)
+
+        fun displayCalculationsFragment()
     }
 
     interface Presenter:BasePresenterContract<View> {
@@ -71,6 +71,7 @@ interface MainActivityContract {
 
         fun prepareAndShareData()
 
+        fun gotoCalculations()
     }
 
 }

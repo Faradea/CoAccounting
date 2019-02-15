@@ -7,11 +7,8 @@ import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.repositories.ContactRepository
 import com.macgavrina.co_accounting.room.Contact
-import com.macgavrina.co_accounting.room.ContactToTripRelation
 import com.macgavrina.co_accounting.room.Debt
 import com.macgavrina.co_accounting.rxjava.Events
-import io.reactivex.Completable
-import io.reactivex.CompletableObserver
 import io.reactivex.SingleObserver
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable

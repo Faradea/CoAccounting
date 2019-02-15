@@ -122,6 +122,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.nav_share -> {
                 presenter.prepareAndShareData()
             }
+            R.id.nav_calculations -> {
+                presenter.gotoCalculations()
+            }
         }
 
         drawer_layout.closeDrawer(GravityCompat.START)
@@ -174,6 +177,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .commit()
     }
 
+    override fun displayCalculationsFragment() {
+        clearStack()
+        val supportFragmentManager = supportFragmentManager
+        supportFragmentManager.beginTransaction()
+                .add(R.id.content_main_constraint_layout, CalculationsFragment())
+                .addToBackStack("CalculationsFragment")
+                .commit()
+    }
+
     override fun displayRegisterFragment(enteredLogin: String?) {
         val supportFragmentManager = supportFragmentManager
         val registerFragment = RegisterFragment()
@@ -186,17 +198,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .commit()
     }
 
-    override fun displayEditContactFragment(contactId: String?) {
-        clearStack()
-        val intent = Intent()
-        intent.action = "com.macgavrina.indebt.CONTACT"
-        if (contactId == null) {
-            intent.putExtra("contactId", -1)
-        } else {
-            intent.putExtra("contactId", contactId?.toInt())
-        }
-        startActivity(intent)
-    }
+//    override fun displayEditContactFragment(contactId: String?) {
+//        clearStack()
+//        val intent = Intent()
+//        intent.action = "com.macgavrina.indebt.CONTACT"
+//        if (contactId == null) {
+//            intent.putExtra("contactId", -1)
+//        } else {
+//            intent.putExtra("contactId", contactId?.toInt())
+//        }
+//        startActivity(intent)
+//    }
 
     override fun displayDebtsFragment(isInitial: Boolean) {
         clearStack()

@@ -21,6 +21,10 @@
             android:icon="@drawable/ic_menu_events"
             android:title="Trips" />
         <item
+            android:id="@+id/nav_calculations"
+            android:icon="@drawable/ic_menu_calculations"
+            android:title="Calculations" />
+        <item
             android:id="@+id/nav_share"
             android:icon="@drawable/ic_menu_share"
             android:title="Share" />

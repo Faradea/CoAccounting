@@ -33,7 +33,7 @@ interface TripDAO {
     @Update
     fun updateTrip(trip: Trip)
 
-    @Query("UPDATE trip SET status = :status WHERE uid IN (:tripId)")
+    @Query("UPDATE trip SET status = :status, isCurrent = 0 WHERE uid IN (:tripId)")
     fun deleteTrip(tripId: String, status: String)
 
     @Query("UPDATE trip SET isCurrent = :isCurrent WHERE uid NOT IN (:tripId)")

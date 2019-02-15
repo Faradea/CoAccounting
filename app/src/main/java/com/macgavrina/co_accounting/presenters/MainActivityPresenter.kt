@@ -89,12 +89,12 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
                             }
                             is Events.OnClickContactList -> {
                                 Log.d("Catch Events.OnClickContactList event")
-                                getView()?.displayEditContactFragment(`object`.myUid)
+                                getView()?.displayAddContactFragment(`object`.myUid)
                             }
-                            is Events.ContactEditingIsFinished -> {
-                                Log.d("Catch Events.ContactEditingIsFinished event")
-                                getView()?.displayContactsFragment()
-                            }
+//                            is Events.ContactEditingIsFinished -> {
+//                                Log.d("Catch Events.ContactEditingIsFinished event")
+//                                getView()?.displayContactsFragment()
+//                            }
                             is Events.ContactIsDeleted -> {
                                 Log.d("Catch Events.ContactIsDeleted event")
                                 lastDeletedContact = `object`.contact
@@ -164,10 +164,14 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
         getView()?.displayDebtsFragment(isInitial)
     }
 
-
     override fun gotoTrips() {
         Log.d("Trips section is selected in navigation menu")
         getView()?.displayTripsFragment()
+    }
+
+    override fun gotoCalculations() {
+        Log.d("Calculations section is selected in navigation menu")
+        getView()?.displayCalculationsFragment()
     }
 
     override fun viewIsReady() {

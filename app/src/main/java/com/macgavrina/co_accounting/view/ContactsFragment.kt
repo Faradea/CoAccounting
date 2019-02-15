@@ -51,7 +51,7 @@ class ContactsFragment: Fragment() {
                     Log.d("contactsList size = ${contactsList.size}")
                     if (contactsList.isNotEmpty()) {
                         contacts_fragment_empty_list_layout.visibility = View.INVISIBLE
-                        contacts_fragment_recyclerview.adapter?.notifyDataSetChanged()
+                        //contacts_fragment_recyclerview.adapter?.notifyDataSetChanged()
                     } else {
                         contacts_fragment_empty_list_layout.visibility = View.VISIBLE
                     }
