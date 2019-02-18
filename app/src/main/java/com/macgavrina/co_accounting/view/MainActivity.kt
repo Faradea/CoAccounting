@@ -218,13 +218,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (!isInitial) {
             val supportFragmentManager = supportFragmentManager
             supportFragmentManager.beginTransaction()
-                    .add(R.id.content_main_constraint_layout, DebtsFragment())
+                    .add(R.id.content_main_constraint_layout, DebtsFragmentMVVM())
                     .addToBackStack("DebtsFragment")
                     .commit()
         } else {
             val supportFragmentManager = supportFragmentManager
             supportFragmentManager.beginTransaction()
-                    .replace(R.id.content_main_constraint_layout, DebtsFragment())
+                    .replace(R.id.content_main_constraint_layout, DebtsFragmentMVVM())
                     .commit()
         }
     }

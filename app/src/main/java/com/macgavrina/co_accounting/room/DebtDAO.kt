@@ -13,11 +13,14 @@ interface DebtDAO {
     @Query("SELECT * FROM debt WHERE status IN (:status) AND tripId IN (:tripId) ORDER BY datetime DESC")
     fun getAllForTrip(status: String, tripId: Int): Maybe<List<Debt>>
 
-    @Query("SELECT * FROM debt WHERE uid IN (:debtId)")
-    fun getDebtByIds(debtId: String): Maybe<Debt>
+    @Query("select debt.* from debt INNER JOIN trip ON Debt.tripId = Trip.uid AND Trip.isCurrent = 1 AND Debt.status = \"active\"")
+    fun getDebtsForCurrentTrip(): LiveData<List<Debt>>
 
-    @Query("SELECT * FROM debt WHERE status IN (:status)")
-    fun getDebtDraft(status: String): Maybe<Debt>
+    @Query("SELECT * FROM debt WHERE uid IN (:debtId)")
+    fun getDebtByIds(debtId: Int): LiveData<Debt>
+
+    @Query("SELECT * FROM debt WHERE status = \"draft\"")
+    fun getDebtDraft(): LiveData<Debt>
 
     //ToDo REFACT use count instead of Select all
     @Query ("SELECT * FROM debt WHERE senderId IN (:contactId) AND status IN (:contactStatus)")
@@ -29,8 +32,8 @@ interface DebtDAO {
     @Insert
     fun insertDebt(debt: Debt)
 
-    @Query("UPDATE debt SET status = :status WHERE uid IN (:debtId)")
-    fun deleteDebt(debtId: String, status: String)
+    @Query("UPDATE debt SET status = \"deleted\" WHERE uid IN (:debtId)")
+    fun deleteDebt(debtId: Int)
 
     @Update
     fun updateDebt(debt: Debt)

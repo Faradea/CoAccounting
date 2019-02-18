@@ -29,6 +29,10 @@ class ContactRepository {
         return allContactsForCurrentTrip
     }
 
+    fun getAllActiveContactsForCurrentTrip(): LiveData<List<Contact>> {
+        return contactDao.getActiveContactsForCurrentTrip()
+    }
+
     fun getContactById(contactId: String): LiveData<Contact> {
 
         return contactDao.getContactByIds(contactId)

@@ -29,6 +29,9 @@ interface ContactDAO {
     fun getContactsForCurrentTrip(): LiveData<List<Contact>>
 
     @Query("SELECT contact.*, Trip.isCurrent as isActiveForCurrentTrip from contact INNER JOIN contacttotriprelation ON contacttotriprelation.contactId = contact.uid INNER JOIN trip ON contacttotriprelation.tripId = trip.uid WHERE contact.status = \"active\" AND trip.isCurrent = 1")
-    fun getContactsForCurrentTripRx(): Maybe<List<Contact>>
+    fun getActiveContactsForCurrentTrip(): LiveData<List<Contact>>
+
+    @Query("SELECT contact.*, Trip.isCurrent as isActiveForCurrentTrip from contact INNER JOIN contacttotriprelation ON contacttotriprelation.contactId = contact.uid INNER JOIN trip ON contacttotriprelation.tripId = trip.uid WHERE contact.status = \"active\" AND trip.isCurrent = 1")
+    fun getActiveContactsForCurrentTripRx(): Maybe<List<Contact>>
 
 }

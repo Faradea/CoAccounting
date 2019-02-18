@@ -7,15 +7,21 @@ import android.view.View
 import android.view.ViewGroup
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
+import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.room.Debt
 import com.macgavrina.co_accounting.rxjava.Events
 import com.macgavrina.co_accounting.support.DateFormatter
 import kotlinx.android.synthetic.main.debts_list_item.view.*
 
-class DebtsRecyclerViewAdapter (debtsList: List<Debt>?) :
+class DebtsRecyclerViewAdapter:
         RecyclerView.Adapter<DebtsRecyclerViewAdapter.ViewHolder>() {
 
-    private val mItems: List<Debt>? = debtsList
+    private var mItems: List<Debt>? = null
+
+    fun setDebts(debts: List<Debt>) {
+        this.mItems = debts
+        notifyDataSetChanged()
+    }
 
     open class ViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
 
@@ -75,7 +81,7 @@ class DebtsRecyclerViewAdapter (debtsList: List<Debt>?) :
     // Return the size of your dataset (invoked by the layout manager)
     override fun getItemCount(): Int {
         if (mItems != null) {
-            return mItems.size
+            return mItems!!.size
         }
         return -1
     }

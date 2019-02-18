@@ -27,7 +27,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".view.DebtActivity"
+            android:name=".view.DebtActivityMVVM"
             android:label="@string/title_activity_debt"
             android:launchMode="singleTask"
             android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"

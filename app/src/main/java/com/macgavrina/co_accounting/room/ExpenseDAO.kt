@@ -1,5 +1,6 @@
 package com.macgavrina.co_accounting.room
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import io.reactivex.Maybe
 
@@ -15,7 +16,16 @@ interface ExpenseDAO {
     fun getLastExpenseId(): Maybe<Int>
 
     @Query("SELECT expense.uid, expense.debtId, expense.expenseName, group_concat(contact.alias, :separator) as receiversList, expense.totalAmount FROM expense LEFT JOIN receiverwithamountfordb ON receiverwithamountfordb.expenseId = expense.uid INNER JOIN contact ON receiverwithamountfordb.contactId = contact.uid WHERE expense.debtId IN (:debtId) GROUP BY receiverwithamountfordb.expenseId ORDER BY expense.uid")
-    fun getExpensesForDebt(debtId: String, separator: String): Maybe<List<Expense>>
+    fun getExpensesForDebt(debtId: Int, separator: String): LiveData<List<Expense>>
+
+    @Query("SELECT expense.uid, expense.debtId, expense.expenseName, group_concat(contact.alias, :separator) as receiversList, expense.totalAmount " +
+            "FROM expense LEFT JOIN receiverwithamountfordb ON receiverwithamountfordb.expenseId = expense.uid " +
+            "INNER JOIN contact ON receiverwithamountfordb.contactId = contact.uid " +
+            "INNER JOIN debt ON Expense.debtId = debt.uid " +
+            "WHERE debt.status = \"draft\" " +
+            "GROUP BY receiverwithamountfordb.expenseId " +
+            "ORDER BY expense.uid")
+    fun getExpensesForDebtDraft(separator: String): LiveData<List<Expense>>
 
     @Query("DELETE FROM expense WHERE debtId IN (:debtId)")
     fun deleteExpensesForDebt(debtId: String)
