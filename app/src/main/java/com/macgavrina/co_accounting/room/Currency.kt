@@ -15,4 +15,6 @@ class Currency {
 
     @ColumnInfo(name = "symbol")
     public var symbol: String? = null
+
+    public var activeTripId: Int = -1
 }

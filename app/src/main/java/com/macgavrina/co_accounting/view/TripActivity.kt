@@ -2,6 +2,7 @@ package com.macgavrina.co_accounting.view
 
 import android.app.DatePickerDialog
 import android.content.Context
+import android.content.Intent
 import android.icu.util.Calendar
 import android.os.Build
 import android.os.Bundle
@@ -19,6 +20,7 @@ import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.Trip
+import com.macgavrina.co_accounting.rxjava.Events
 import com.macgavrina.co_accounting.support.DateFormatter
 import com.macgavrina.co_accounting.viewmodel.TripsViewModel
 import io.reactivex.MaybeObserver
@@ -35,7 +37,7 @@ class TripActivity : AppCompatActivity() {
     private lateinit var tripsViewModel: TripsViewModel
     private var startDatePickerDialog: DatePickerDialog? = null
     private var endDatePickerDialog: DatePickerDialog? = null
-    private var tripId: String? = null
+    private var tripId: Int? = null
     private var trip: Trip? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,7 +71,7 @@ class TripActivity : AppCompatActivity() {
 
         val extras = intent.extras
         if (extras?.getInt("tripId") != -1) {
-            tripId = extras?.getInt("tripId").toString()
+            tripId = extras?.getInt("tripId")
             tripsViewModel.getTripById(tripId.toString())
                     .observe(this,
                             Observer<Trip> { trip ->
@@ -90,6 +92,12 @@ class TripActivity : AppCompatActivity() {
             hideDeleteButton()
         }
 
+        //ToDo Если список не пустой - вот этот textView должен быть некликабельным
+        trip_fragment_empty_currencies_list.setOnClickListener {
+            if (tripId != null && tripId != -1) {
+                startCurrencyActivity(tripId!!)
+            }
+        }
 
         trip_fragment_delete_fab.setOnClickListener { view ->
             if (trip != null) {
@@ -319,6 +327,13 @@ class TripActivity : AppCompatActivity() {
         } else {
             TODO("VERSION.SDK_INT < N")
         }
+    }
+
+    private fun startCurrencyActivity(tripId: Int) {
+        val intent = Intent()
+        intent.action = "com.macgavrina.indebt.CURRENCY"
+        intent.putExtra("tripId", tripId)
+        startActivity(intent)
     }
 
 }

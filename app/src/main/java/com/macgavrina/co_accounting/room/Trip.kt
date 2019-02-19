@@ -38,6 +38,10 @@ class Trip {
         set
         get
 
+    @ColumnInfo(name = "lastUsedCurrencyId")
+    public var lastUsedCurrencyId: Int? = null
+
+
     override fun toString(): String {
         return "title = $title, startdate = $startdate, enddate = $enddate, isCurrent = $isCurrent, status = $status"
     }
