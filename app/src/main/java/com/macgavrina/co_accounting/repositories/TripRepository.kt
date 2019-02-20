@@ -51,7 +51,7 @@ class TripRepository {
         }
     }
 
-    fun getTripById(tripId: String): LiveData<Trip> {
+    fun getTripById(tripId: Int): LiveData<Trip> {
         return tripDao.getTripById(tripId)
         //Observable.fromCallable { tripDao.getTripById(tripId) }
     }
@@ -110,6 +110,44 @@ class TripRepository {
 
                     override fun onError(e: Throwable) {
                         Log.d("Error updating trip, $e")
+                    }
+                })
+    }
+
+    fun setupLastUsedCurrencyForTrip(tripId: Int, currencyId: Int) {
+        Completable.fromAction {
+            MainApplication.db.tripDAO().setupLastUsedCurrencyForTrip(tripId, currencyId)
+        }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(object : CompletableObserver {
+                    override fun onSubscribe(d: Disposable) {}
+
+                    override fun onComplete() {
+                        Log.d("Last used currency for trip is updated")
+                    }
+
+                    override fun onError(e: Throwable) {
+                        Log.d("Error updating last used currency for trip, $e")
+                    }
+                })
+    }
+
+    fun setupLastUsedCurrencyForCurrentTrip(currencyId: Int) {
+        Completable.fromAction {
+            MainApplication.db.tripDAO().setupLastUsedCurrencyForCurrentTrip(currencyId)
+        }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(object : CompletableObserver {
+                    override fun onSubscribe(d: Disposable) {}
+
+                    override fun onComplete() {
+                        Log.d("Last used currency for current trip is updated")
+                    }
+
+                    override fun onError(e: Throwable) {
+                        Log.d("Error updating last used currency for current trip, $e")
                     }
                 })
     }

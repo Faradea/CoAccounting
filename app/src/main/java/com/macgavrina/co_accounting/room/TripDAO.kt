@@ -19,7 +19,7 @@ interface TripDAO {
     fun getLastTripId(status: String): Maybe<Int>
 
     @Query("SELECT * FROM trip WHERE uid IN (:tripId)")
-    fun getTripById(tripId: String): LiveData<Trip>
+    fun getTripById(tripId: Int): LiveData<Trip>
 
     @Query("SELECT * FROM trip WHERE isCurrent IN (:isCurrent) AND status IN (:status) ORDER BY uid DESC LIMIT 1")
     fun getLastTripByIsCurrentValue(isCurrent: Boolean, status: String): Maybe<Trip>
@@ -41,4 +41,10 @@ interface TripDAO {
 
     @Query("UPDATE trip SET isCurrent = :isCurrent WHERE uid IN (:tripId)")
     fun updateTripIsCurrentField(tripId: String, isCurrent: Boolean)
+
+    @Query("UPDATE trip SET lastUsedCurrencyId = :currencyId WHERE uid IN (:tripId)")
+    fun setupLastUsedCurrencyForTrip(tripId: Int, currencyId: Int)
+
+    @Query("UPDATE trip SET lastUsedCurrencyId = :currencyId WHERE isCurrent = 1")
+    fun setupLastUsedCurrencyForCurrentTrip(currencyId: Int)
 }

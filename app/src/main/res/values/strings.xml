@@ -16,4 +16,5 @@
     <string name="title_activity_debt">Debt</string>
     <string name="title_activity_expense">Expense</string>
     <string name="open_navigation_menu_tv"><u>navigation menu</u></string>
+    <string name="edit_currencies_for_trip">(<u>edit</u>)</string>
 </resources>

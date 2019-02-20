@@ -19,9 +19,11 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
+import com.macgavrina.co_accounting.adapters.DebtCurrenciesRecyclerViewAdapter
 import com.macgavrina.co_accounting.adapters.ExpensesRecyclerViewAdapter
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.Contact
+import com.macgavrina.co_accounting.room.Currency
 import com.macgavrina.co_accounting.room.Debt
 import com.macgavrina.co_accounting.room.Expense
 import com.macgavrina.co_accounting.support.DateFormatter
@@ -100,6 +102,10 @@ class DebtActivityMVVM : AppCompatActivity() {
         add_debt_fragment_reciever_recyclerview.adapter = adapter
         add_debt_fragment_reciever_recyclerview.layoutManager = LinearLayoutManager(MainApplication.applicationContext())
 
+        val currenciesAdapter = DebtCurrenciesRecyclerViewAdapter()
+        add_debt_fragment_currencies_list.adapter = currenciesAdapter
+        add_debt_fragment_currencies_list.layoutManager = LinearLayoutManager(MainApplication.applicationContext(), LinearLayoutManager.HORIZONTAL, true)
+
         viewModel.getAllExpensesForDebt(debtId).observe(this,
                 Observer<List<Expense>> { expensesList ->
                     adapter.setExpenses(expensesList)
@@ -114,6 +120,11 @@ class DebtActivityMVVM : AppCompatActivity() {
         viewModel.getAllActiveContactsForCurrentTrip().observe(this,
                 Observer<List<Contact>> { contactsList ->
                     displayContactsList(contactsList)
+                })
+
+        viewModel.getAllActiveCurrenciesWithLastUsedMarkerForCurrentTrip().observe(this,
+                Observer<List<Currency>> { currenciesList ->
+                    currenciesAdapter.setCurrencies(currenciesList)
                 })
 
         add_debt_fragment_add_receiver_tv.setOnClickListener { view ->

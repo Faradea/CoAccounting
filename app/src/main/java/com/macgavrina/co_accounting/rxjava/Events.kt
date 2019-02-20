@@ -122,4 +122,10 @@ object Events {
         val isChecked = inputIsChecked
     }
 
+    class OnClickCheckboxCurrency(val currencyId: Int, val isChecked: Boolean)
+
+    //class SetupLastUsedCurrency(val currencyId: Int)
+
+    class OnClickCurrencyInDebt(val currencyId: Int)
+
 }

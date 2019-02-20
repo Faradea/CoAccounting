@@ -15,10 +15,13 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
+import com.macgavrina.co_accounting.adapters.ActiveCurrenciesRecyclerViewAdapter
 import com.macgavrina.co_accounting.logging.Log
+import com.macgavrina.co_accounting.room.Currency
 import com.macgavrina.co_accounting.room.Trip
 import com.macgavrina.co_accounting.rxjava.Events
 import com.macgavrina.co_accounting.support.DateFormatter
@@ -69,10 +72,14 @@ class TripActivity : AppCompatActivity() {
         //ToDo REFACT Использовать фрагмент вместо activity и this.viewLifecycleOwner вместо this для всех observe
         tripsViewModel.getAll().observe(this, Observer<List<Trip>> {})
 
+        val adapter = ActiveCurrenciesRecyclerViewAdapter()
+        trip_fragment_used_currencies_list.adapter = adapter
+        trip_fragment_used_currencies_list.layoutManager = LinearLayoutManager(MainApplication.applicationContext(), LinearLayoutManager.HORIZONTAL, false)
+
         val extras = intent.extras
         if (extras?.getInt("tripId") != -1) {
             tripId = extras?.getInt("tripId")
-            tripsViewModel.getTripById(tripId.toString())
+            tripsViewModel.getTripById(tripId!!)
                     .observe(this,
                             Observer<Trip> { trip ->
                                 this.trip = trip
@@ -88,12 +95,25 @@ class TripActivity : AppCompatActivity() {
 
                                 trip_fragment_switch.isChecked = trip.isCurrent
                             })
+
+            tripsViewModel.getCurrenciesForTrip(tripId!!)
+                    .observe(this,
+                            Observer<List<Currency>> { currencyList ->
+                                adapter.setCurrencies(currencyList)
+
+                                if (currencyList.isNotEmpty()) {
+                                    trip_fragment_empty_currencies_list.visibility = View.INVISIBLE
+                                } else {
+                                    trip_fragment_empty_currencies_list.visibility = View.VISIBLE
+                                }
+                            })
+
         } else {
             hideDeleteButton()
         }
 
-        //ToDo Если список не пустой - вот этот textView должен быть некликабельным
-        trip_fragment_empty_currencies_list.setOnClickListener {
+        trip_fragment_edit_currencies_list_text.setOnClickListener {
+            Log.d("onClick trip_fragment_edit_currencies_list_text")
             if (tripId != null && tripId != -1) {
                 startCurrencyActivity(tripId!!)
             }

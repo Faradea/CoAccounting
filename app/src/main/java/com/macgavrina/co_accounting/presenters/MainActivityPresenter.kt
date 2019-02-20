@@ -12,6 +12,7 @@ import com.macgavrina.co_accounting.room.Debt
 import com.macgavrina.co_accounting.room.Expense
 import com.macgavrina.co_accounting.room.Trip
 import com.macgavrina.co_accounting.rxjava.Events
+import com.macgavrina.co_accounting.support.DBInitializer
 import com.macgavrina.co_accounting.support.DateFormatter
 import io.reactivex.Completable
 import io.reactivex.CompletableObserver
@@ -176,7 +177,7 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
 
     override fun viewIsReady() {
         UserProvider().loadUser(this)
-        checkIfAtLeastOneTripExists()
+        DBInitializer()
     }
 
     override fun headerIsClicked() {
@@ -324,36 +325,6 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
                     override fun onComplete() {
                         Log.d("nothing")
                     }
-                })
-    }
-
-    private fun checkIfAtLeastOneTripExists() {
-        TripRepository().getTripsAmount()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe({count ->
-                    if (count == 0) {
-                        createDefaultTrip()
-                    }
-                }, { error ->
-                    Log.d("Error getting trips from DB, $error")
-                    getView()?.displayToast("Database error")
-                })
-    }
-
-    private fun createDefaultTrip() {
-        val newTrip = Trip()
-        newTrip.title = "Unsorted"
-        newTrip.status = "active"
-        newTrip.isCurrent = true
-        TripRepository().insertTrip(newTrip)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe ({
-                    Log.d("New default trip is created")
-                }, {e ->
-                    Log.d("Error creating default trip, $e")
-                    getView()?.displayToast("Database error")
                 })
     }
 }

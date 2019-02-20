@@ -5,7 +5,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.logging.Log
+import com.macgavrina.co_accounting.repositories.CurrencyRepository
 import com.macgavrina.co_accounting.repositories.TripRepository
+import com.macgavrina.co_accounting.room.Currency
 import com.macgavrina.co_accounting.room.Trip
 import com.macgavrina.co_accounting.rxjava.Events
 import io.reactivex.CompletableObserver
@@ -21,6 +23,8 @@ class TripsViewModel(application: Application) : AndroidViewModel(MainApplicatio
     internal val toastMessage = SingleLiveEvent<String>()
     internal val snackbarMessage = SingleLiveEvent<String>()
 
+    private var currentTripId: Int = -1
+
     private var repository: TripRepository = TripRepository()
     private var allTrips: LiveData<List<Trip>> = repository.getAll()
 
@@ -34,7 +38,8 @@ class TripsViewModel(application: Application) : AndroidViewModel(MainApplicatio
         return allTrips
     }
 
-    fun getTripById(tripId: String): LiveData<Trip> {
+    fun getTripById(tripId: Int): LiveData<Trip> {
+        currentTripId = tripId
         return repository.getTripById(tripId)
     }
 
@@ -131,6 +136,10 @@ class TripsViewModel(application: Application) : AndroidViewModel(MainApplicatio
                                 Log.d("Catch Events.OnClickSwitchTripList, tripId = ${`object`.tripId}, isChecked = ${`object`.switchIsChecked}")
                                 updateClickedTripIsCurrentField(`object`.tripId, `object`.switchIsChecked)
                             }
+//                            is Events.SetupLastUsedCurrency -> {
+//                                Log.d("Catch Events.SetupLastUsedCurrency event, currencyId = ${`object`.currencyId}, currentTripId = $currentTripId")
+//                                repository.setupLastUsedCurrencyForTrip(currentTripId, `object`.currencyId)
+//                            }
                         }
         }
             compositeDisposable.add(subscriptionToBus)
@@ -158,6 +167,10 @@ class TripsViewModel(application: Application) : AndroidViewModel(MainApplicatio
                         toastMessage.value = "Database error"
                     }
                 })
+    }
+
+    fun getCurrenciesForTrip(tripId: Int): LiveData<List<Currency>> {
+        return CurrencyRepository().getAllActiveCurrenciesForTrip(tripId)
     }
 
     private fun updateClickedTripIsCurrentField(tripId: String, isCurrent: Boolean) {

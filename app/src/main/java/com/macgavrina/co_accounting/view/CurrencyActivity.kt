@@ -1,9 +1,11 @@
 package com.macgavrina.co_accounting.view
 
+import android.content.Context
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -31,7 +33,7 @@ class CurrencyActivity : AppCompatActivity() {
         setContentView(R.layout.activity_currency)
         setSupportActionBar(toolbar)
 
-        //supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         val adapter = CurrenciesRecyclerViewAdapter()
         cirrency_fragment_currencies_list.adapter = adapter
@@ -127,5 +129,4 @@ class CurrencyActivity : AppCompatActivity() {
     private fun hideProgress() {
         //trip_fragment_progressBar.visibility = View.INVISIBLE
     }
-
 }

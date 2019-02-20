@@ -43,13 +43,12 @@ class Debt {
         set
         get
 
-    //For future functionality: to group debts in events
-    @ColumnInfo(name = "eventId")
-    public var eventId: String? = null
+    @ColumnInfo(name = "currencyId")
+    public var currencyId: Int = -1
         set
         get
 
     override fun toString(): String {
-        return "uid = $uid, tripId = $tripId, senderId = $senderId, spentAmount = $spentAmount, datetime = $datetime, comment = $comment, status = $status"
+        return "uid = $uid, tripId = $tripId, senderId = $senderId, spentAmount = $spentAmount, datetime = $datetime, comment = $comment, status = $status, currencyId = $currencyId"
     }
 }

@@ -1,21 +1,17 @@
 package com.macgavrina.co_accounting.adapters
 
-import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
-import com.macgavrina.co_accounting.logging.Log
-import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.room.Currency
 import com.macgavrina.co_accounting.rxjava.Events
-import kotlinx.android.synthetic.main.contacts_list_item.view.*
-import kotlinx.android.synthetic.main.currency_list_item.view.*
+import kotlinx.android.synthetic.main.active_currency_list_item.view.*
 
-class CurrenciesRecyclerViewAdapter:
-        RecyclerView.Adapter<CurrenciesRecyclerViewAdapter.ViewHolder>() {
+class DebtCurrenciesRecyclerViewAdapter:
+        RecyclerView.Adapter<DebtCurrenciesRecyclerViewAdapter.ViewHolder>() {
 
     private var mItems: List<Currency>? = null
 
@@ -26,21 +22,15 @@ class CurrenciesRecyclerViewAdapter:
 
     open class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
-        val currencySymbolTV = view.currency_list_item_symbol
-        val currencyNameTV = view.currency_list_item_name
-        val currencyCheckBox = view.currency_list_item_checkBox
+        val currencySymbolTV = view.active_currency_list_item_tv
+        val currencyLayout = view.active_currency_list_item_layout
 
         private var mItem: Currency? = null
 
         init {
-//            view.setOnClickListener{
-//                MainApplication.bus.send(Events.OnClickCurrency(mItem?.uid))
-//            }
-
-            currencyCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
-                if (buttonView != null && mItem != null && mItem!!.uid != null) {
-                    Log.d("you are touching my checkbox, isChecked = $isChecked")
-                    MainApplication.bus.send(Events.OnClickCheckboxCurrency(mItem!!.uid, isChecked))
+            view.setOnClickListener{
+                if (mItem != null) {
+                    MainApplication.bus.send(Events.OnClickCurrencyInDebt(mItem!!.uid))
                 }
             }
         }
@@ -52,10 +42,10 @@ class CurrenciesRecyclerViewAdapter:
 
     // Create new views (invoked by the layout manager)
     override fun onCreateViewHolder(parent: ViewGroup,
-                                    viewType: Int): CurrenciesRecyclerViewAdapter.ViewHolder {
+                                    viewType: Int): DebtCurrenciesRecyclerViewAdapter.ViewHolder {
         val layoutInflater: LayoutInflater = LayoutInflater.from(parent.context)
         // create a new view
-        val view = layoutInflater.inflate(R.layout.currency_list_item, parent, false)
+        val view = layoutInflater.inflate(R.layout.active_currency_list_item, parent, false)
         // set the view's size, margins, paddings and layout parameters
 
         return ViewHolder(view)
@@ -71,10 +61,18 @@ class CurrenciesRecyclerViewAdapter:
 
         val item = mItems?.get(position) ?: return
 
-        Log.d("binding item, item.name = ${item.name}, item.activeTripId = ${item.activeTripId}")
         holder.currencySymbolTV.text = item.symbol
-        holder.currencyNameTV.text = item.name
-        holder.currencyCheckBox.isChecked = (item.activeTripId > 0)
+
+        if (item.lastUsedCurrencyId < 1 && position == 0) {
+            holder.currencyLayout.setCardBackgroundColor(MainApplication.applicationContext().resources.getColor(R.color.colorSecondary))
+            MainApplication.bus.send(Events.OnClickCurrencyInDebt(item.uid))
+        } else {
+            if (item.uid == item.lastUsedCurrencyId) {
+                holder.currencyLayout.setCardBackgroundColor(MainApplication.applicationContext().resources.getColor(R.color.colorSecondary))
+            } else {
+                holder.currencyLayout.setCardBackgroundColor(MainApplication.applicationContext().resources.getColor(R.color.colorBackground))
+            }
+        }
 
         holder.setItem(mItems!![position])
     }

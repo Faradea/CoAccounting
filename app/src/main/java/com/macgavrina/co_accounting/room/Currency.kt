@@ -17,4 +17,6 @@ class Currency {
     public var symbol: String? = null
 
     public var activeTripId: Int = -1
+
+    public var lastUsedCurrencyId: Int = -1
 }

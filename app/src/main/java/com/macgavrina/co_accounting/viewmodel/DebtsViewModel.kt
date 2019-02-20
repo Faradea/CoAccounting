@@ -1,17 +1,12 @@
 package com.macgavrina.co_accounting.viewmodel
 
 import android.app.Application
-import android.content.Intent
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.logging.Log
-import com.macgavrina.co_accounting.repositories.ContactRepository
-import com.macgavrina.co_accounting.repositories.DebtRepository
-import com.macgavrina.co_accounting.repositories.ExpenseRepository
-import com.macgavrina.co_accounting.room.Contact
-import com.macgavrina.co_accounting.room.Debt
-import com.macgavrina.co_accounting.room.Expense
+import com.macgavrina.co_accounting.repositories.*
+import com.macgavrina.co_accounting.room.*
 import com.macgavrina.co_accounting.rxjava.Events
 import io.reactivex.Completable
 import io.reactivex.disposables.CompositeDisposable
@@ -25,9 +20,11 @@ class DebtsViewModel(application: Application) : AndroidViewModel(MainApplicatio
     private var repository: DebtRepository = DebtRepository()
     private var expenseRepository = ExpenseRepository()
     private var contactsRepository = ContactRepository()
+    private var tripRepository = TripRepository()
 
     private var allDebtsForCurrentTrip: LiveData<List<Debt>> = repository.getAllDebtsForCurrentTrip()
     private var currentDebt: LiveData<Debt>? = null
+    private var currentCurrencyId: Int = -1
 
     //private var lastDeletedContact: Contact? = null
 
@@ -84,6 +81,7 @@ class DebtsViewModel(application: Application) : AndroidViewModel(MainApplicatio
     }
 
     fun updateDebtInDB(debt: Debt) {
+        debt.currencyId = currentCurrencyId
         repository.updateDebtInDB(debt)
     }
 
@@ -97,6 +95,10 @@ class DebtsViewModel(application: Application) : AndroidViewModel(MainApplicatio
         }
     }
 
+    fun getAllActiveCurrenciesWithLastUsedMarkerForCurrentTrip(): LiveData<List<Currency>> {
+        return CurrencyRepository().getAllActiveCurrenciesWithLastUsedMarkerForCurrentTrip()
+    }
+
     private fun subscribeToEventBus() {
 
         val subscriptionToBus = MainApplication
@@ -107,6 +109,11 @@ class DebtsViewModel(application: Application) : AndroidViewModel(MainApplicatio
                         is Events.OnClickExpenseItemList -> {
                             Log.d("Catch OnClickExpenseItemList event, debtId = ${`object`.myDebtId}, expenseId = ${`object`.myExpenseId}")
                             //displayExpenseActivity(`object`.myDebtId, `object`.myExpenseId)
+                        }
+                        is Events.OnClickCurrencyInDebt -> {
+                            Log.d("Catch Events.OnClickCurrencyInDebt event, currencyId = ${`object`.currencyId}")
+                            currentCurrencyId = `object`.currencyId
+                            tripRepository.setupLastUsedCurrencyForCurrentTrip(`object`.currencyId)
                         }
                     }
                 }
