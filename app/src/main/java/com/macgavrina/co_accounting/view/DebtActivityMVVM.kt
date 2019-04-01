@@ -34,7 +34,7 @@ import kotlinx.android.synthetic.main.add_debt_fragment.*
 import kotlinx.android.synthetic.main.debt_activity.*
 import java.util.*
 
-class DebtActivityMVVM : AppCompatActivity() {
+class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.OnCurrencyClickListener {
 
     private lateinit var viewModel: DebtsViewModel
     private var debtId: Int = -1
@@ -102,7 +102,7 @@ class DebtActivityMVVM : AppCompatActivity() {
         add_debt_fragment_reciever_recyclerview.adapter = adapter
         add_debt_fragment_reciever_recyclerview.layoutManager = LinearLayoutManager(MainApplication.applicationContext())
 
-        val currenciesAdapter = DebtCurrenciesRecyclerViewAdapter()
+        val currenciesAdapter = DebtCurrenciesRecyclerViewAdapter(this)
         add_debt_fragment_currencies_list.adapter = currenciesAdapter
         add_debt_fragment_currencies_list.layoutManager = LinearLayoutManager(MainApplication.applicationContext(), LinearLayoutManager.HORIZONTAL, true)
 
@@ -124,7 +124,17 @@ class DebtActivityMVVM : AppCompatActivity() {
 
         viewModel.getAllActiveCurrenciesWithLastUsedMarkerForCurrentTrip().observe(this,
                 Observer<List<Currency>> { currenciesList ->
-                    currenciesAdapter.setCurrencies(currenciesList)
+                    val debt = viewModel.getCurrentDebt()
+                    if (debt != null && debt.currencyId != -1) {
+                        val currenciesListWithSavedForDebtMarker = mutableListOf<Currency>()
+                        currenciesList.forEach { currency ->
+                            currency.isActiveForCurrentTrip = currency.uid == debt.currencyId
+                            currenciesListWithSavedForDebtMarker.add(currency)
+                        }
+                        currenciesAdapter.setCurrencies(currenciesListWithSavedForDebtMarker)
+                    } else {
+                        currenciesAdapter.setCurrencies(currenciesList)
+                    }
                 })
 
         add_debt_fragment_add_receiver_tv.setOnClickListener { view ->
@@ -202,6 +212,10 @@ class DebtActivityMVVM : AppCompatActivity() {
         super.onBackPressed()
     }
 
+    override fun onCurrencyClick(selectedCurrencyId: Int) {
+        viewModel.onCurrencyClick(selectedCurrencyId)
+    }
+
     private fun hideKeyboard() {
         val inputMethodManager: InputMethodManager = this.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.hideSoftInputFromWindow(this.currentFocus?.windowToken, 0)
@@ -246,6 +260,7 @@ class DebtActivityMVVM : AppCompatActivity() {
     }
 
     private fun displayDebtData(debt: Debt) {
+        Log.d("Displaying debt = $debt")
         if (senderId == null) {
             if (!debt.senderId.isNullOrEmpty() && ::friendsList.isInitialized) {
                 Log.d("setSender")

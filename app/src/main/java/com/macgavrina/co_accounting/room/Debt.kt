@@ -48,6 +48,10 @@ class Debt {
         set
         get
 
+    public var currencySymbol: String? = null
+        set
+        get
+
     override fun toString(): String {
         return "uid = $uid, tripId = $tripId, senderId = $senderId, spentAmount = $spentAmount, datetime = $datetime, comment = $comment, status = $status, currencyId = $currencyId"
     }

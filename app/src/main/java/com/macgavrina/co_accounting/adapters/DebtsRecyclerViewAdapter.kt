@@ -63,14 +63,23 @@ class DebtsRecyclerViewAdapter:
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
 
-        val item = mItems?.get(position)
+        val item = mItems?.get(position) ?: return
 
-        holder.amount.text = item?.spentAmount
-        if (item?.datetime != null && item.datetime!!.isNotEmpty()) {
-            holder.datetime.text = DateFormatter().formatDateFromTimestamp(item?.datetime!!.toLong())
+        if (item.currencyId == -1) {
+            holder.amount.text = item.spentAmount
+        } else {
+            if (!item.spentAmount.isNullOrEmpty() && item.spentAmount?.toFloat()!! > 0F) {
+                holder.amount.text = "${item.spentAmount} ${item.currencySymbol}"
+            } else {
+                holder.amount.text = "0 ${item.currencySymbol}"
+            }
         }
 
-        if (item?.comment != null && item.comment!!.isNotEmpty()) {
+        if (item.datetime != null && item.datetime!!.isNotEmpty()) {
+            holder.datetime.text = DateFormatter().formatDateFromTimestamp(item.datetime!!.toLong())
+        }
+
+        if (item.comment != null && item.comment!!.isNotEmpty()) {
             holder.comment.text = item.comment
         } else {
             holder.comment.text = "..."

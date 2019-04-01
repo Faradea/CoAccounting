@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import com.macgavrina.co_accounting.MainApplication
+import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.repositories.*
 import com.macgavrina.co_accounting.room.*
@@ -25,6 +26,7 @@ class DebtsViewModel(application: Application) : AndroidViewModel(MainApplicatio
     private var allDebtsForCurrentTrip: LiveData<List<Debt>> = repository.getAllDebtsForCurrentTrip()
     private var currentDebt: LiveData<Debt>? = null
     private var currentCurrencyId: Int = -1
+    private var currenciesListForCurrentDebt: LiveData<List<Currency>>? = null
 
     //private var lastDeletedContact: Contact? = null
 
@@ -81,7 +83,21 @@ class DebtsViewModel(application: Application) : AndroidViewModel(MainApplicatio
     }
 
     fun updateDebtInDB(debt: Debt) {
-        debt.currencyId = currentCurrencyId
+        if (currentCurrencyId != -1) {
+            debt.currencyId = currentCurrencyId
+        } else {
+            if (currenciesListForCurrentDebt != null) {
+                currenciesListForCurrentDebt?.value?.forEach { currency ->
+                    if (currency.lastUsedCurrencyId != -1) {
+                        currentCurrencyId = currency.lastUsedCurrencyId
+                    } else {
+                        currentCurrencyId = currency.uid
+                    }
+                    debt.currencyId = currentCurrencyId
+                    return@forEach
+                }
+            }
+        }
         repository.updateDebtInDB(debt)
     }
 
@@ -96,7 +112,14 @@ class DebtsViewModel(application: Application) : AndroidViewModel(MainApplicatio
     }
 
     fun getAllActiveCurrenciesWithLastUsedMarkerForCurrentTrip(): LiveData<List<Currency>> {
-        return CurrencyRepository().getAllActiveCurrenciesWithLastUsedMarkerForCurrentTrip()
+        currenciesListForCurrentDebt = CurrencyRepository().getAllActiveCurrenciesWithLastUsedMarkerForCurrentTrip()
+        return currenciesListForCurrentDebt!!
+    }
+
+    fun onCurrencyClick(currencyId: Int) {
+        currentCurrencyId = currencyId
+        currentDebt!!.value!!.currencyId = currencyId
+        tripRepository.setupLastUsedCurrencyForCurrentTrip(currencyId)
     }
 
     private fun subscribeToEventBus() {
@@ -109,11 +132,6 @@ class DebtsViewModel(application: Application) : AndroidViewModel(MainApplicatio
                         is Events.OnClickExpenseItemList -> {
                             Log.d("Catch OnClickExpenseItemList event, debtId = ${`object`.myDebtId}, expenseId = ${`object`.myExpenseId}")
                             //displayExpenseActivity(`object`.myDebtId, `object`.myExpenseId)
-                        }
-                        is Events.OnClickCurrencyInDebt -> {
-                            Log.d("Catch Events.OnClickCurrencyInDebt event, currencyId = ${`object`.currencyId}")
-                            currentCurrencyId = `object`.currencyId
-                            tripRepository.setupLastUsedCurrencyForCurrentTrip(`object`.currencyId)
                         }
                     }
                 }

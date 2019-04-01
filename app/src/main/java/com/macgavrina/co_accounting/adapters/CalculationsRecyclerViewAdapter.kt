@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
+import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.Calculation
 import kotlinx.android.synthetic.main.calculation_list_item.view.*
 
@@ -62,7 +63,10 @@ class CalculationsRecyclerViewAdapter:
         val item = mItems?.get(position) ?: return
 
         holder.contactAliasTV.text = item.contactAlias
-        holder.amount.text = item.totalAmount.toString()
+
+        Log.d("Bind item = $item, currencySymbol = ${item.currencySymbol}")
+
+        holder.amount.text = "${item.totalAmount} ${item.currencySymbol}"
 
         if (item.totalAmount > 0) {
             holder.statusDesc.text = "You are owed"

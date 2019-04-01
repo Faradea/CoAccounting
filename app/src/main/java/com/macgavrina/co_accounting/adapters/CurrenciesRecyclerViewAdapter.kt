@@ -14,7 +14,7 @@ import com.macgavrina.co_accounting.rxjava.Events
 import kotlinx.android.synthetic.main.contacts_list_item.view.*
 import kotlinx.android.synthetic.main.currency_list_item.view.*
 
-class CurrenciesRecyclerViewAdapter:
+class CurrenciesRecyclerViewAdapter():
         RecyclerView.Adapter<CurrenciesRecyclerViewAdapter.ViewHolder>() {
 
     private var mItems: List<Currency>? = null
@@ -85,9 +85,5 @@ class CurrenciesRecyclerViewAdapter:
             return mItems!!.size
         }
         return -1
-    }
-
-    interface OnItemClickListener {
-        fun onItemClick(item: Currency)
     }
 }

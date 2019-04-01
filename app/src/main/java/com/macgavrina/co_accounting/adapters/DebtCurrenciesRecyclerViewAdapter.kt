@@ -10,13 +10,25 @@ import com.macgavrina.co_accounting.room.Currency
 import com.macgavrina.co_accounting.rxjava.Events
 import kotlinx.android.synthetic.main.active_currency_list_item.view.*
 
-class DebtCurrenciesRecyclerViewAdapter:
+class DebtCurrenciesRecyclerViewAdapter(inputOnClickListener: OnCurrencyClickListener):
         RecyclerView.Adapter<DebtCurrenciesRecyclerViewAdapter.ViewHolder>() {
 
     private var mItems: List<Currency>? = null
+    private val mOnClickListener: OnCurrencyClickListener = inputOnClickListener
+    private var debtHasSelectedCurrency = false
 
     fun setCurrencies(currencies: List<Currency>) {
         this.mItems = currencies
+
+        if (mItems!= null && mItems!!.isNotEmpty()) {
+            mItems!!.forEach { item ->
+                if (item.isActiveForCurrentTrip) {
+                    debtHasSelectedCurrency = true
+                    return@forEach
+                }
+            }
+        }
+
         notifyDataSetChanged()
     }
 
@@ -28,11 +40,6 @@ class DebtCurrenciesRecyclerViewAdapter:
         private var mItem: Currency? = null
 
         init {
-            view.setOnClickListener{
-                if (mItem != null) {
-                    MainApplication.bus.send(Events.OnClickCurrencyInDebt(mItem!!.uid))
-                }
-            }
         }
 
         fun setItem(item: Currency) {
@@ -63,15 +70,28 @@ class DebtCurrenciesRecyclerViewAdapter:
 
         holder.currencySymbolTV.text = item.symbol
 
-        if (item.lastUsedCurrencyId < 1 && position == 0) {
-            holder.currencyLayout.setCardBackgroundColor(MainApplication.applicationContext().resources.getColor(R.color.colorSecondary))
-            MainApplication.bus.send(Events.OnClickCurrencyInDebt(item.uid))
-        } else {
-            if (item.uid == item.lastUsedCurrencyId) {
+        if (debtHasSelectedCurrency) {
+            if (item.isActiveForCurrentTrip) {
                 holder.currencyLayout.setCardBackgroundColor(MainApplication.applicationContext().resources.getColor(R.color.colorSecondary))
             } else {
                 holder.currencyLayout.setCardBackgroundColor(MainApplication.applicationContext().resources.getColor(R.color.colorBackground))
             }
+        } else {
+            if (item.lastUsedCurrencyId < 1 && position == 0) {
+                holder.currencyLayout.setCardBackgroundColor(MainApplication.applicationContext().resources.getColor(R.color.colorSecondary))
+                MainApplication.bus.send(Events.OnClickCurrencyInDebt(item.uid))
+            } else {
+                if (item.uid == item.lastUsedCurrencyId) {
+                    holder.currencyLayout.setCardBackgroundColor(MainApplication.applicationContext().resources.getColor(R.color.colorSecondary))
+                    MainApplication.bus.send(Events.OnClickCurrencyInDebt(item.uid))
+                } else {
+                    holder.currencyLayout.setCardBackgroundColor(MainApplication.applicationContext().resources.getColor(R.color.colorBackground))
+                }
+            }
+        }
+
+        holder.currencyLayout.setOnClickListener {
+            mOnClickListener.onCurrencyClick(item.uid)
         }
 
         holder.setItem(mItems!![position])
@@ -85,7 +105,7 @@ class DebtCurrenciesRecyclerViewAdapter:
         return -1
     }
 
-    interface OnItemClickListener {
-        fun onItemClick(item: Currency)
+    interface OnCurrencyClickListener {
+        fun onCurrencyClick(selectedCurrencyId: Int)
     }
 }

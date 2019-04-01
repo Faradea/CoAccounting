@@ -19,4 +19,6 @@ class Currency {
     public var activeTripId: Int = -1
 
     public var lastUsedCurrencyId: Int = -1
+
+    public var isActiveForCurrentTrip: Boolean = false
 }
