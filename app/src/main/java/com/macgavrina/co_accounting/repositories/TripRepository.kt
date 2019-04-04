@@ -152,4 +152,16 @@ class TripRepository {
                 })
     }
 
+    fun getTripDraft(): LiveData<Trip> {
+        return tripDao.getTripDraft()
+    }
+
+    fun createTripDraft(): Completable {
+        val trip = Trip()
+        trip.status = "draft"
+        return Completable.fromAction {
+            tripDao.insertTrip(trip)
+        }
+    }
+
 }

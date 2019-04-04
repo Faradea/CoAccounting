@@ -54,17 +54,12 @@ class CurrencyActivity : AppCompatActivity() {
             tripId = extras?.getInt("tripId")
         }
 
-
-
         if (tripId != null) {
             viewModel.getAllCurrenciesForTrip(tripId!!).observe(this,
                     Observer<List<Currency>> { currenciesList ->
                         adapter.setCurrencies(currenciesList)
                     })
         }
-
-
-
 
 //            if (tripId != null && tripId != -1) {
 //                viewModel.getAllCurrenciesForTrip(tripId!!).observe(this, Observer<List<Currency>> {

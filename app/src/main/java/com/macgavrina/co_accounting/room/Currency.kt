@@ -21,4 +21,8 @@ class Currency {
     public var lastUsedCurrencyId: Int = -1
 
     public var isActiveForCurrentTrip: Boolean = false
+
+    override fun toString(): String {
+        return "uid = $uid, name = $name, symbol = $symbol, activeTripId = $activeTripId, lastUsedCurrencyId = $lastUsedCurrencyId, isActiveForCurrentTrip = $isActiveForCurrentTrip"
+    }
 }

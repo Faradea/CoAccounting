@@ -43,6 +43,6 @@ class Trip {
 
 
     override fun toString(): String {
-        return "title = $title, startdate = $startdate, enddate = $enddate, isCurrent = $isCurrent, status = $status"
+        return "uid = $uid, title = $title, startdate = $startdate, enddate = $enddate, isCurrent = $isCurrent, status = $status"
     }
 }

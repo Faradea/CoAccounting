@@ -16,31 +16,26 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.snackbar.Snackbar
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.adapters.ActiveCurrenciesRecyclerViewAdapter
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.Currency
+import com.macgavrina.co_accounting.room.Debt
 import com.macgavrina.co_accounting.room.Trip
-import com.macgavrina.co_accounting.rxjava.Events
 import com.macgavrina.co_accounting.support.DateFormatter
 import com.macgavrina.co_accounting.viewmodel.TripsViewModel
-import io.reactivex.MaybeObserver
-import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.observers.DisposableMaybeObserver
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_trip.*
 import kotlinx.android.synthetic.main.trip_fragment.*
-import kotlinx.android.synthetic.main.trips_fragment.*
 
 class TripActivity : AppCompatActivity() {
 
-    private lateinit var tripsViewModel: TripsViewModel
+    private lateinit var viewModel: TripsViewModel
     private var startDatePickerDialog: DatePickerDialog? = null
     private var endDatePickerDialog: DatePickerDialog? = null
-    private var tripId: Int? = null
+    private var tripId: Int = -1
     private var trip: Trip? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,78 +45,63 @@ class TripActivity : AppCompatActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        tripsViewModel = ViewModelProviders.of(this).get(TripsViewModel::class.java)
+        viewModel = ViewModelProviders.of(this).get(TripsViewModel::class.java)
 
-        tripsViewModel.toastMessage.observe(this, Observer { res ->
+        viewModel.toastMessage.observe(this, Observer { res ->
             if (res != null) {
                 displayToast(res)
             }
         })
 
-//        tripsViewModel.snackbarMessage.observe(this, Observer { text ->
+//        viewModel.snackbarMessage.observe(this, Observer { text ->
 //            Log.d("snackbar text is changed, observer reacts!")
 //                val snackBar = Snackbar.make(trips_fragment_const_layout, "Trip is deleted", Snackbar.LENGTH_LONG)
 //                snackBar.setAction("Undo") {
 //                    Log.d("snackBar: undo action is pressed")
 //                    snackBar.dismiss()
-//                    tripsViewModel.restoreLastDeletedTrip()
+//                    viewModel.restoreLastDeletedTrip()
 //                }
 //                snackBar.show()
 //        })
 
         //ToDo REFACT Использовать фрагмент вместо activity и this.viewLifecycleOwner вместо this для всех observe
-        tripsViewModel.getAll().observe(this, Observer<List<Trip>> {})
-
-        val adapter = ActiveCurrenciesRecyclerViewAdapter()
-        trip_fragment_used_currencies_list.adapter = adapter
-        trip_fragment_used_currencies_list.layoutManager = LinearLayoutManager(MainApplication.applicationContext(), LinearLayoutManager.HORIZONTAL, false)
+        viewModel.getAll().observe(this, Observer<List<Trip>> {})
 
         val extras = intent.extras
-        if (extras?.getInt("tripId") != -1) {
-            tripId = extras?.getInt("tripId")
-            tripsViewModel.getTripById(tripId!!)
+        tripId = extras?.getInt("tripId")?: -1
+
+            viewModel.getTripById(tripId)!!
                     .observe(this,
                             Observer<Trip> { trip ->
-                                this.trip = trip
-                                trip_fragment_title_et.setText(trip.title)
-
-                                if (trip.startdate != null) {
-                                    trip_fragment_startdate_et.setText(DateFormatter().formatDateFromTimestamp(trip.startdate!!))
-                                }
-
-                                if (trip.enddate != null) {
-                                    trip_fragment_enddate_et.setText(DateFormatter().formatDateFromTimestamp(trip.enddate!!))
-                                }
-
-                                trip_fragment_switch.isChecked = trip.isCurrent
-                            })
-
-            tripsViewModel.getCurrenciesForTrip(tripId!!)
-                    .observe(this,
-                            Observer<List<Currency>> { currencyList ->
-                                adapter.setCurrencies(currencyList)
-
-                                if (currencyList.isNotEmpty()) {
-                                    trip_fragment_empty_currencies_list.visibility = View.INVISIBLE
+                                if (trip != null) {
+                                    Log.d("Display existing trip = $trip")
+                                    displayTrip(trip)
                                 } else {
-                                    trip_fragment_empty_currencies_list.visibility = View.VISIBLE
+                                    Log.d("There is no trip or trip draft, so create new trip draft")
+                                    viewModel.createTripDraft()
+                                            .observeOn(AndroidSchedulers.mainThread())
+                                            .subscribeOn(Schedulers.io())
+                                            .subscribe ({
+                                                viewModel.getTripById(tripId)!!
+                                                        .observe(this,
+                                                                Observer<Trip> { trip ->
+                                                                    displayTrip(trip)
+                                                                })
+                                            }, {error ->
+                                                Log.d("Error creating trip draft, $error")
+                                            })
                                 }
                             })
-
-        } else {
-            hideDeleteButton()
-        }
 
         trip_fragment_edit_currencies_list_text.setOnClickListener {
             Log.d("onClick trip_fragment_edit_currencies_list_text")
-            if (tripId != null && tripId != -1) {
-                startCurrencyActivity(tripId!!)
-            }
+            if (trip?.uid == null) return@setOnClickListener
+            startCurrencyActivity(trip!!.uid)
         }
 
         trip_fragment_delete_fab.setOnClickListener { view ->
             if (trip != null) {
-                tripsViewModel.deleteTrip(trip!!)
+                viewModel.deleteTrip(trip!!)
             }
             finishSelf()
         }
@@ -154,6 +134,56 @@ class TripActivity : AppCompatActivity() {
 
     }
 
+    private fun displayTrip(trip: Trip) {
+        this.trip = trip
+        trip_fragment_title_et.setText(trip.title)
+
+        if (trip.startdate != null) {
+            trip_fragment_startdate_et.setText(DateFormatter().formatDateFromTimestamp(trip.startdate!!))
+        }
+
+        if (trip.enddate != null) {
+            trip_fragment_enddate_et.setText(DateFormatter().formatDateFromTimestamp(trip.enddate!!))
+        }
+
+        trip_fragment_switch.isChecked = trip.isCurrent
+
+        if (trip.status == "draft") {
+            hideDeleteButton()
+        }
+
+
+        val adapter = ActiveCurrenciesRecyclerViewAdapter()
+        trip_fragment_used_currencies_list.adapter = adapter
+        trip_fragment_used_currencies_list.layoutManager = LinearLayoutManager(MainApplication.applicationContext(), LinearLayoutManager.HORIZONTAL, false)
+
+        if (viewModel.getCurrenciesForTrip() != null) {
+            viewModel.getCurrenciesForTrip()!!
+                    .observe(this,
+                            Observer<List<Currency>> { currencyList ->
+
+                                Log.d("currencyList = $currencyList")
+
+                                val filteredCurrenciesList = mutableListOf<Currency>()
+                                currencyList.forEach { currency ->
+                                    if (currency.activeTripId > 0) {
+                                        filteredCurrenciesList.add(currency)
+                                    }
+                                }
+
+                                Log.d("filtered currencyList = $filteredCurrenciesList")
+
+                                adapter.setCurrencies(filteredCurrenciesList)
+
+                                if (filteredCurrenciesList.isNotEmpty()) {
+                                    trip_fragment_empty_currencies_list.visibility = View.INVISIBLE
+                                } else {
+                                    trip_fragment_empty_currencies_list.visibility = View.VISIBLE
+                                }
+                            })
+        }
+    }
+
     //For back button in action bar
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
@@ -169,18 +199,21 @@ class TripActivity : AppCompatActivity() {
                 }
 
                 if (!getTripTitle().isNullOrEmpty() && duration >= 0 ) {
-                    val trip = Trip()
-                    trip.title = getTripTitle()
-                    trip.startdate = getStartDate()
-                    trip.enddate = getEndDate()
-                    trip.isCurrent = getSwitchStatus()
-                    trip.status = "active"
 
-                    if (tripId == null) {
-                        tripsViewModel.insertTrip(trip)
+                    if (trip == null) {
+                        trip = Trip()
+                    }
+
+                    trip!!.title = getTripTitle()
+                    trip!!.startdate = getStartDate()
+                    trip!!.enddate = getEndDate()
+                    trip!!.isCurrent = getSwitchStatus()
+                    trip!!.status = "active"
+
+                    if (trip?.uid == null) {
+                        viewModel.insertTrip(trip!!)
                     } else {
-                        trip.uid = tripId!!.toInt()
-                        tripsViewModel.updateTrip(trip)
+                        viewModel.updateTrip(trip!!)
                     }
                     finishSelf()
                     return true
@@ -209,7 +242,7 @@ class TripActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        tripsViewModel.viewIsDestroyed()
+        viewModel.viewIsDestroyed()
     }
 
     private fun getEndDate(): Long? {

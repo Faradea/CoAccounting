@@ -3,6 +3,7 @@ package com.macgavrina.co_accounting.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.repositories.CurrencyRepository
@@ -10,6 +11,7 @@ import com.macgavrina.co_accounting.repositories.TripRepository
 import com.macgavrina.co_accounting.room.Currency
 import com.macgavrina.co_accounting.room.Trip
 import com.macgavrina.co_accounting.rxjava.Events
+import io.reactivex.Completable
 import io.reactivex.CompletableObserver
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -23,10 +25,12 @@ class TripsViewModel(application: Application) : AndroidViewModel(MainApplicatio
     internal val toastMessage = SingleLiveEvent<String>()
     internal val snackbarMessage = SingleLiveEvent<String>()
 
-    private var currentTripId: Int = -1
+    private var selectedTripId: Int = -1
 
     private var repository: TripRepository = TripRepository()
     private var allTrips: LiveData<List<Trip>> = repository.getAll()
+    private var selectedTrip: LiveData<Trip>? = null
+    private var currenciesList: LiveData<List<Currency>>? = null
 
     private var lastDeletedTrip: Trip? = null
 
@@ -38,9 +42,21 @@ class TripsViewModel(application: Application) : AndroidViewModel(MainApplicatio
         return allTrips
     }
 
-    fun getTripById(tripId: Int): LiveData<Trip> {
-        currentTripId = tripId
-        return repository.getTripById(tripId)
+    fun getTripById(tripId: Int): LiveData<Trip>? {
+
+        selectedTripId = tripId
+
+        if (tripId != -1) {
+            selectedTrip = repository.getTripById(tripId)
+        } else {
+            selectedTrip = repository.getTripDraft()
+        }
+
+        return selectedTrip
+    }
+
+    fun createTripDraft(): Completable {
+        return repository.createTripDraft()
     }
 
     fun viewIsDestroyed() {
@@ -48,6 +64,7 @@ class TripsViewModel(application: Application) : AndroidViewModel(MainApplicatio
     }
 
     fun insertTrip(trip: Trip) {
+        Log.d("Insert trip = $trip")
         val subscription = repository.insertTrip(trip)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -79,6 +96,7 @@ class TripsViewModel(application: Application) : AndroidViewModel(MainApplicatio
     }
 
     fun updateTrip(trip: Trip) {
+        Log.d("update trip, new values = $trip")
         val subscription = repository.updateTrip(trip)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -169,8 +187,8 @@ class TripsViewModel(application: Application) : AndroidViewModel(MainApplicatio
                 })
     }
 
-    fun getCurrenciesForTrip(tripId: Int): LiveData<List<Currency>> {
-        return CurrencyRepository().getAllActiveCurrenciesForTrip(tripId)
+    fun getCurrenciesForTrip(): LiveData<List<Currency>>? {
+        return CurrencyRepository().getAllCurrenciesForTripLiveData(selectedTrip!!.value!!.uid)
     }
 
     private fun updateClickedTripIsCurrentField(tripId: String, isCurrent: Boolean) {

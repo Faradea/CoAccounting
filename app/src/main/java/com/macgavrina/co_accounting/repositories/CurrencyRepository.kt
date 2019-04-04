@@ -6,6 +6,7 @@ import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.*
 import io.reactivex.Completable
 import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
@@ -16,12 +17,20 @@ class CurrencyRepository {
     init {
     }
 
-    fun getAllCurrenciesForTrip(tripId: Int): LiveData<List<Currency>> {
+    fun getAllCurrenciesForTrip(tripId: Int): Single<List<Currency>> {
         return currencyToTripRelationDAO.getAllCurrenciesWithUsedForTripMarker(tripId)
+    }
+
+    fun getAllCurrenciesForTripLiveData(tripId: Int): LiveData<List<Currency>> {
+        return currencyToTripRelationDAO.getAllCurrenciesWithUsedForTripMarkerLiveData(tripId)
     }
 
     fun getAllCurrenciesListSize(): Observable<Int> {
         return Observable.fromCallable { currencyToTripRelationDAO.getAllCurrenciesListSize() }
+    }
+
+    fun checkIfCurrencyIsUsedInTrip(currencyId: Int, tripId: Int): Single<Int> {
+        return currencyToTripRelationDAO.checkIfCurrencyIsUsedInTrip(currencyId, tripId)
     }
 
     fun insertCurrency(currency: Currency) {
@@ -64,8 +73,12 @@ class CurrencyRepository {
                 })
     }
 
-    fun getAllActiveCurrenciesForTrip(tripId: Int): LiveData<List<Currency>> {
-        return currencyToTripRelationDAO.getAllActiveCurrenciesForTrip(tripId)
+    fun getAllActiveCurrenciesForTrip(tripId: Int?): LiveData<List<Currency>> {
+        if (tripId == null) {
+            return currencyToTripRelationDAO.getAllActiveCurrenciesForTrip(-1)
+        } else {
+            return currencyToTripRelationDAO.getAllActiveCurrenciesForTrip(tripId)
+        }
     }
 
     fun getAllActiveCurrenciesWithLastUsedMarkerForCurrentTrip(): LiveData<List<Currency>> {

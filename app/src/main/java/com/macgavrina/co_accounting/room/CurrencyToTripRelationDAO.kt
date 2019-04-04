@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import io.reactivex.Maybe
+import io.reactivex.Single
 
 @Dao
 interface CurrencyToTripRelationDAO {
@@ -13,7 +14,12 @@ interface CurrencyToTripRelationDAO {
     @Query("select Currency.*, CurrencyToTripRelation.tripId as activeTripId from Currency " +
             "LEFT JOIN CurrencyToTripRelation ON CurrencyToTripRelation.currencyId = Currency.uid " +
             "AND (CurrencyToTripRelation.tripId IN (:tripId) OR CurrencyToTripRelation.tripId IS NULL)")
-    fun getAllCurrenciesWithUsedForTripMarker(tripId: Int): LiveData<List<Currency>>
+    fun getAllCurrenciesWithUsedForTripMarker(tripId: Int): Single<List<Currency>>
+
+    @Query("select Currency.*, CurrencyToTripRelation.tripId as activeTripId from Currency " +
+            "LEFT JOIN CurrencyToTripRelation ON CurrencyToTripRelation.currencyId = Currency.uid " +
+            "AND (CurrencyToTripRelation.tripId IN (:tripId) OR CurrencyToTripRelation.tripId IS NULL)")
+    fun getAllCurrenciesWithUsedForTripMarkerLiveData(tripId: Int): LiveData<List<Currency>>
 
     @Query("SELECT COUNT (*) FROM currency")
     fun getAllCurrenciesListSize(): Int
@@ -49,5 +55,8 @@ interface CurrencyToTripRelationDAO {
 //
 //    @Query("SELECT * FROM currencytotriprelation")
 //    fun deactivateCurrencyForTrip(status: String)
+
+    @Query("select count(*) FROM debt WHERE currencyId IN (:currencyId) AND tripId IN (:tripId)")
+    fun checkIfCurrencyIsUsedInTrip(currencyId: Int, tripId: Int): Single<Int>
 
 }

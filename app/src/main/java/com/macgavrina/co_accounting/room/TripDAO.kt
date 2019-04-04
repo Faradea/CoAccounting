@@ -47,4 +47,7 @@ interface TripDAO {
 
     @Query("UPDATE trip SET lastUsedCurrencyId = :currencyId WHERE isCurrent = 1")
     fun setupLastUsedCurrencyForCurrentTrip(currencyId: Int)
+
+    @Query("SELECT * FROM trip WHERE status = \"draft\"")
+    fun getTripDraft(): LiveData<Trip>
 }
