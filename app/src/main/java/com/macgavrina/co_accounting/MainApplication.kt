@@ -19,8 +19,7 @@ class MainApplication: Application() {
         super.onCreate()
         instance = this
         bus = RxBus()
-        db = Room.databaseBuilder(applicationContext,
-                AppDatabase::class.java, AppDatabase.DATABASE_NAME).build()
+        db = AppDatabase.getInstance(this)
     }
 
     companion object {

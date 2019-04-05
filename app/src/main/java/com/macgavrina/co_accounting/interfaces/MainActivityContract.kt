@@ -44,8 +44,6 @@ interface MainActivityContract {
 
         fun displayOnDeleteContactSnackBar()
 
-        fun startActivityToShareAllData(dataToShare: String)
-
         fun displayTripsFragment()
 
         fun displayAddTripFragment(tripId: String?)
@@ -68,8 +66,6 @@ interface MainActivityContract {
         fun addReceiverInAddDebtFragmentAfterReceiverAddedIsDisplayed()
 
         fun undoDeleteContactButtonIsPressed()
-
-        fun prepareAndShareData()
 
         fun gotoCalculations()
     }

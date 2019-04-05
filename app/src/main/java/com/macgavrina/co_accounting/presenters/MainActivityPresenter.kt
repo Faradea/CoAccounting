@@ -12,7 +12,6 @@ import com.macgavrina.co_accounting.room.Debt
 import com.macgavrina.co_accounting.room.Expense
 import com.macgavrina.co_accounting.room.Trip
 import com.macgavrina.co_accounting.rxjava.Events
-import com.macgavrina.co_accounting.support.DBInitializer
 import com.macgavrina.co_accounting.support.DateFormatter
 import io.reactivex.Completable
 import io.reactivex.CompletableObserver
@@ -177,7 +176,6 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
 
     override fun viewIsReady() {
         UserProvider().loadUser(this)
-        DBInitializer()
     }
 
     override fun headerIsClicked() {
@@ -240,91 +238,5 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
                 Log.d("Error restoring contact, $e")
             }
         })
-    }
-
-
-    override fun prepareAndShareData() {
-
-        Log.d("Sharing all data...")
-
-        MainApplication.db.contactDAO().getAll("active")
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(object : DisposableMaybeObserver<List<Contact>>() {
-                    override fun onSuccess(contactsList: List<com.macgavrina.co_accounting.room.Contact>) {
-                        dataToShare = dataToShare + "Contacts:" + "\n"
-
-                        contactsList.forEach { contact ->
-                            dataToShare = dataToShare + "\n" +"uid: ${contact.uid}, email: ${contact.email}, alias: ${contact.alias}, status: ${contact.status}"
-                        }
-                        dataToShare = dataToShare + "\n" + "\n"
-
-                        loadDebts()
-                    }
-
-                    override fun onError(e: Throwable) {
-                        Log.d(e.toString())
-                        getView()?.displayToast("Database error")
-                    }
-
-                    override fun onComplete() {
-                    }
-                })
-    }
-
-    private fun loadDebts() {
-
-        MainApplication.db.debtDAO().getAll("active")
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(object : DisposableMaybeObserver<List<Debt>>() {
-                    override fun onSuccess(debtList: List<Debt>) {
-                        Log.d("success")
-                        dataToShare = dataToShare + "Debts:" + "\n"
-
-                        debtList.forEach { debt ->
-                            dataToShare = dataToShare + "\n" +"uid: ${debt.uid}, senderId:${debt.senderId}, datetime:${DateFormatter().formatDateFromTimestamp(debt.datetime!!.toLong())}, amount: ${debt.spentAmount}, comment:${debt.comment}, status:${debt.status}"
-                        }
-
-                        dataToShare = dataToShare + "\n" + "\n"
-
-                        loadExpenses()
-
-                    }
-
-                    override fun onError(e: Throwable) {
-                        Log.d("error, $e")
-                    }
-
-                    override fun onComplete() {
-                        Log.d("nothing")
-                    }
-                })
-    }
-
-    private fun loadExpenses() {
-
-        MainApplication.db.expenseDAO().getAll
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(object : DisposableMaybeObserver<List<Expense>>() {
-                    override fun onSuccess(expenseList: List<Expense>) {
-                        dataToShare = dataToShare + "Expenses:" + "\n"
-
-                        expenseList.forEach { expense ->
-                            dataToShare = dataToShare + "\n" +"uid: ${expense.uid}, totalAmount:${expense.totalAmount}, debtId:${expense.debtId}"
-                        }
-
-                        getView()?.startActivityToShareAllData(dataToShare)
-                    }
-
-                    override fun onError(e: Throwable) {
-                        Log.d("error, $e")
-                    }
-
-                    override fun onComplete() {
-                        Log.d("nothing")
-                    }
-                })
     }
 }

@@ -265,8 +265,8 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
             if (!debt.senderId.isNullOrEmpty() && ::friendsList.isInitialized) {
                 Log.d("setSender")
 
-                if (::contactIdToPositionMap.isInitialized && contactIdToPositionMap[debt.senderId?.toInt()]!=null) {
-                    setSender(contactIdToPositionMap[debt.senderId?.toInt()]!!)
+                if (::contactIdToPositionMap.isInitialized && debt != null && contactIdToPositionMap?.isNotEmpty() && contactIdToPositionMap[debt.senderId?.toInt()]!=null) {
+                    //setSender(contactIdToPositionMap[debt.senderId?.toInt()]!!)
                 }
             }
 

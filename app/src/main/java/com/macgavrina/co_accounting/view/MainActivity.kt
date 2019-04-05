@@ -119,9 +119,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.nav_events -> {
                 presenter.gotoTrips()
             }
-            R.id.nav_share -> {
-                presenter.prepareAndShareData()
-            }
             R.id.nav_calculations -> {
                 presenter.gotoCalculations()
             }
@@ -129,17 +126,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
-    }
-
-    override fun startActivityToShareAllData(dataToShare: String) {
-
-        val sendIntent: Intent = Intent().apply {
-            action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_TEXT, dataToShare)
-            type = "text/plain"
-        }
-
-        startActivity(sendIntent)
     }
 
     override fun onDestroy() {
