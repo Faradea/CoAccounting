@@ -85,7 +85,9 @@ class TripActivity : AppCompatActivity() {
                                                 viewModel.getTripById(tripId)!!
                                                         .observe(this,
                                                                 Observer<Trip> { trip ->
-                                                                    displayTrip(trip)
+                                                                    if (trip != null) {
+                                                                        displayTrip(trip)
+                                                                    }
                                                                 })
                                             }, {error ->
                                                 Log.d("Error creating trip draft, $error")

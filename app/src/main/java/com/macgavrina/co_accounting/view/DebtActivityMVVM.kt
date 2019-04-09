@@ -89,7 +89,9 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
                                                 viewModel.getDebtById(debtId)!!
                                                         .observe(this,
                                                                 Observer<Debt> { debt ->
-                                                                    displayDebtData(debt)
+                                                                    if (debt != null) {
+                                                                        displayDebtData(debt)
+                                                                    }
                                                                 })
                                             }, {error ->
                                                 Log.d("Error creating debt draft, $error")
@@ -430,9 +432,9 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
         debt.senderId = positionToContactIdMap[getSender()]?.uid.toString()
         debt.spentAmount= getAmount()
 
-        if (getDate() != null) {
+        if (!getDate().isNullOrEmpty()) {
 
-            if (getTime() == null) {
+            if (getTime().isNullOrEmpty()) {
                 val formattedDate = DateFormatter().getTimestampFromFormattedDate(getDate())
                 if (formattedDate != null) {
                     debt.datetime = formattedDate.toString()

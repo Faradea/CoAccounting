@@ -77,6 +77,8 @@ class DebtsRecyclerViewAdapter:
 
         if (item.datetime != null && item.datetime!!.isNotEmpty()) {
             holder.datetime.text = DateFormatter().formatDateFromTimestamp(item.datetime!!.toLong())
+        } else {
+            holder.datetime.text = ""
         }
 
         if (item.comment != null && item.comment!!.isNotEmpty()) {

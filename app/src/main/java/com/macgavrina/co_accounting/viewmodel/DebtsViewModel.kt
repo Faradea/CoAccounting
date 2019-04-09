@@ -118,7 +118,9 @@ class DebtsViewModel(application: Application) : AndroidViewModel(MainApplicatio
 
     fun onCurrencyClick(currencyId: Int) {
         currentCurrencyId = currencyId
-        currentDebt!!.value!!.currencyId = currencyId
+        if (currentDebt != null && currentDebt?.value != null) {
+            currentDebt!!.value!!.currencyId = currencyId
+        }
         tripRepository.setupLastUsedCurrencyForCurrentTrip(currencyId)
     }
 
@@ -132,6 +134,10 @@ class DebtsViewModel(application: Application) : AndroidViewModel(MainApplicatio
                         is Events.OnClickExpenseItemList -> {
                             Log.d("Catch OnClickExpenseItemList event, debtId = ${`object`.myDebtId}, expenseId = ${`object`.myExpenseId}")
                             //displayExpenseActivity(`object`.myDebtId, `object`.myExpenseId)
+                        }
+                        is Events.OnClickCurrencyInDebt -> {
+                            Log.d("Catch OnClickCurrencyInDebt event, currencyId = ${`object`.currencyId}")
+                            onCurrencyClick(`object`.currencyId)
                         }
                     }
                 }

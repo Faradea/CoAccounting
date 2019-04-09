@@ -188,7 +188,11 @@ class TripsViewModel(application: Application) : AndroidViewModel(MainApplicatio
     }
 
     fun getCurrenciesForTrip(): LiveData<List<Currency>>? {
-        return CurrencyRepository().getAllCurrenciesForTripLiveData(selectedTrip!!.value!!.uid)
+        if (selectedTrip != null && selectedTrip?.value != null) {
+            return CurrencyRepository().getAllCurrenciesForTripLiveData(selectedTrip!!.value!!.uid)
+        } else {
+            return null
+        }
     }
 
     private fun updateClickedTripIsCurrentField(tripId: String, isCurrent: Boolean) {
