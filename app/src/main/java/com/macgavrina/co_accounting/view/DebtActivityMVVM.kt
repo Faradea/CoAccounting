@@ -41,6 +41,7 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
 
     private var datePickerDialog: DatePickerDialog? = null
     private var timePickerDialog: TimePickerDialog? = null
+    private var alertDialog: AlertDialog? = null
 
     lateinit var contactsIdToNameMap: MutableMap<String, Contact>
     lateinit var positionToContactIdMap: MutableMap<Int, Contact>
@@ -126,6 +127,12 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
 
         viewModel.getAllActiveCurrenciesWithLastUsedMarkerForCurrentTrip().observe(this,
                 Observer<List<Currency>> { currenciesList ->
+
+                    if (currenciesList.isEmpty()) {
+                        Log.d("Currencies list is empty, show alert")
+                        showAlertAndGoToCurrencies("Please specify at least one currency for the trip first")
+                    }
+
                     val debt = viewModel.getCurrentDebt()
                     if (debt != null && debt.currencyId != -1) {
                         val currenciesListWithSavedForDebtMarker = mutableListOf<Currency>()
@@ -410,15 +417,31 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
     }
 
     private fun showAlertAndGoToContacts(alertText: String) {
-        val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
-        alertDialogBuilder.setMessage(alertText)
-                .setTitle("Alert")
-        alertDialogBuilder.setPositiveButton("Ok") { _, _ ->
-            //ToDo NEW открывать вкладку contacts после этого
-            finishSelf()
+        if (alertDialog == null || alertDialog?.isShowing == false) {
+            val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
+            alertDialogBuilder.setMessage(alertText)
+                    .setTitle("Alert")
+            alertDialogBuilder.setPositiveButton("Ok") { _, _ ->
+                //ToDo NEW открывать вкладку contacts после этого
+                finishSelf()
+            }
+            alertDialog = alertDialogBuilder.create()
+            alertDialog?.show()
         }
-        val alertDialog: AlertDialog = alertDialogBuilder.create()
-        alertDialog.show()
+    }
+
+    private fun showAlertAndGoToCurrencies(alertText: String) {
+        if (alertDialog == null || alertDialog?.isShowing == false) {
+            val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
+            alertDialogBuilder.setMessage(alertText)
+                    .setTitle("Alert")
+            alertDialogBuilder.setPositiveButton("Ok") { _, _ ->
+                //ToDo NEW открывать вкладку currencies после этого
+                finishSelf()
+            }
+            alertDialog = alertDialogBuilder.create()
+            alertDialog?.show()
+        }
     }
 
     private fun doneButtonIsPressed() {
