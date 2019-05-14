@@ -34,7 +34,7 @@ import kotlinx.android.synthetic.main.add_debt_fragment.*
 import kotlinx.android.synthetic.main.debt_activity.*
 import java.util.*
 
-class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.OnCurrencyClickListener {
+class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.OnCurrencyClickListener, ExpensesRecyclerViewAdapter.OnExpenseInDebtClickListener {
 
     private lateinit var viewModel: DebtsViewModel
     private var debtId: Int = -1
@@ -101,7 +101,7 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
                             })
         }
 
-        val adapter = ExpensesRecyclerViewAdapter()
+        val adapter = ExpensesRecyclerViewAdapter(this)
         add_debt_fragment_reciever_recyclerview.adapter = adapter
         add_debt_fragment_reciever_recyclerview.layoutManager = LinearLayoutManager(MainApplication.applicationContext())
 
@@ -223,6 +223,15 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
 
     override fun onCurrencyClick(selectedCurrencyId: Int) {
         viewModel.onCurrencyClick(selectedCurrencyId)
+    }
+
+    override fun onExpenseClick(expense: Expense) {
+        val intent = Intent()
+        intent.action = "com.macgavrina.indebt.EXPENSE"
+        intent.putExtra("debtId", debtId)
+        intent.putExtra("expenseId", expense.uid)
+
+        startActivity(intent)
     }
 
     private fun hideKeyboard() {

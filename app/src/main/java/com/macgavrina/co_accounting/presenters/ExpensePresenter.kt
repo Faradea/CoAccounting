@@ -112,6 +112,8 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
 
                         getView()?.setAmount(expense.totalAmount)
 
+                        getView()?.setComment(expense.comment)
+
                         Log.d("Getting receivers with amount for expense...")
                         MainApplication.db.receiverWithAmountForDBDAO().getReceiversWithAmountForExpense(expense.uid.toString())
                                 .subscribeOn(Schedulers.io())
@@ -190,6 +192,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
         if (expense == null) {
             expense = Expense()
             expense!!.totalAmount = DecimalFormat("##.##").format(getView()?.getAmount())
+            expense!!.comment = getView()?.getComment() ?: ""
             expense!!.debtId = debtId
 
             Log.d("Adding new expense to DB, expense = $expense")
@@ -250,6 +253,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
 
         } else {
             expense!!.totalAmount = DecimalFormat("##.##").format(getView()?.getAmount())
+            expense!!.comment = getView()?.getComment() ?: ""
             expense!!.debtId = debtId
 
             Log.d("Updating existing expense in DB, $expense")

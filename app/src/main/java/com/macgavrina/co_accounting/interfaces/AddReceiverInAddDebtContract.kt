@@ -26,6 +26,8 @@ interface AddReceiverInAddDebtContract {
 
         fun finishSelf()
 
+        fun getComment(): String
+        fun setComment(comment: String)
     }
 
     interface Presenter:BasePresenterContract<View> {

@@ -158,6 +158,14 @@ class ExpenseActivity : AppCompatActivity(), AddReceiverInAddDebtContract.View, 
         }
     }
 
+    override fun getComment(): String {
+        return add_receiver_dialog_fragment_comment_tv.text.toString()
+    }
+
+    override fun setComment(comment: String) {
+        add_receiver_dialog_fragment_comment_tv.setText(comment)
+    }
+
     override fun hideDeleteButton() {
         add_receiver_dialog_fragment_delete_fab.hide()
     }

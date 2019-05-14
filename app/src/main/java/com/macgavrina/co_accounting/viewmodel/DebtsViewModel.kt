@@ -131,10 +131,6 @@ class DebtsViewModel(application: Application) : AndroidViewModel(MainApplicatio
                 .toObservable()
                 .subscribe { `object` ->
                     when (`object`) {
-                        is Events.OnClickExpenseItemList -> {
-                            Log.d("Catch OnClickExpenseItemList event, debtId = ${`object`.myDebtId}, expenseId = ${`object`.myExpenseId}")
-                            //displayExpenseActivity(`object`.myDebtId, `object`.myExpenseId)
-                        }
                         is Events.OnClickCurrencyInDebt -> {
                             Log.d("Catch OnClickCurrencyInDebt event, currencyId = ${`object`.currencyId}")
                             onCurrencyClick(`object`.currencyId)
@@ -144,19 +140,4 @@ class DebtsViewModel(application: Application) : AndroidViewModel(MainApplicatio
 
         compositeDisposable.add(subscriptionToBus)
     }
-
-    //ToDo Перенести в DebtActivity
-//    override fun displayExpenseActivity(debtId: Int, expenseId: Int?) {
-//
-//        val intent = Intent()
-//        intent.action = "com.macgavrina.indebt.EXPENSE"
-//        intent.putExtra("debtId", debtId)
-//        if (expenseId != null) {
-//            intent.putExtra("expenseId", expenseId)
-//        } else {
-//            intent.putExtra("expenseId", -1)
-//        }
-//
-//        startActivity(intent)
-//    }
 }

@@ -39,9 +39,17 @@ class CalculationsFragment: Fragment() {
 
         viewModel.getAllCalculationsForCurrentTrip().observe(this.viewLifecycleOwner,
                 Observer<List<Calculation>> { calculationsList ->
-                    adapter.setCalculations(calculationsList)
 
-                    if (calculationsList.size == 0) {
+                    val filteredCalculationList = mutableListOf<Calculation>()
+                    calculationsList.forEach { calculation ->
+                        if (calculation.totalAmount != 0.0) {
+                            filteredCalculationList.add(calculation)
+                        }
+
+                    }
+                    adapter.setCalculations(filteredCalculationList)
+
+                    if (filteredCalculationList.size == 0) {
                         calculations_fragment_empty_list_layout.visibility = View.VISIBLE
                     } else {
                         calculations_fragment_empty_list_layout.visibility = View.INVISIBLE

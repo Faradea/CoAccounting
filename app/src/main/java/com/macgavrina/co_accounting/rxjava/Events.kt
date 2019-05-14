@@ -95,11 +95,6 @@ object Events {
 
     class AddDebtFragmentRequiresRefresh
 
-    class OnClickExpenseItemList(expenseId: Int, debtId: Int) {
-        val myExpenseId = expenseId
-        val myDebtId = debtId
-    }
-
     class onClickSelectedReceiverOnAddExpenseFragment(contact: Contact) {
         val myContact = contact
     }

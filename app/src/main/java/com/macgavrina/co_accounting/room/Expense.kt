@@ -36,6 +36,11 @@ class Expense {
         set
         get
 
+    @ColumnInfo(name = "comment")
+    public var comment: String = ""
+        set
+        get
+
     override fun toString(): String {
         return "debtId = $debtId, expenseName = $expenseName, receiversList = $receiversList, totalAmount = $totalAmount"
     }

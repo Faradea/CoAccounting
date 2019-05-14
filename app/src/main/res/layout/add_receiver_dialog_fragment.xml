@@ -124,12 +124,11 @@
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="32dp"
                 android:layout_marginEnd="8dp"
                 android:background="?android:attr/listDivider"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textInputLayout3" />
+                app:layout_constraintTop_toBottomOf="@+id/textInputLayout2" />
 
             <TextView
                 android:id="@+id/textView7"
@@ -164,6 +163,24 @@
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/divider2" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputLayout2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textInputLayout3">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/add_receiver_dialog_fragment_comment_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Comment" />
+            </com.google.android.material.textfield.TextInputLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
