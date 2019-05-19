@@ -52,7 +52,12 @@ class Debt {
         set
         get
 
+    @ColumnInfo(name = "expertModeIsEnabled")
+    public var expertModeIsEnabled: Boolean = false
+        set
+        get
+
     override fun toString(): String {
-        return "uid = $uid, tripId = $tripId, senderId = $senderId, spentAmount = $spentAmount, datetime = $datetime, comment = $comment, status = $status, currencyId = $currencyId"
+        return "uid = $uid, tripId = $tripId, senderId = $senderId, spentAmount = $spentAmount, datetime = $datetime, comment = $comment, status = $status, currencyId = $currencyId, expertModeIsEnabled = $expertModeIsEnabled"
     }
 }

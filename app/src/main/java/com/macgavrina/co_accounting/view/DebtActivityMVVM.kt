@@ -269,6 +269,10 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
         return add_debt_fragment_comment_et.text.toString()
     }
 
+    private fun getExpertModeFlag(): Boolean {
+        return add_debt_fragment_expertmode_switch.isChecked
+    }
+
     private fun showProgress() {
         add_debt_fragment_progress_bar.visibility = View.VISIBLE
     }
@@ -291,6 +295,10 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
             if (debt.senderId.isNullOrEmpty() && ::friendsList.isInitialized) {
                 setSender(0)
             }
+        }
+
+        if (debt.expertModeIsEnabled) {
+            setExpertMode(debt.expertModeIsEnabled)
         }
 
         if (debt.spentAmount != null) {
@@ -340,6 +348,10 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
 
         senderId = position
         add_debt_fragment_sender_spinner.setSelection(position)
+    }
+
+    private fun setExpertMode(isEnabled: Boolean) {
+        add_debt_fragment_expertmode_switch.isChecked = isEnabled
     }
 
     private fun hideDeleteButton() {
@@ -482,6 +494,7 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
 
         debt.comment = getComment()
         debt.status = "active"
+        debt.expertModeIsEnabled = getExpertModeFlag()
 
         viewModel.updateDebtInDB(debt)
         finishSelf()
@@ -528,6 +541,7 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
         }
 
         debt.comment = getComment()
+        debt.expertModeIsEnabled = getExpertModeFlag()
 
         viewModel.updateDebtInDB(debt)
     }
