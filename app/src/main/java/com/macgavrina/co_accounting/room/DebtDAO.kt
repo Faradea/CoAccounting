@@ -19,6 +19,15 @@ interface DebtDAO {
     @Query("SELECT * FROM debt WHERE uid IN (:debtId)")
     fun getDebtByIds(debtId: Int): LiveData<Debt>
 
+    @Query("select (debtAmount - expensesAmount) FROM " +
+            "( " +
+            "(select debt.spentAmount as debtAmount from debt where debt.uid = :debtId) " +
+            "JOIN " +
+            "(select sum(expense.totalAmount) as expensesAmount from expense " +
+            "where expense.debtId = :debtId) " +
+            ")")
+    fun getDebtRemains(debtId: Int): Maybe<Double>
+
     @Query("SELECT * FROM debt WHERE status = \"draft\"")
     fun getDebtDraft(): LiveData<Debt>
 

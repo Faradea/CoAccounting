@@ -66,7 +66,10 @@ class CalculationsRecyclerViewAdapter:
 
         Log.d("Bind item = $item, currencySymbol = ${item.currencySymbol}")
 
-        holder.amount.text = "${item.totalAmount} ${item.currencySymbol}"
+
+        //val totalAmountRounded = Math.round(item.totalAmount * 100.0) / 100
+        val amountRounded = String.format("%.2f", item.totalAmount)
+        holder.amount.text = "$amountRounded ${item.currencySymbol}"
 
         if (item.totalAmount > 0) {
             holder.statusDesc.text = "You are owed"

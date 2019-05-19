@@ -97,6 +97,9 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
     }
 
     override fun expenseIdIsReceivedFromMainActivity(expenseId: Int) {
+
+        if (expenseId == -1) return
+
         Log.d("ExpenseId is received from MainActivity, = $expenseId, getting expense data from DB...")
         this.expenseId = expenseId
 

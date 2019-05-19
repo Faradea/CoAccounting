@@ -54,7 +54,9 @@ class ExpenseActivity : AppCompatActivity(), AddReceiverInAddDebtContract.View, 
             presenter.debtIdIsReceiverFromMainActivity(debtId)
         }
 
-        if (expenseId != null && expenseId != -1) {
+        if (expenseId == null) {
+            presenter.expenseIdIsReceivedFromMainActivity(-1)
+        } else {
             presenter.expenseIdIsReceivedFromMainActivity(expenseId)
         }
 
