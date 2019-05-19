@@ -32,9 +32,10 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.add_debt_fragment.*
 import kotlinx.android.synthetic.main.debt_activity.*
+import kotlinx.android.synthetic.main.expended_expenses_list.*
 import java.util.*
 
-class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.OnCurrencyClickListener, ExpensesRecyclerViewAdapter.OnExpenseInDebtClickListener {
+class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.OnCurrencyClickListener {
 
     private lateinit var viewModel: DebtsViewModel
     private var debtId: Int = -1
@@ -91,6 +92,7 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
                                                         .observe(this,
                                                                 Observer<Debt> { debt ->
                                                                     if (debt != null) {
+                                                                        debtId = debt.uid
                                                                         displayDebtData(debt)
                                                                     }
                                                                 })
@@ -101,24 +103,11 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
                             })
         }
 
-        val adapter = ExpensesRecyclerViewAdapter(this)
-        add_debt_fragment_reciever_recyclerview.adapter = adapter
-        add_debt_fragment_reciever_recyclerview.layoutManager = LinearLayoutManager(MainApplication.applicationContext())
 
         val currenciesAdapter = DebtCurrenciesRecyclerViewAdapter(this)
         add_debt_fragment_currencies_list.adapter = currenciesAdapter
         add_debt_fragment_currencies_list.layoutManager = LinearLayoutManager(MainApplication.applicationContext(), LinearLayoutManager.HORIZONTAL, true)
 
-        viewModel.getAllExpensesForDebt(debtId).observe(this,
-                Observer<List<Expense>> { expensesList ->
-                    adapter.setExpenses(expensesList)
-
-                    if (expensesList.isEmpty()) {
-                        add_debt_fragment_empty_list_layout.visibility = View.VISIBLE
-                    } else {
-                        add_debt_fragment_empty_list_layout.visibility = View.INVISIBLE
-                    }
-                })
 
         viewModel.getAllActiveContactsForCurrentTrip().observe(this,
                 Observer<List<Contact>> { contactsList ->
@@ -145,12 +134,6 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
                         currenciesAdapter.setCurrencies(currenciesList)
                     }
                 })
-
-        add_debt_fragment_add_receiver_tv.setOnClickListener { view ->
-            if (viewModel.getCurrentDebt() != null) {
-                displayExpenseActivity(viewModel.getCurrentDebt()!!.uid, null)
-            }
-        }
 
         debt_fragment_delete_fab.setOnClickListener { view ->
             Log.d("Delete button is pressed, debt = ${viewModel.getCurrentDebt()}")
@@ -225,15 +208,6 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
         viewModel.onCurrencyClick(selectedCurrencyId)
     }
 
-    override fun onExpenseClick(expense: Expense) {
-        val intent = Intent()
-        intent.action = "com.macgavrina.indebt.EXPENSE"
-        intent.putExtra("debtId", debtId)
-        intent.putExtra("expenseId", expense.uid)
-
-        startActivity(intent)
-    }
-
     private fun hideKeyboard() {
         val inputMethodManager: InputMethodManager = this.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.hideSoftInputFromWindow(this.currentFocus?.windowToken, 0)
@@ -282,6 +256,7 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
     }
 
     private fun displayDebtData(debt: Debt) {
+        this.debtId = debt.uid
         Log.d("Displaying debt = $debt")
         if (senderId == null) {
             if (!debt.senderId.isNullOrEmpty() && ::friendsList.isInitialized) {
@@ -297,8 +272,11 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
             }
         }
 
+        setExpertMode(debt.expertModeIsEnabled)
         if (debt.expertModeIsEnabled) {
-            setExpertMode(debt.expertModeIsEnabled)
+            displayExpensesForExpertMode()
+        } else {
+            displayExpensesForSimpleMode()
         }
 
         if (debt.spentAmount != null) {
@@ -352,6 +330,20 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
 
     private fun setExpertMode(isEnabled: Boolean) {
         add_debt_fragment_expertmode_switch.isChecked = isEnabled
+        add_debt_fragment_expertmode_switch.setOnCheckedChangeListener { buttonView, isChecked ->
+
+            if (supportFragmentManager.findFragmentById(R.id.debt_fragment_container_for_expenses) != null) {
+                supportFragmentManager.beginTransaction().remove(supportFragmentManager.findFragmentById(R.id.debt_fragment_container_for_expenses)!!).commit()
+            }
+
+            if (isChecked) {
+                Log.d("expert mode ON, display ExpensesForExpertMode")
+                displayExpensesForExpertMode()
+            } else {
+                Log.d("expert mode OFF, display ExpensesForSimpleMode")
+                displayExpensesForSimpleMode()
+            }
+        }
     }
 
     private fun hideDeleteButton() {
@@ -500,20 +492,6 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
         finishSelf()
     }
 
-    private fun displayExpenseActivity(debtId: Int, expenseId: Int?) {
-
-        val intent = Intent()
-        intent.action = "com.macgavrina.indebt.EXPENSE"
-        intent.putExtra("debtId", debtId)
-        if (expenseId != null) {
-            intent.putExtra("expenseId", expenseId)
-        } else {
-            intent.putExtra("expenseId", -1)
-        }
-
-        startActivity(intent)
-    }
-
     private fun saveDebtDraft() {
         if (viewModel.getCurrentDebt() == null || viewModel.getCurrentDebt()!!.status != "draft") return
 
@@ -597,6 +575,40 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
         if (senderId != null) {
             setSender(senderId!!)
         }
+    }
+
+    private fun displayExpensesForExpertMode() {
+
+        Log.d("displayExpensesForExpertMode fragment, debtId = $debtId")
+
+        val extendedExpensesFragment = ExtendedExpensesFragment()
+        val bundle:Bundle = Bundle()
+        bundle.putInt(DEBT_ID_KEY, debtId)
+        extendedExpensesFragment.arguments = bundle
+
+        val supportFragmentManager = supportFragmentManager
+        supportFragmentManager.beginTransaction()
+                .add(R.id.debt_fragment_container_for_expenses, extendedExpensesFragment)
+                //.addToBackStack("DebtsFragment")
+                .commit()
+
+    }
+
+    private fun displayExpensesForSimpleMode() {
+
+        Log.d("displayExpensesForSimpleMode fragment, debtId = $debtId")
+
+        val simpleExpensesFragment = SimpleExpensesFragment()
+        val bundle:Bundle = Bundle()
+        bundle.putInt(DEBT_ID_KEY, debtId)
+        simpleExpensesFragment.arguments = bundle
+
+        val supportFragmentManager = supportFragmentManager
+        supportFragmentManager.beginTransaction()
+                .add(R.id.debt_fragment_container_for_expenses, simpleExpensesFragment)
+                //.addToBackStack("DebtsFragment")
+                .commit()
+
     }
 
 }
