@@ -67,12 +67,12 @@ class ExpenseActivity : AppCompatActivity(), AddReceiverInAddDebtContract.View, 
         }
 
         viewManagerForNotSelected = LinearLayoutManager(MainApplication.applicationContext())
-        add_receiver_dialog_fragment_receiverlist_lv.adapter = NotSelectedReceiversRecyclerViewAdapter(notSelectedReceiversList)
-        add_receiver_dialog_fragment_receiverlist_lv.layoutManager = viewManagerForNotSelected
+        simple_expenses_list_receiverlist_lv.adapter = NotSelectedReceiversRecyclerViewAdapter(notSelectedReceiversList)
+        simple_expenses_list_receiverlist_lv.layoutManager = viewManagerForNotSelected
 
         viewManagerForSelected = LinearLayoutManager(MainApplication.applicationContext())
-        add_receiver_dialog_fragment_selected_members_lv.adapter = NotSelectedReceiversRecyclerViewAdapter(selectedReceiversList)
-        add_receiver_dialog_fragment_selected_members_lv.layoutManager = viewManagerForSelected
+        simple_expenses_list_selected_members_lv.adapter = NotSelectedReceiversRecyclerViewAdapter(selectedReceiversList)
+        simple_expenses_list_selected_members_lv.layoutManager = viewManagerForSelected
     }
 
     override fun onResume() {
@@ -131,7 +131,7 @@ class ExpenseActivity : AppCompatActivity(), AddReceiverInAddDebtContract.View, 
             notSelectedReceiversList.addAll(contactsList)
         }
 
-        add_receiver_dialog_fragment_receiverlist_lv.adapter?.notifyDataSetChanged()
+        simple_expenses_list_receiverlist_lv.adapter?.notifyDataSetChanged()
     }
 
     override fun initializeSelectedReceiversList(contactsList: List<Contact>?, amountPerPerson: String) {
@@ -142,7 +142,7 @@ class ExpenseActivity : AppCompatActivity(), AddReceiverInAddDebtContract.View, 
             add_expense_emplty_selected_list_layout.visibility = View.VISIBLE
         } else {
             add_expense_emplty_selected_list_layout.visibility = View.INVISIBLE
-            add_receiver_dialog_fragment_selected_members_lv.adapter = SelectedReceiversRecyclerViewAdapter(contactsList, amountPerPerson)
+            simple_expenses_list_selected_members_lv.adapter = SelectedReceiversRecyclerViewAdapter(contactsList, amountPerPerson)
         }
     }
 

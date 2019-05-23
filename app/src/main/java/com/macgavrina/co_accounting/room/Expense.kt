@@ -22,6 +22,7 @@ class Expense {
         set
         get
 
+    //ToDo Delete (use comment)
     @ColumnInfo(name = "expenseName")
     public var expenseName: String? = null
         set

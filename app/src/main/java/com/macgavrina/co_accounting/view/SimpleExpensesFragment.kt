@@ -6,11 +6,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.adapters.ExpensesRecyclerViewAdapter
+import com.macgavrina.co_accounting.logging.Log
+import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.room.Expense
 import com.macgavrina.co_accounting.viewmodel.DebtsViewModel
 import kotlinx.android.synthetic.main.expended_expenses_list.*
@@ -39,6 +42,11 @@ class SimpleExpensesFragment: Fragment() {
         }
 
         viewModel = ViewModelProviders.of(this).get(DebtsViewModel::class.java)
+
+        viewModel.getReceiversForOnlyOneExpenseForDebt(debtId).observe(this,
+                Observer<List<Contact>> { contactList ->
+                    Log.d("getReceiversForOnlyOneExpenseForDebt result: contactList size = ${contactList.size}, contactList = $contactList")
+                })
 
 //        val adapter = ExpensesRecyclerViewAdapter(this)
 //        add_debt_fragment_reciever_recyclerview.adapter = adapter

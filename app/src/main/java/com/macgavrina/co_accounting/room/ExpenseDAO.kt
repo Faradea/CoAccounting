@@ -18,6 +18,12 @@ interface ExpenseDAO {
     @Query("SELECT expense.uid, expense.debtId, expense.comment, expense.expenseName, group_concat(contact.alias, :separator) as receiversList, expense.totalAmount FROM expense LEFT JOIN receiverwithamountfordb ON receiverwithamountfordb.expenseId = expense.uid INNER JOIN contact ON receiverwithamountfordb.contactId = contact.uid WHERE expense.debtId IN (:debtId) GROUP BY receiverwithamountfordb.expenseId ORDER BY expense.uid")
     fun getExpensesForDebt(debtId: Int, separator: String): LiveData<List<Expense>>
 
+    @Query("SELECT contact.* " +
+            "FROM debt LEFT JOIN expense ON Expense.debtId = Debt.uid " +
+            "LEFT JOIN receiverwithamountfordb ON receiverwithamountfordb.expenseId = expense.uid " +
+            "INNER JOIN contact ON receiverwithamountfordb.contactId = contact.uid WHERE debt.uid = :debtId")
+    fun getReceiversForOnlyOneExpenseForDebt(debtId: Int): LiveData<List<Contact>>
+
     @Query("SELECT expense.uid, expense.debtId, expense.comment, expense.expenseName, group_concat(contact.alias, :separator) as receiversList, expense.totalAmount " +
             "FROM expense LEFT JOIN receiverwithamountfordb ON receiverwithamountfordb.expenseId = expense.uid " +
             "INNER JOIN contact ON receiverwithamountfordb.contactId = contact.uid " +

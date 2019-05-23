@@ -2,6 +2,7 @@ package com.macgavrina.co_accounting.repositories
 
 import androidx.lifecycle.LiveData
 import com.macgavrina.co_accounting.MainApplication
+import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.room.Expense
 import com.macgavrina.co_accounting.room.ExpenseDAO
 
@@ -18,6 +19,10 @@ class ExpenseRepository {
         } else {
             return expenseDao.getExpensesForDebtDraft(", ")
         }
+    }
+
+    fun getReceiversForOnlyOneExpenseForDebt(debtId: Int): LiveData<List<Contact>> {
+        return expenseDao.getReceiversForOnlyOneExpenseForDebt(debtId)
     }
 
 //    fun getDebtById(debtId: Int): LiveData<Debt> {

@@ -73,6 +73,10 @@ class DebtsViewModel(application: Application) : AndroidViewModel(MainApplicatio
         return expenseRepository.getAllExpensesForDebt(debtId)
     }
 
+    fun getReceiversForOnlyOneExpenseForDebt(debtId: Int): LiveData<List<Contact>> {
+        return expenseRepository.getReceiversForOnlyOneExpenseForDebt(debtId)
+    }
+
     fun getAllActiveContactsForCurrentTrip(): LiveData<List<Contact>> {
         return contactsRepository.getAllActiveContactsForCurrentTrip()
     }
