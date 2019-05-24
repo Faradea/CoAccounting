@@ -12,6 +12,8 @@ import com.macgavrina.co_accounting.rxjava.Events
 import io.reactivex.Completable
 import io.reactivex.disposables.CompositeDisposable
 
+const val EXPENSE_ID_KEY = "expenseId"
+
 class DebtsViewModel(application: Application) : AndroidViewModel(MainApplication.instance) {
 
     private val compositeDisposable = CompositeDisposable()
@@ -73,8 +75,12 @@ class DebtsViewModel(application: Application) : AndroidViewModel(MainApplicatio
         return expenseRepository.getAllExpensesForDebt(debtId)
     }
 
-    fun getReceiversForOnlyOneExpenseForDebt(debtId: Int): LiveData<List<Contact>> {
-        return expenseRepository.getReceiversForOnlyOneExpenseForDebt(debtId)
+    fun getSelectedContactsForExpense(expenseId: Int): LiveData<List<Contact>> {
+        return expenseRepository.getSelectedContactsForExpense(expenseId)
+    }
+
+    fun getNotSelectedContactsForExpense(expenseId: Int): LiveData<List<Contact>> {
+        return expenseRepository.getNotSelectedContactsForExpense(expenseId)
     }
 
     fun getAllActiveContactsForCurrentTrip(): LiveData<List<Contact>> {

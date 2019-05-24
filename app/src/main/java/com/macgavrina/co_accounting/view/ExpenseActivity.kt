@@ -67,8 +67,8 @@ class ExpenseActivity : AppCompatActivity(), AddReceiverInAddDebtContract.View, 
         }
 
         viewManagerForNotSelected = LinearLayoutManager(MainApplication.applicationContext())
-        simple_expenses_list_receiverlist_lv.adapter = NotSelectedReceiversRecyclerViewAdapter(notSelectedReceiversList)
-        simple_expenses_list_receiverlist_lv.layoutManager = viewManagerForNotSelected
+        simple_expenses_list_notselected_members_lv.adapter = NotSelectedReceiversRecyclerViewAdapter(notSelectedReceiversList)
+        simple_expenses_list_notselected_members_lv.layoutManager = viewManagerForNotSelected
 
         viewManagerForSelected = LinearLayoutManager(MainApplication.applicationContext())
         simple_expenses_list_selected_members_lv.adapter = NotSelectedReceiversRecyclerViewAdapter(selectedReceiversList)
@@ -131,7 +131,7 @@ class ExpenseActivity : AppCompatActivity(), AddReceiverInAddDebtContract.View, 
             notSelectedReceiversList.addAll(contactsList)
         }
 
-        simple_expenses_list_receiverlist_lv.adapter?.notifyDataSetChanged()
+        simple_expenses_list_notselected_members_lv.adapter?.notifyDataSetChanged()
     }
 
     override fun initializeSelectedReceiversList(contactsList: List<Contact>?, amountPerPerson: String) {

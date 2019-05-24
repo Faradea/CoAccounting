@@ -2,13 +2,12 @@ package com.macgavrina.co_accounting.repositories
 
 import androidx.lifecycle.LiveData
 import com.macgavrina.co_accounting.MainApplication
-import com.macgavrina.co_accounting.room.Contact
-import com.macgavrina.co_accounting.room.Expense
-import com.macgavrina.co_accounting.room.ExpenseDAO
+import com.macgavrina.co_accounting.room.*
 
 class ExpenseRepository {
 
     private var expenseDao: ExpenseDAO = MainApplication.db.expenseDAO()
+    private var receiverWithAmountForDBDAO: ReceiverWithAmountForDBDAO = MainApplication.db.receiverWithAmountForDBDAO()
 
     init {
     }
@@ -21,8 +20,12 @@ class ExpenseRepository {
         }
     }
 
-    fun getReceiversForOnlyOneExpenseForDebt(debtId: Int): LiveData<List<Contact>> {
-        return expenseDao.getReceiversForOnlyOneExpenseForDebt(debtId)
+    fun getSelectedContactsForExpense(expenseId: Int): LiveData<List<Contact>> {
+        return expenseDao.getSelectedContactsForExpenseId(expenseId)
+    }
+
+    fun getNotSelectedContactsForExpense(expenseId: Int): LiveData<List<Contact>> {
+        return expenseDao.getNotSelectedContactsForExpenseId(expenseId)
     }
 
 //    fun getDebtById(debtId: Int): LiveData<Debt> {

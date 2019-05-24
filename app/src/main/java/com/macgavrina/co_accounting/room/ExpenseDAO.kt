@@ -19,10 +19,21 @@ interface ExpenseDAO {
     fun getExpensesForDebt(debtId: Int, separator: String): LiveData<List<Expense>>
 
     @Query("SELECT contact.* " +
-            "FROM debt LEFT JOIN expense ON Expense.debtId = Debt.uid " +
+            "FROM expense " +
             "LEFT JOIN receiverwithamountfordb ON receiverwithamountfordb.expenseId = expense.uid " +
-            "INNER JOIN contact ON receiverwithamountfordb.contactId = contact.uid WHERE debt.uid = :debtId")
-    fun getReceiversForOnlyOneExpenseForDebt(debtId: Int): LiveData<List<Contact>>
+            "INNER JOIN contact ON receiverwithamountfordb.contactId = contact.uid WHERE expense.uid = :expenseId")
+    fun getSelectedContactsForExpenseId(expenseId: Int): LiveData<List<Contact>>
+
+    @Query("SELECT contact.* " +
+            " from contact INNER JOIN contacttotriprelation ON contacttotriprelation.contactId = contact.uid " +
+            " INNER JOIN trip ON contacttotriprelation.tripId = trip.uid WHERE contact.status = \"active\" AND trip.isCurrent = 1 " +
+            " AND contact.uid NOT IN " +
+            "(SELECT contact.uid " +
+            "FROM expense " +
+            "LEFT JOIN receiverwithamountfordb ON receiverwithamountfordb.expenseId = expense.uid " +
+            " INNER JOIN contact ON receiverwithamountfordb.contactId = contact.uid WHERE expense.uid = :expenseId)")
+    fun getNotSelectedContactsForExpenseId(expenseId: Int): LiveData<List<Contact>>
+
 
     @Query("SELECT expense.uid, expense.debtId, expense.comment, expense.expenseName, group_concat(contact.alias, :separator) as receiversList, expense.totalAmount " +
             "FROM expense LEFT JOIN receiverwithamountfordb ON receiverwithamountfordb.expenseId = expense.uid " +

@@ -1,5 +1,6 @@
 package com.macgavrina.co_accounting.room
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import io.reactivex.Maybe
 import io.reactivex.Single
@@ -15,6 +16,9 @@ interface ReceiverWithAmountForDBDAO {
 
     @Query("SELECT * FROM receiverwithamountfordb WHERE expenseId IN (:expenseId) ORDER BY uid")
     fun getReceiversWithAmountForExpense(expenseId: String): Maybe<List<ReceiverWithAmountForDB>>
+
+    @Query("SELECT * FROM receiverwithamountfordb WHERE expenseId IN (:expenseId) ORDER BY uid")
+    fun getReceiversWithAmountForExpenseLiveData(expenseId: Int): LiveData<List<ReceiverWithAmountForDB>>
 
     @Query("DELETE FROM receiverwithamountfordb WHERE expenseId IN (:expenseId)")
     fun deleteReceiversWithAmountForExpense(expenseId: String)

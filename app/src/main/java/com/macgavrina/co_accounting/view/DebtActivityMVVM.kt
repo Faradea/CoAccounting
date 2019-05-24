@@ -28,6 +28,7 @@ import com.macgavrina.co_accounting.room.Debt
 import com.macgavrina.co_accounting.room.Expense
 import com.macgavrina.co_accounting.support.DateFormatter
 import com.macgavrina.co_accounting.viewmodel.DebtsViewModel
+import com.macgavrina.co_accounting.viewmodel.EXPENSE_ID_KEY
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.add_debt_fragment.*
@@ -598,16 +599,29 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
 
         Log.d("displayExpensesForSimpleMode fragment, debtId = $debtId")
 
-        val simpleExpensesFragment = SimpleExpensesFragment()
-        val bundle:Bundle = Bundle()
-        bundle.putInt(DEBT_ID_KEY, debtId)
-        simpleExpensesFragment.arguments = bundle
+        viewModel.getAllExpensesForDebt(debtId).observe(this,
+                Observer { expensesList ->
+                    if (expensesList.size > 1) {
+                        Log.d("somehow there is simple mode but more than 1 expense, force switch to expert mode")
+                        add_debt_fragment_expertmode_switch.isChecked = true
+                        displayExpensesForExpertMode()
+                    }
+                    else {
+                        val simpleExpensesFragment = SimpleExpensesFragment()
+                        val bundle:Bundle = Bundle()
+                        bundle.putInt(DEBT_ID_KEY, debtId)
+                        if (expensesList.isNotEmpty()) {
+                            bundle.putInt(EXPENSE_ID_KEY, expensesList[0].uid)
+                        }
+                        simpleExpensesFragment.arguments = bundle
 
-        val supportFragmentManager = supportFragmentManager
-        supportFragmentManager.beginTransaction()
-                .add(R.id.debt_fragment_container_for_expenses, simpleExpensesFragment)
-                //.addToBackStack("DebtsFragment")
-                .commit()
+                        val supportFragmentManager = supportFragmentManager
+                        supportFragmentManager.beginTransaction()
+                                .add(R.id.debt_fragment_container_for_expenses, simpleExpensesFragment)
+                                //.addToBackStack("DebtsFragment")
+                                .commit()
+                    }
+                })
 
     }
 
