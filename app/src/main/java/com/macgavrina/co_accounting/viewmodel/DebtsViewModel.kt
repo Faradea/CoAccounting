@@ -3,6 +3,7 @@ package com.macgavrina.co_accounting.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.logging.Log
@@ -29,6 +30,8 @@ class DebtsViewModel(application: Application) : AndroidViewModel(MainApplicatio
     private var currentDebt: LiveData<Debt>? = null
     private var currentCurrencyId: Int = -1
     private var currenciesListForCurrentDebt: LiveData<List<Currency>>? = null
+
+    val notSavedDebtSpentAmount = MutableLiveData<Double>()
 
     //private var lastDeletedContact: Contact? = null
 

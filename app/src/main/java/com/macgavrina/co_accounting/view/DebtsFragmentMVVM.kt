@@ -40,6 +40,8 @@ class DebtsFragmentMVVM: Fragment() {
             viewModel.addDebtButtonIsPressed()
         }
 
+
+
         val adapter = DebtsRecyclerViewAdapter()
         debts_fragment_recyclerview.adapter = adapter
         debts_fragment_recyclerview.layoutManager = LinearLayoutManager(MainApplication.applicationContext())

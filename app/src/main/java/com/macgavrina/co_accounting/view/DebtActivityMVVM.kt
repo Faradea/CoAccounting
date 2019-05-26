@@ -6,6 +6,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -155,6 +157,27 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
         add_debt_fragment_time_et.setOnClickListener { view ->
             displayTimePickerDialog()
         }
+
+        add_debt_fragment_amount_et.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(p0: Editable?) {
+            }
+
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                Log.d("Debt spent amount is changed, newValue = $s")
+                if (s != null) {
+                    if (s.isNotEmpty()) {
+                        Log.d("Change ViewModel notSavedDebtSpentAmount value to ${s.toString().replace(",", ".").toDouble()}")
+                        viewModel.notSavedDebtSpentAmount.postValue(s.toString().replace(",", ".").toDouble())
+                    } else {
+                        Log.d("Change ViewModel notSavedDebtSpentAmount value to 0.0")
+                        viewModel.notSavedDebtSpentAmount.postValue(0.0)
+                    }
+                }
+            }
+        })
 
     }
 
