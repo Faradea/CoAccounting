@@ -43,11 +43,11 @@ dependencies {
     //rxandroid
     implementation "io.reactivex.rxjava2:rxandroid:2.0.2"
 
-    implementation 'androidx.room:room-runtime:2.1.0-alpha02'
-    kapt 'androidx.room:room-compiler:2.1.0-alpha02'
+    implementation 'androidx.room:room-runtime:2.1.0-beta01'
+    kapt 'androidx.room:room-compiler:2.1.0-beta01'
 
     // optional - RxJava support for Room
-    implementation 'androidx.room:room-rxjava2:2.1.0-alpha02'
+    implementation 'androidx.room:room-rxjava2:2.1.0-beta01'
 
     // optional - Guava support for Room, including Optional and ListenableFuture
     implementation 'androidx.room:room-guava:2.1.0-alpha02'

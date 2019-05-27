@@ -2,6 +2,7 @@ package com.macgavrina.co_accounting.room
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Single
 
@@ -21,7 +22,7 @@ interface ReceiverWithAmountForDBDAO {
     fun getReceiversWithAmountForExpenseLiveData(expenseId: Int): LiveData<List<ReceiverWithAmountForDB>>
 
     @Query("DELETE FROM receiverwithamountfordb WHERE expenseId IN (:expenseId)")
-    fun deleteReceiversWithAmountForExpense(expenseId: String)
+    fun deleteReceiversWithAmountForExpense(expenseId: String): Completable
 
     @Query ("SELECT COUNT(*) FROM receiverwithamountfordb WHERE contactId IN (:contactId)")
     fun checkReceiverWithAmountForContact(contactId: String): Single<Int>

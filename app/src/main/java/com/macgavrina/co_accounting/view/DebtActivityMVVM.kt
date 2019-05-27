@@ -3,7 +3,6 @@ package com.macgavrina.co_accounting.view
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Context
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable
@@ -22,12 +21,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.adapters.DebtCurrenciesRecyclerViewAdapter
-import com.macgavrina.co_accounting.adapters.ExpensesRecyclerViewAdapter
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.room.Currency
 import com.macgavrina.co_accounting.room.Debt
-import com.macgavrina.co_accounting.room.Expense
 import com.macgavrina.co_accounting.support.DateFormatter
 import com.macgavrina.co_accounting.viewmodel.DebtsViewModel
 import com.macgavrina.co_accounting.viewmodel.EXPENSE_ID_KEY
@@ -35,7 +32,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.add_debt_fragment.*
 import kotlinx.android.synthetic.main.debt_activity.*
-import kotlinx.android.synthetic.main.expended_expenses_list.*
 import java.util.*
 
 class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.OnCurrencyClickListener {
@@ -52,6 +48,8 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
     lateinit var contactIdToPositionMap: MutableMap<Int, Int>
     lateinit var friendsList: Array<String?>
     private var senderId: Int? = null
+
+    private var expenseIdForSimpleMode: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -512,6 +510,7 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
         debt.status = "active"
         debt.expertModeIsEnabled = getExpertModeFlag()
 
+        viewModel.saveExpenseFromSimpleMode(expenseIdForSimpleMode, debtId)
         viewModel.updateDebtInDB(debt)
         finishSelf()
     }
@@ -546,6 +545,7 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
         debt.expertModeIsEnabled = getExpertModeFlag()
 
         viewModel.updateDebtInDB(debt)
+        viewModel.saveExpenseFromSimpleMode(expenseIdForSimpleMode, debtId)
     }
 
     private fun displayContactsList(contactsList: List<Contact>) {
@@ -634,7 +634,9 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
                         val bundle:Bundle = Bundle()
                         bundle.putInt(DEBT_ID_KEY, debtId)
                         if (expensesList.isNotEmpty()) {
-                            bundle.putInt(EXPENSE_ID_KEY, expensesList[0].uid)
+                            expenseIdForSimpleMode = expensesList[0].uid
+                            bundle.putInt(EXPENSE_ID_KEY, expenseIdForSimpleMode)
+
                         }
                         simpleExpensesFragment.arguments = bundle
 

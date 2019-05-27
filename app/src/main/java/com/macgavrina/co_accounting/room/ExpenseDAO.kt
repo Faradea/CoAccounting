@@ -3,6 +3,7 @@ package com.macgavrina.co_accounting.room
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import io.reactivex.Maybe
+import io.reactivex.Single
 
 @Dao
 interface ExpenseDAO {

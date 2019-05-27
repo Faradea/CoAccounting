@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.adapters.NotSelectedReceiversRecyclerViewAdapter
+import com.macgavrina.co_accounting.adapters.NotSelectedReceiversWithOnClickRecyclerViewAdapter
 import com.macgavrina.co_accounting.adapters.SelectedReceiversRecyclerViewAdapter
 import com.macgavrina.co_accounting.adapters.SelectedReceiversWithOnClickRecyclerViewAdapter
 import com.macgavrina.co_accounting.logging.Log
@@ -24,14 +25,14 @@ import kotlinx.android.synthetic.main.add_receiver_dialog_fragment.simple_expens
 import kotlinx.android.synthetic.main.simple_expenses_list.*
 import java.text.DecimalFormat
 
-class SimpleExpensesFragment: Fragment(), SelectedReceiversWithOnClickRecyclerViewAdapter.OnSelectedContactClickListener {
+class SimpleExpensesFragment: Fragment(), SelectedReceiversWithOnClickRecyclerViewAdapter.OnSelectedContactClickListener, NotSelectedReceiversWithOnClickRecyclerViewAdapter.OnNotSelectedContactClickListener {
 
     private var debtId: Int = -1
     private var expenseId: Int = -1
     private var debt: Debt? = null
     private var debtTotalAmount: Double = 0.0
-    var notSelectedContactsList = mutableListOf<Contact>()
-    var selectedContactsList = mutableListOf<Contact>()
+    private val selectedContactsList = mutableListOf<Contact>()
+    private val notSelectedContactsList = mutableListOf<Contact>()
 
     private lateinit var viewModel: DebtsViewModel
     //private var tripsList: MutableList<Trip> = mutableListOf()
@@ -86,7 +87,7 @@ class SimpleExpensesFragment: Fragment(), SelectedReceiversWithOnClickRecyclerVi
 
         viewModel.getNotSelectedContactsForExpense(expenseId).observe(this,
                 Observer { notSelectedContactsList ->
-                    Log.d("getNotSelectedContactsForExpense result = $notSelectedContactsList")
+                    Log.d("getNotSelectedContactsForExpense, result = $notSelectedContactsList")
                     this.notSelectedContactsList.clear()
                     this.notSelectedContactsList.addAll(notSelectedContactsList)
                     initializeNotSelectedReceiversList(notSelectedContactsList)
@@ -121,13 +122,21 @@ class SimpleExpensesFragment: Fragment(), SelectedReceiversWithOnClickRecyclerVi
     }
 
     override fun onSelectedContactClick(selectedContact: Contact) {
-        Log.d("onSelectedContactClick, contactId = $selectedContact")
+        Log.d("onSelectedContactClick, contact = $selectedContact")
         selectedContactsList.remove(selectedContact)
         setAmountPerPersonForDebtTotal(debtTotalAmount)
 
         notSelectedContactsList.add(selectedContact)
         initializeNotSelectedReceiversList(notSelectedContactsList)
+    }
 
+    override fun onNotSelectedContactClick(selectedContact: Contact) {
+        Log.d("onNotSelectedContactClick, contact = $selectedContact")
+        selectedContactsList.add(selectedContact)
+        setAmountPerPersonForDebtTotal(debtTotalAmount)
+
+        notSelectedContactsList.remove(selectedContact)
+        initializeNotSelectedReceiversList(notSelectedContactsList)
     }
 
     private fun setAmountPerPersonForDebtTotal(debtTotal: Double) {
@@ -140,6 +149,7 @@ class SimpleExpensesFragment: Fragment(), SelectedReceiversWithOnClickRecyclerVi
     }
 
     private fun initializeSelectedReceiversList(contactsList: List<Contact>?, amountPerPerson: String) {
+        viewModel.notSavedSelectedContactList.postValue(contactsList)
         if (contactsList == null || contactsList.isEmpty()) {
             simple_expenses_list_empty_list_layout.visibility = View.VISIBLE
         } else {
@@ -149,7 +159,9 @@ class SimpleExpensesFragment: Fragment(), SelectedReceiversWithOnClickRecyclerVi
     }
 
     private fun initializeNotSelectedReceiversList(contactsList: List<Contact>?) {
-        simple_expenses_list_notselected_members_lv.adapter = NotSelectedReceiversRecyclerViewAdapter(contactsList)
+        viewModel.notSavedNotSelectedContactList.postValue(contactsList)
+        Log.d("initializeNotSelectedReceiversList and set OnClick listener")
+        simple_expenses_list_notselected_members_lv.adapter = NotSelectedReceiversWithOnClickRecyclerViewAdapter(contactsList, this)
     }
 
 }
