@@ -120,7 +120,7 @@ class DebtsViewModel(application: Application) : AndroidViewModel(MainApplicatio
     }
 
     fun saveExpenseFromSimpleMode(expenseIdForSimpleMode: Int, debtId: Int) {
-        Log.d("Saving expense for simple mode")
+        Log.d("Saving expense for simple mode, expenseId = $expenseIdForSimpleMode, debtId = $debtId")
 
         if (expenseIdForSimpleMode == -1) {
             val expense = Expense()
@@ -240,7 +240,7 @@ class DebtsViewModel(application: Application) : AndroidViewModel(MainApplicatio
             receiverWithAmount.expenseId = expense.uid.toString()
             receiverWithAmount.debtId = expense.debtId.toString()
             receiverWithAmount.contactId = contact.uid.toString()
-            receiverWithAmount.amount = (DecimalFormat("##.##").format(notSavedDebtSpentAmount.toString()).toDouble() / receiversWithAmountList.size).toString()
+            receiverWithAmount.amount = (notSavedDebtSpentAmount.value.toString().toDouble() / receiversWithAmountList.size).toString()
             receiversWithAmountList.add(receiverWithAmount)
         }
 

@@ -47,6 +47,8 @@ class SimpleExpensesFragment: Fragment(), SelectedReceiversWithOnClickRecyclerVi
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
+        Log.d("Simple expenses fragment: onActivityCreated")
+
         activity?.let {
             viewModel = ViewModelProviders.of(it).get(DebtsViewModel::class.java)
         }
@@ -75,22 +77,24 @@ class SimpleExpensesFragment: Fragment(), SelectedReceiversWithOnClickRecyclerVi
             viewModel.getSelectedContactsForExpense(expenseId).observe(this,
                     Observer { selectedContactsList ->
                         Log.d("getSelectedContactsForExpense result = $selectedContactsList")
+                        if (viewModel.notSavedSelectedContactList.value != null && viewModel.notSavedSelectedContactList.value!!.isNotEmpty()) return@Observer
                         this.selectedContactsList.clear()
-                        this.selectedContactsList.addAll(selectedContactsList)
-                        var amountPerPerson = "0"
-                        if (!debt?.spentAmount.isNullOrEmpty()) {
-                            amountPerPerson = DecimalFormat("##.##").format(debt!!.spentAmount!!.toDouble()/selectedContactsList.size)
-                        }
-                        initializeSelectedReceiversList(selectedContactsList, amountPerPerson)
+                            this.selectedContactsList.addAll(selectedContactsList)
+                            var amountPerPerson = "0"
+                            if (!debt?.spentAmount.isNullOrEmpty()) {
+                                amountPerPerson = DecimalFormat("##.##").format(debt!!.spentAmount!!.toDouble() / selectedContactsList.size)
+                            }
+                            initializeSelectedReceiversList(selectedContactsList, amountPerPerson)
                     })
         }
 
         viewModel.getNotSelectedContactsForExpense(expenseId).observe(this,
                 Observer { notSelectedContactsList ->
                     Log.d("getNotSelectedContactsForExpense, result = $notSelectedContactsList")
+                    if (viewModel.notSavedNotSelectedContactList.value != null && viewModel.notSavedNotSelectedContactList.value!!.isNotEmpty()) return@Observer
                     this.notSelectedContactsList.clear()
-                    this.notSelectedContactsList.addAll(notSelectedContactsList)
-                    initializeNotSelectedReceiversList(notSelectedContactsList)
+                        this.notSelectedContactsList.addAll(notSelectedContactsList)
+                        initializeNotSelectedReceiversList(notSelectedContactsList)
                 })
 
         viewModel.notSavedDebtSpentAmount.observe(this, Observer {
@@ -114,6 +118,13 @@ class SimpleExpensesFragment: Fragment(), SelectedReceiversWithOnClickRecyclerVi
 //                })
 //
 
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+
+        Log.d("Simple expenses fragment: onCreate")
+
+        super.onCreate(savedInstanceState)
     }
 
     override fun onDestroyView() {
@@ -149,6 +160,7 @@ class SimpleExpensesFragment: Fragment(), SelectedReceiversWithOnClickRecyclerVi
     }
 
     private fun initializeSelectedReceiversList(contactsList: List<Contact>?, amountPerPerson: String) {
+        Log.d("Update selected contacts list, size = ${contactsList?.size}")
         viewModel.notSavedSelectedContactList.postValue(contactsList)
         if (contactsList == null || contactsList.isEmpty()) {
             simple_expenses_list_empty_list_layout.visibility = View.VISIBLE

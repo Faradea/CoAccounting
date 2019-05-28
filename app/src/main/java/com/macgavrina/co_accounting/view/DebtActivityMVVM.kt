@@ -204,8 +204,9 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
     }
 
     override fun onDestroy() {
-        super.onDestroy()
+        Log.d("onDestroy")
         viewModel.viewIsDestroyed()
+        super.onDestroy()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -241,7 +242,7 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
     }
 
     private fun finishSelf() {
-        onBackPressed()
+        finish()
     }
 
 
@@ -481,6 +482,7 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
 
     private fun doneButtonIsPressed() {
         Log.d("Done button is pressed, currentDebt = ${viewModel.getCurrentDebt()}")
+
         hideKeyboard()
 
         var debt = viewModel.getCurrentDebt()
@@ -624,6 +626,7 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
 
         viewModel.getAllExpensesForDebt(debtId).observe(this,
                 Observer { expensesList ->
+                    Log.d("Expenses list for debt is loaded, size = ${expensesList.size}, value = $expensesList")
                     if (expensesList.size > 1) {
                         Log.d("somehow there is simple mode but more than 1 expense, force switch to expert mode")
                         add_debt_fragment_expertmode_switch.isChecked = true
@@ -634,6 +637,7 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
                         val bundle:Bundle = Bundle()
                         bundle.putInt(DEBT_ID_KEY, debtId)
                         if (expensesList.isNotEmpty()) {
+                            Log.d("expenseIdForSimpleMode = $expenseIdForSimpleMode")
                             expenseIdForSimpleMode = expensesList[0].uid
                             bundle.putInt(EXPENSE_ID_KEY, expenseIdForSimpleMode)
 
