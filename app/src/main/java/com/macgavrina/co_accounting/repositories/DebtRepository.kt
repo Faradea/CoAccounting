@@ -7,6 +7,8 @@ import com.macgavrina.co_accounting.room.ContactToTripRelation
 import com.macgavrina.co_accounting.room.Debt
 import com.macgavrina.co_accounting.room.DebtDAO
 import io.reactivex.Completable
+import io.reactivex.Maybe
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import java.util.*
@@ -29,8 +31,16 @@ class DebtRepository {
         return debtDao.getDebtByIds(debtId)
     }
 
+    fun getDebtByIdRx(debtId: Int): Maybe<Debt> {
+        return debtDao.getDebtByIdRx(debtId)
+    }
+
     fun getDebtDraft(): LiveData<Debt> {
         return debtDao.getDebtDraft()
+    }
+
+    fun getDebtDraftRx(): Maybe<Debt> {
+        return debtDao.getDebtDraftRx()
     }
 
     fun updateDebtInDB(debt: Debt) {

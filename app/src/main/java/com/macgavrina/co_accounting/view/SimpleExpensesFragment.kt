@@ -55,10 +55,10 @@ class SimpleExpensesFragment: Fragment(), SelectedReceiversWithOnClickRecyclerVi
 
         if (arguments?.getInt(DEBT_ID_KEY) != null) {
             debtId = arguments?.getInt(DEBT_ID_KEY)!!
-            viewModel.getDebtById(debtId)?.observe(this,
+            viewModel.getDebtById(debtId)?.observe(viewLifecycleOwner,
                     Observer {
                         this.debt = it
-                        if (!debt?.spentAmount.isNullOrEmpty()) {
+                        if (debt?.spentAmount != null) {
                             setAmountPerPersonForDebtTotal(debt!!.spentAmount!!.toDouble())
                         }
                     })
@@ -74,21 +74,21 @@ class SimpleExpensesFragment: Fragment(), SelectedReceiversWithOnClickRecyclerVi
 
         if (arguments?.getInt(EXPENSE_ID_KEY) != null) {
             expenseId = arguments?.getInt(EXPENSE_ID_KEY)!!
-            viewModel.getSelectedContactsForExpense(expenseId).observe(this,
+            viewModel.getSelectedContactsForExpense(expenseId).observe(viewLifecycleOwner,
                     Observer { selectedContactsList ->
                         Log.d("getSelectedContactsForExpense result = $selectedContactsList")
                         if (viewModel.notSavedSelectedContactList.value != null && viewModel.notSavedSelectedContactList.value!!.isNotEmpty()) return@Observer
                         this.selectedContactsList.clear()
                             this.selectedContactsList.addAll(selectedContactsList)
                             var amountPerPerson = "0"
-                            if (!debt?.spentAmount.isNullOrEmpty()) {
+                            if (debt?.spentAmount != null) {
                                 amountPerPerson = DecimalFormat("##.##").format(debt!!.spentAmount!!.toDouble() / selectedContactsList.size)
                             }
                             initializeSelectedReceiversList(selectedContactsList, amountPerPerson)
                     })
         }
 
-        viewModel.getNotSelectedContactsForExpense(expenseId).observe(this,
+        viewModel.getNotSelectedContactsForExpense(expenseId).observe(viewLifecycleOwner,
                 Observer { notSelectedContactsList ->
                     Log.d("getNotSelectedContactsForExpense, result = $notSelectedContactsList")
                     if (viewModel.notSavedNotSelectedContactList.value != null && viewModel.notSavedNotSelectedContactList.value!!.isNotEmpty()) return@Observer
@@ -97,7 +97,7 @@ class SimpleExpensesFragment: Fragment(), SelectedReceiversWithOnClickRecyclerVi
                         initializeNotSelectedReceiversList(notSelectedContactsList)
                 })
 
-        viewModel.notSavedDebtSpentAmount.observe(this, Observer {
+        viewModel.notSavedDebtSpentAmount.observe(viewLifecycleOwner, Observer {
             Log.d("Spent amount is changed for debt, new value = $it, handle this update by simple expense fragment")
             setAmountPerPersonForDebtTotal(it)
         })

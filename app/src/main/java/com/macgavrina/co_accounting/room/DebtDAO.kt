@@ -19,6 +19,9 @@ interface DebtDAO {
     @Query("SELECT * FROM debt WHERE uid IN (:debtId)")
     fun getDebtByIds(debtId: Int): LiveData<Debt>
 
+    @Query("SELECT * FROM debt WHERE uid IN (:debtId)")
+    fun getDebtByIdRx(debtId: Int): Maybe<Debt>
+
     @Query("select (debtAmount - expensesAmount) FROM " +
             "( " +
             "(select debt.spentAmount as debtAmount from debt where debt.uid = :debtId) " +
@@ -30,6 +33,9 @@ interface DebtDAO {
 
     @Query("SELECT * FROM debt WHERE status = \"draft\"")
     fun getDebtDraft(): LiveData<Debt>
+
+    @Query("SELECT * FROM debt WHERE status = \"draft\"")
+    fun getDebtDraftRx(): Maybe<Debt>
 
     //ToDo REFACT use count instead of Select all
     @Query ("SELECT * FROM debt WHERE senderId IN (:contactId) AND status IN (:contactStatus)")

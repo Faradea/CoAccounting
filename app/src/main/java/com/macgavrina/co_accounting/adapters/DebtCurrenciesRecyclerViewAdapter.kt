@@ -84,12 +84,12 @@ class DebtCurrenciesRecyclerViewAdapter(inputOnClickListener: OnCurrencyClickLis
             if (item.lastUsedCurrencyId < 1 && position == 0) {
                 Log.d("Debt hasn't selected currency, item.lastUsedCurrencyId < 1 && position == 0 so make it enabled and emulate onClick, item.uid = ${item.uid}")
                 holder.currencyLayout.setCardBackgroundColor(MainApplication.applicationContext().resources.getColor(R.color.colorSecondary))
-                MainApplication.bus.send(Events.OnClickCurrencyInDebt(item.uid))
+                //MainApplication.bus.send(Events.OnClickCurrencyInDebt(item.uid))
             } else {
                 if (item.uid == item.lastUsedCurrencyId) {
                     Log.d("Debt hasn't selected currency, currency is same with last used, so make it enabled and emulate onClick, item.uid = ${item.uid}")
                     holder.currencyLayout.setCardBackgroundColor(MainApplication.applicationContext().resources.getColor(R.color.colorSecondary))
-                    MainApplication.bus.send(Events.OnClickCurrencyInDebt(item.uid))
+                    //MainApplication.bus.send(Events.OnClickCurrencyInDebt(item.uid))
                 } else {
                     Log.d("Debt hasn't selected currency, currency not same with last used, so make it disabled")
                     holder.currencyLayout.setCardBackgroundColor(MainApplication.applicationContext().resources.getColor(R.color.colorBackground))

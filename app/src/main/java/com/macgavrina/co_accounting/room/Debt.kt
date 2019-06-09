@@ -19,12 +19,12 @@ class Debt {
 
     //ToDo REFACT add to indexes
     @ColumnInfo(name = "senderId")
-    public var senderId: String? = null
+    public var senderId: Int = -1
         set
         get
 
     @ColumnInfo(name = "spentAmount")
-    public var spentAmount: String? = null
+    public var spentAmount: Double = 0.0
         set
         get
 

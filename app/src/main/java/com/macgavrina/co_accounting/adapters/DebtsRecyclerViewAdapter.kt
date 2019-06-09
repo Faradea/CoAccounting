@@ -66,9 +66,9 @@ class DebtsRecyclerViewAdapter:
         val item = mItems?.get(position) ?: return
 
         if (item.currencyId == -1) {
-            holder.amount.text = item.spentAmount
+            holder.amount.text = item.spentAmount.toString()
         } else {
-            if (!item.spentAmount.isNullOrEmpty() && item.spentAmount?.toFloat()!! > 0F) {
+            if (item.spentAmount != null && item.spentAmount?.toFloat()!! > 0F) {
                 holder.amount.text = "${item.spentAmount} ${item.currencySymbol}"
             } else {
                 holder.amount.text = "0 ${item.currencySymbol}"
