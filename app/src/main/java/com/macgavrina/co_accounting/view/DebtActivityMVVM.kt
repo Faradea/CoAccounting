@@ -98,6 +98,7 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
 
         viewModel.getAllActiveContactsForCurrentTrip().observe(this,
                 Observer<List<Contact>> { contactsList ->
+                    Log.d("Contact list is initialized, size = ${contactsList.size}, value = $contactsList")
                     displayContactsList(contactsList)
                 })
 
@@ -216,10 +217,10 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
 
             if (isChecked) {
                 Log.d("expert mode ON, display ExpensesForExpertMode")
-                //displayExpensesForExpertMode()
+                displayExpensesForExpertMode()
             } else {
                 Log.d("expert mode OFF, display ExpensesForSimpleMode")
-                //displayExpensesForSimpleMode()
+                displayExpensesForSimpleMode()
             }
         }
 
@@ -228,13 +229,13 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
 
     override fun onResume() {
         super.onResume()
-
-        if (::friendsList.isInitialized && senderId != null) {
-
-            if (::contactIdToPositionMap.isInitialized && contactIdToPositionMap[senderId!!] != null) {
-                setSender(contactIdToPositionMap[senderId!!]!!)
-            }
-        }
+//
+//        if (::friendsList.isInitialized && senderId != null) {
+//
+//            if (::contactIdToPositionMap.isInitialized && contactIdToPositionMap[senderId!!] != null) {
+//                setSender(contactIdToPositionMap[senderId!!]!!)
+//            }
+//        }
     }
 
     override fun onPause() {
@@ -318,11 +319,11 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
         this.debtId = debt.uid
         Log.d("Displaying debt = $debt")
         if (senderId == null) {
+            Log.d("Setting sender, debt.senderId = ${debt.senderId}, ::friendsList.isInitialized = ${::friendsList.isInitialized}")
             if (debt.senderId != -1 && ::friendsList.isInitialized) {
-                Log.d("setSender")
 
                 if (::contactIdToPositionMap.isInitialized && debt != null && contactIdToPositionMap?.isNotEmpty() && contactIdToPositionMap[debt.senderId?.toInt()] != null) {
-                    //setSender(contactIdToPositionMap[debt.senderId?.toInt()]!!)
+                    setSender(contactIdToPositionMap[debt.senderId?.toInt()]!!)
                 }
             }
 
@@ -334,9 +335,9 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
         setExpertMode(debt.expertModeIsEnabled)
 
         if (debt.expertModeIsEnabled) {
-            //displayExpensesForExpertMode()
+            displayExpensesForExpertMode()
         } else {
-            //displayExpensesForSimpleMode()
+            displayExpensesForSimpleMode()
         }
 
         if (debt.spentAmount != null) {
@@ -383,8 +384,8 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
 
 
     private fun setSender(position: Int) {
-
-        senderId = position
+        Log.d("Set sender, position = $position")
+        //senderId = position
         add_debt_fragment_sender_spinner.setSelection(position)
     }
 
@@ -563,7 +564,7 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
         }
 
 
-        //setupSenderSpinner(friendsList)
+        setupSenderSpinner(friendsList)
 
         if (senderId == null) {
 
@@ -576,8 +577,9 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
 //            }
 //        }
         }
+    }
 
-        fun setupSenderSpinner(contactsList: Array<String?>) {
+        private fun setupSenderSpinner(contactsList: Array<String?>) {
 
             val adapter = ArrayAdapter<String>(
                     MainApplication.applicationContext(),
@@ -589,14 +591,18 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
 
             add_debt_fragment_sender_spinner.adapter = adapter
 
-            if (senderId != null) {
-                setSender(senderId!!)
+            if (viewModel.getCurrentDebt().value != null && viewModel.getCurrentDebt().value!!.senderId != -1) {
+                if (contactIdToPositionMap[viewModel.getCurrentDebt().value!!.senderId] == null) return
+                setSender(contactIdToPositionMap[viewModel.getCurrentDebt().value!!.senderId]!!)
             }
+//            if (senderId != null) {
+//                setSender(senderId!!)
+//            }
         }
 
         fun displayExpensesForExpertMode() {
 
-            Log.d("displayExpensesForExpertMode fragment, debtId = $debtId")
+            Log.d("displayExpensesForExpertMode fragment")
 
             val extendedExpensesFragment = ExtendedExpensesFragment()
             val bundle: Bundle = Bundle()
@@ -613,37 +619,36 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
 
         fun displayExpensesForSimpleMode() {
 
-//        Log.d("displayExpensesForSimpleMode fragment, debtId = $debtId")
-//
-//        viewModel.getAllExpensesForDebt(debtId).observe(this,
-//                Observer { expensesList ->
-//                    Log.d("Expenses list for debt is loaded, size = ${expensesList.size}, value = $expensesList")
-//                    if (expensesList.size > 1) {
-//                        Log.d("somehow there is simple mode but more than 1 expense, force switch to expert mode")
-//                        add_debt_fragment_expertmode_switch.isChecked = true
-//                        displayExpensesForExpertMode()
-//                    }
-//                    else {
-//                        val simpleExpensesFragment = SimpleExpensesFragment()
-//                        val bundle:Bundle = Bundle()
-//                        bundle.putInt(DEBT_ID_KEY, debtId)
-//                        if (expensesList.isNotEmpty()) {
-//                            Log.d("expenseIdForSimpleMode = $expenseIdForSimpleMode")
-//                            expenseIdForSimpleMode = expensesList[0].uid
-//                            bundle.putInt(EXPENSE_ID_KEY, expenseIdForSimpleMode)
-//
-//                        }
-//                        simpleExpensesFragment.arguments = bundle
-//
-//                        val supportFragmentManager = supportFragmentManager
-//                        supportFragmentManager.beginTransaction()
-//                                .add(R.id.debt_fragment_container_for_expenses, simpleExpensesFragment)
-//                                //.addToBackStack("DebtsFragment")
-//                                .commit()
-//                    }
-//                })
+            Log.d("displayExpensesForSimpleMode fragment, viewModel.getExpensesList() = ${viewModel.getExpensesList()}")
+
+            viewModel.getExpensesList()?.observe(this,
+                    Observer { expensesList ->
+                        Log.d("Expenses list for debt is loaded, size = ${expensesList.size}, value = $expensesList")
+                        if (expensesList.size > 1) {
+                            Log.d("somehow there is simple mode but more than 1 expense, force switch to expert mode")
+                            add_debt_fragment_expertmode_switch.isChecked = true
+                            displayExpensesForExpertMode()
+                        }
+                        else {
+                            val simpleExpensesFragment = SimpleExpensesFragment()
+                            val bundle:Bundle = Bundle()
+                            bundle.putInt(DEBT_ID_KEY, debtId)
+                            if (expensesList.isNotEmpty()) {
+                                Log.d("expenseIdForSimpleMode = $expenseIdForSimpleMode")
+                                expenseIdForSimpleMode = expensesList[0].uid
+                                bundle.putInt(EXPENSE_ID_KEY, expenseIdForSimpleMode)
+
+                            }
+                            simpleExpensesFragment.arguments = bundle
+
+                            val supportFragmentManager = supportFragmentManager
+                            supportFragmentManager.beginTransaction()
+                                    .add(R.id.debt_fragment_container_for_expenses, simpleExpensesFragment)
+                                    //.addToBackStack("DebtsFragment")
+                                    .commit()
+                        }
+                    })
 
         }
 
     }
-}

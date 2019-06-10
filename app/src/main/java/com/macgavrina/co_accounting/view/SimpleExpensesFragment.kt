@@ -40,6 +40,7 @@ class SimpleExpensesFragment: Fragment(), SelectedReceiversWithOnClickRecyclerVi
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 
+        Log.d("onCreateView")
         return inflater.inflate(R.layout.simple_expenses_list, container,
                 false)
     }

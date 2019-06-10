@@ -31,7 +31,7 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
     private var currentDebt: MutableLiveData<Debt> = MutableLiveData()
     private var currenciesList: LiveData<List<Currency>> = CurrencyRepository().getAllActiveCurrenciesWithLastUsedMarkerForCurrentTrip()
     private var contactsList = contactsRepository.getAllActiveContactsForCurrentTrip()
-    private var expensesList: MutableLiveData<List<Expense>> = MutableLiveData()
+    private var expensesList: LiveData<List<Expense>>? = null
     private var debtDate: String = ""
     private var debtTime: String = ""
 
@@ -47,6 +47,10 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
         return currentDebt
     }
 
+    fun getExpensesList(): LiveData<List<Expense>>? {
+        return expensesList
+    }
+
     fun debtIdIsReceivedFromIntent(debtId: Int) {
 
         val subscription = debtRepository.getDebtByIdRx(debtId)
@@ -54,6 +58,7 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ debt ->
                     Log.d("Debt data is received from DB, debt = $debt")
+                    expensesList = expenseRepository.getAllExpensesForDebt(debt.uid)
                     currentDebt.value = debt
                 }, { error ->
                     snackbarMessage.value = "Database error"
@@ -68,6 +73,7 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ debt ->
                     Log.d("Debt draft is received from DB, debt = $debt")
+                    expensesList = expenseRepository.getAllExpensesForDebt(debt.uid)
                     currentDebt.value = debt
                 }, { error ->
                     snackbarMessage.value = "Database error"
@@ -120,6 +126,7 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
     }
 
     fun senderIdIsChanged(newValue: Int) {
+        Log.d("SenderId is changed, new value = $newValue")
         currentDebt.value?.senderId = newValue
     }
 
