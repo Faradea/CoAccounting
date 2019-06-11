@@ -14,6 +14,7 @@ import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.adapters.ExpensesRecyclerViewAdapter
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.Expense
+import com.macgavrina.co_accounting.viewmodel.DebtViewModel
 import com.macgavrina.co_accounting.viewmodel.DebtsViewModel
 import kotlinx.android.synthetic.main.expended_expenses_list.*
 
@@ -21,9 +22,7 @@ const val DEBT_ID_KEY = "debtId"
 
 class ExtendedExpensesFragment: Fragment(), ExpensesRecyclerViewAdapter.OnExpenseInDebtClickListener {
 
-    private var debtId: Int = -1
-
-    private lateinit var viewModel: DebtsViewModel
+    private lateinit var viewModel: DebtViewModel
     //private var tripsList: MutableList<Trip> = mutableListOf()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -38,20 +37,19 @@ class ExtendedExpensesFragment: Fragment(), ExpensesRecyclerViewAdapter.OnExpens
 
         Log.d("ExtendedExpensesFragment: onActivityCreated")
 
-        if (arguments?.getInt(DEBT_ID_KEY) != null) {
-            debtId = arguments?.getInt(DEBT_ID_KEY)!!
-        } else {
-            return
+        activity?.let {
+            viewModel = ViewModelProviders.of(it).get(DebtViewModel::class.java)
         }
-
-        viewModel = ViewModelProviders.of(this).get(DebtsViewModel::class.java)
 
         val adapter = ExpensesRecyclerViewAdapter(this)
         add_debt_fragment_reciever_recyclerview.adapter = adapter
         add_debt_fragment_reciever_recyclerview.layoutManager = LinearLayoutManager(MainApplication.applicationContext())
 
-        viewModel.getAllExpensesForDebt(debtId).observe(this,
+
+        Log.d("viewModel.getExpensesList() = ${viewModel.getExpensesList()}, currentDebt = ${viewModel.getCurrentDebt().value}")
+        viewModel.getExpensesList()?.observe(this,
                 Observer<List<Expense>> { expensesList ->
+                    Log.d("expenses list size = ${expensesList.size}, value = $expensesList")
                     adapter.setExpenses(expensesList)
 
                     if (expensesList.isEmpty()) {
@@ -62,22 +60,17 @@ class ExtendedExpensesFragment: Fragment(), ExpensesRecyclerViewAdapter.OnExpens
                 })
 
         add_debt_fragment_add_receiver_tv.setOnClickListener { view ->
-            if (debtId != null && debtId != -1) {
-                displayExpenseActivity(debtId, null)
+            if (viewModel.getCurrentDebt().value != null && viewModel.getCurrentDebt().value!!.uid != -1) {
+                displayExpenseActivity(viewModel.getCurrentDebt().value!!.uid, null)
             }
         }
 
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        viewModel.viewIsDestroyed()
-    }
-
     override fun onExpenseClick(expense: Expense) {
         val intent = Intent()
         intent.action = "com.macgavrina.indebt.EXPENSE"
-        intent.putExtra("debtId", debtId)
+        intent.putExtra("debtId", viewModel.getCurrentDebt().value?.uid)
         intent.putExtra("expenseId", expense.uid)
 
         startActivity(intent)

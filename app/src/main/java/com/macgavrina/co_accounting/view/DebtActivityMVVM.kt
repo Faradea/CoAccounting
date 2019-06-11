@@ -123,6 +123,12 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
                         currenciesAdapter.setCurrencies(currenciesListWithSavedForDebtMarker)
                     } else {
                         currenciesAdapter.setCurrencies(currenciesList)
+
+                        if (currenciesList[0].lastUsedCurrencyId < 1) {
+                            viewModel.onCurrencyClick(currenciesList[0].uid)
+                        } else {
+                            viewModel.onCurrencyClick(currenciesList[0].lastUsedCurrencyId)
+                        }
                     }
                 })
 
@@ -275,7 +281,7 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
     }
 
     override fun onBackPressed() {
-        saveDebtDraft()
+        viewModel.onBackPressed()
         super.onBackPressed()
     }
 
@@ -355,6 +361,7 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
         }
 
         if (debt.datetime != null) {
+            Log.d("Debt datetime = ${debt.datetime!!}")
             setDate(DateFormatter().formatDateFromTimestamp(debt.datetime!!.toLong()))
             setTime(DateFormatter().formatTimeFromTimestamp(debt.datetime!!.toLong()))
         }
@@ -377,12 +384,12 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
     }
 
     private fun setDate(date: String) {
-
+        Log.d("setDate = $date")
         add_debt_fragment_date_et.setText(date)
     }
 
     private fun setTime(time: String) {
-
+        Log.d("setTime = $time")
         add_debt_fragment_time_et.setText(time)
     }
 
@@ -431,7 +438,14 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
         val minute = mcurrentTime.get(Calendar.MINUTE)
 
         timePickerDialog = TimePickerDialog(this, TimePickerDialog.OnTimeSetListener { timePicker, selectedHour, selectedMinute ->
-            add_debt_fragment_time_et.setText("$selectedHour:$selectedMinute")
+            Log.d("Time picker result: hour = $selectedHour, minute = $selectedMinute")
+            if (selectedMinute.toString().length == 1) {
+                add_debt_fragment_time_et.setText("$selectedHour:0$selectedMinute")
+                viewModel.timeIsChanged("$selectedHour:0$selectedMinute")
+            } else {
+                add_debt_fragment_time_et.setText("$selectedHour:${selectedMinute}")
+                viewModel.timeIsChanged("$selectedHour:$selectedMinute")
+            }
             timePickerDialog = null
         }, hour, minute, true)
 
@@ -518,39 +532,6 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
         finishSelf()
     }
 
-    private fun saveDebtDraft() {
-//        if (viewModel.getCurrentDebt() == null || viewModel.getCurrentDebt()!!.status != "draft") return
-//
-//        Log.d("handle back button pressed - save debt draft")
-//
-//        val debt = viewModel.getCurrentDebt() ?: return
-//
-//        debt.senderId = positionToContactIdMap[getSender()]?.uid.toString()
-//        debt.spentAmount= getAmount()
-//
-//        if (getDate() != null) {
-//
-//            if (getTime() == null) {
-//                val formattedDate = DateFormatter().getTimestampFromFormattedDate(getDate()!!)
-//                if (formattedDate != null) {
-//                    debt.datetime = formattedDate.toString()
-//                }
-//            } else {
-//                val formattedDateTime = DateFormatter().getTimestampFromFormattedDateTime(
-//                        "${getDate()} ${getTime()}")
-//                if (formattedDateTime != null) {
-//                    debt.datetime = formattedDateTime.toString()
-//                }
-//            }
-//        }
-//
-//        debt.comment = getComment()
-//        debt.expertModeIsEnabled = getExpertModeFlag()
-//
-//        viewModel.updateDebtInDB(debt)
-//        viewModel.saveExpenseFromSimpleMode(expenseIdForSimpleMode, debtId)
-    }
-
     private fun displayContactsList(contactsList: List<Contact>) {
 
         if (contactsList.isEmpty()) {
@@ -625,10 +606,6 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
             if (extendedExpensesFragment == null || (extendedExpensesFragment != null && !extendedExpensesFragment!!.isAdded)) {
 
                 extendedExpensesFragment = ExtendedExpensesFragment()
-                val bundle: Bundle = Bundle()
-                bundle.putInt(DEBT_ID_KEY, debtId)
-                extendedExpensesFragment!!.arguments = bundle
-
                 val supportFragmentManager = supportFragmentManager
                 supportFragmentManager.beginTransaction()
                         .add(R.id.debt_fragment_container_for_expenses, extendedExpensesFragment!!)
@@ -661,15 +638,13 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
                             if (simpleExpensesFragment == null || (simpleExpensesFragment != null && !simpleExpensesFragment!!.isAdded)) {
 
                                 simpleExpensesFragment = SimpleExpensesFragment()
-                                val bundle: Bundle = Bundle()
-                                bundle.putInt(DEBT_ID_KEY, debtId)
                                 if (expensesList.isNotEmpty()) {
+                                    val bundle: Bundle = Bundle()
                                     Log.d("expenseIdForSimpleMode = $expenseIdForSimpleMode")
                                     expenseIdForSimpleMode = expensesList[0].uid
                                     bundle.putInt(EXPENSE_ID_KEY, expenseIdForSimpleMode)
-
+                                    simpleExpensesFragment!!.arguments = bundle
                                 }
-                                simpleExpensesFragment!!.arguments = bundle
 
                                 val supportFragmentManager = supportFragmentManager
                                 supportFragmentManager.beginTransaction()

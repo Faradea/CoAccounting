@@ -208,6 +208,12 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
         dateTimeIsChanged()
     }
 
+    fun timeIsChanged(newTime: String) {
+        debtTime = newTime
+        Log.d("time is changed, newValue = $newTime")
+        dateTimeIsChanged()
+    }
+
     fun commentIsChanged(newValue: String) {
         currentDebt.value?.comment = newValue
     }
@@ -220,11 +226,22 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
     fun doneButton() {
 
         Log.d("Saving debt, ${currentDebt.value}")
+        saveCurrentDateWithStatus("active")
+    }
+
+    fun onBackPressed() {
+        Log.d("Saving draft, ${currentDebt.value}")
+        if (currentDebt.value?.status != "active") {
+            saveCurrentDateWithStatus("draft")
+        }
+    }
+
+    private fun saveCurrentDateWithStatus(debtStatus: String) {
         if (currentDebt.value != null) {
             if (currentDebt.value!!.currencyId == -1) {
                 defineDefaultCurrencyForTrip()
             }
-            currentDebt.value?.status = "active"
+            currentDebt.value?.status = debtStatus
             debtRepository.updateDebtInDB(currentDebt.value!!)
         }
 
@@ -244,6 +261,7 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
             } else {
                 val formattedDateTime = DateFormatter().getTimestampFromFormattedDateTime(
                         "$debtDate $debtTime")
+                Log.d("formattedDateTime = $debtDate $debtTime, timestamp = $formattedDateTime")
                 if (formattedDateTime != null) {
                     currentDebt.value?.datetime = formattedDateTime.toString()
                 }

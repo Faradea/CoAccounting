@@ -28,7 +28,6 @@ import java.text.DecimalFormat
 
 class SimpleExpensesFragment: Fragment(), SelectedReceiversWithOnClickRecyclerViewAdapter.OnSelectedContactClickListener, NotSelectedReceiversWithOnClickRecyclerViewAdapter.OnNotSelectedContactClickListener {
 
-    private var debtId: Int = -1
     private var expenseId: Int = -1
     private var debt: Debt? = null
     private var debtTotalAmount: Double = 0.0
@@ -53,17 +52,12 @@ class SimpleExpensesFragment: Fragment(), SelectedReceiversWithOnClickRecyclerVi
             viewModel = ViewModelProviders.of(it).get(DebtViewModel::class.java)
         }
 
-        if (arguments?.getInt(DEBT_ID_KEY) != null) {
-            debtId = arguments?.getInt(DEBT_ID_KEY)!!
             viewModel.getCurrentDebt().observe(viewLifecycleOwner,
                     Observer {debt ->
                         if (debt?.spentAmount != null) {
                             setAmountPerPersonForDebtTotal(debt.spentAmount)
                         }
                     })
-        } else {
-            return
-        }
 
         val viewManagerForSelected = LinearLayoutManager(MainApplication.applicationContext())
         simple_expenses_list_selected_members_lv.layoutManager = viewManagerForSelected
