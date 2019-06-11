@@ -103,7 +103,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
         Log.d("ExpenseId is received from MainActivity, = $expenseId, getting expense data from DB...")
         this.expenseId = expenseId
 
-        MainApplication.db.expenseDAO().getExpenseByIds(expenseId.toString())
+        MainApplication.db.expenseDAO().getExpenseByIds(expenseId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(object : DisposableMaybeObserver<Expense>() {
@@ -113,7 +113,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
 
                         getView()?.showDeleteButton()
 
-                        getView()?.setAmount(expense.totalAmount)
+                        getView()?.setAmount(expense.totalAmount.toString())
 
                         getView()?.setComment(expense.comment)
 
@@ -194,7 +194,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
 
         if (expense == null) {
             expense = Expense()
-            expense!!.totalAmount = DecimalFormat("##.##").format(getView()?.getAmount())
+            expense!!.totalAmount = DecimalFormat("##.##").format(getView()?.getAmount()).toDouble()
             expense!!.comment = getView()?.getComment() ?: ""
             expense!!.debtId = debtId
 
@@ -255,7 +255,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
                     })
 
         } else {
-            expense!!.totalAmount = DecimalFormat("##.##").format(getView()?.getAmount())
+            expense!!.totalAmount = DecimalFormat("##.##").format(getView()?.getAmount()).toDouble()
             expense!!.comment = getView()?.getComment() ?: ""
             expense!!.debtId = debtId
 

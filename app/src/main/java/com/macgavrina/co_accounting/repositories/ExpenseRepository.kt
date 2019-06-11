@@ -15,6 +15,10 @@ class ExpenseRepository {
     init {
     }
 
+    fun getExpenseByIdRx(expenseId: Int): Maybe<Expense> {
+        return expenseDao.getExpenseByIds(expenseId)
+    }
+
     fun getAllExpensesForDebt(debtId: Int): LiveData<List<Expense>> {
         if (debtId != -1) {
             return expenseDao.getExpensesForDebt(debtId, ", ")
@@ -27,8 +31,16 @@ class ExpenseRepository {
         return expenseDao.getSelectedContactsForExpenseId(expenseId)
     }
 
+    fun getSelectedContactsForExpenseRx(expenseId: Int): Single<List<Contact>> {
+        return expenseDao.getSelectedContactsForExpenseIdRx(expenseId)
+    }
+
     fun getNotSelectedContactsForExpense(expenseId: Int): LiveData<List<Contact>> {
         return expenseDao.getNotSelectedContactsForExpenseId(expenseId)
+    }
+
+    fun getNotSelectedContactsForExpenseRx(expenseId: Int): Single<List<Contact>> {
+        return expenseDao.getNotSelectedContactsForExpenseIdRx(expenseId)
     }
 
     fun insertNewExpense(expense: Expense): Completable {

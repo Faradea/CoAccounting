@@ -36,13 +36,13 @@ class ExtendedExpensesFragment: Fragment(), ExpensesRecyclerViewAdapter.OnExpens
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
+        Log.d("ExtendedExpensesFragment: onActivityCreated")
+
         if (arguments?.getInt(DEBT_ID_KEY) != null) {
             debtId = arguments?.getInt(DEBT_ID_KEY)!!
         } else {
             return
         }
-
-        Log.d("ExtendedExpensesFragment is created, debtId = $debtId")
 
         viewModel = ViewModelProviders.of(this).get(DebtsViewModel::class.java)
 

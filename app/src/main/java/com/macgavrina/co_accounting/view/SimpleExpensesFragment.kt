@@ -17,6 +17,7 @@ import com.macgavrina.co_accounting.adapters.SelectedReceiversWithOnClickRecycle
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.room.Debt
+import com.macgavrina.co_accounting.viewmodel.DebtViewModel
 import com.macgavrina.co_accounting.viewmodel.DebtsViewModel
 import com.macgavrina.co_accounting.viewmodel.EXPENSE_ID_KEY
 import kotlinx.android.synthetic.main.add_receiver_dialog_fragment.*
@@ -31,10 +32,8 @@ class SimpleExpensesFragment: Fragment(), SelectedReceiversWithOnClickRecyclerVi
     private var expenseId: Int = -1
     private var debt: Debt? = null
     private var debtTotalAmount: Double = 0.0
-    private val selectedContactsList = mutableListOf<Contact>()
-    private val notSelectedContactsList = mutableListOf<Contact>()
 
-    private lateinit var viewModel: DebtsViewModel
+    private lateinit var viewModel: DebtViewModel
     //private var tripsList: MutableList<Trip> = mutableListOf()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -51,16 +50,15 @@ class SimpleExpensesFragment: Fragment(), SelectedReceiversWithOnClickRecyclerVi
         Log.d("Simple expenses fragment: onActivityCreated")
 
         activity?.let {
-            viewModel = ViewModelProviders.of(it).get(DebtsViewModel::class.java)
+            viewModel = ViewModelProviders.of(it).get(DebtViewModel::class.java)
         }
 
         if (arguments?.getInt(DEBT_ID_KEY) != null) {
             debtId = arguments?.getInt(DEBT_ID_KEY)!!
-            viewModel.getDebtById(debtId)?.observe(viewLifecycleOwner,
-                    Observer {
-                        this.debt = it
+            viewModel.getCurrentDebt().observe(viewLifecycleOwner,
+                    Observer {debt ->
                         if (debt?.spentAmount != null) {
-                            setAmountPerPersonForDebtTotal(debt!!.spentAmount!!.toDouble())
+                            setAmountPerPersonForDebtTotal(debt.spentAmount)
                         }
                     })
         } else {
@@ -75,50 +73,31 @@ class SimpleExpensesFragment: Fragment(), SelectedReceiversWithOnClickRecyclerVi
 
         if (arguments?.getInt(EXPENSE_ID_KEY) != null) {
             expenseId = arguments?.getInt(EXPENSE_ID_KEY)!!
-            viewModel.getSelectedContactsForExpense(expenseId).observe(viewLifecycleOwner,
-                    Observer { selectedContactsList ->
-                        Log.d("getSelectedContactsForExpense result = $selectedContactsList")
-                        if (viewModel.notSavedSelectedContactList.value != null && viewModel.notSavedSelectedContactList.value!!.isNotEmpty()) return@Observer
-                        this.selectedContactsList.clear()
-                            this.selectedContactsList.addAll(selectedContactsList)
-                            var amountPerPerson = "0"
-                            if (debt?.spentAmount != null) {
-                                amountPerPerson = DecimalFormat("##.##").format(debt!!.spentAmount!!.toDouble() / selectedContactsList.size)
-                            }
-                            initializeSelectedReceiversList(selectedContactsList, amountPerPerson)
-                    })
+            viewModel.expenseIdForSimpleModeIsReceivedFromIntent(expenseId)
+        } else {
+            viewModel.expenseIdForSimpleModeIsNotReceivedFromIntent()
         }
 
-        viewModel.getNotSelectedContactsForExpense(expenseId).observe(viewLifecycleOwner,
-                Observer { notSelectedContactsList ->
-                    Log.d("getNotSelectedContactsForExpense, result = $notSelectedContactsList")
-                    if (viewModel.notSavedNotSelectedContactList.value != null && viewModel.notSavedNotSelectedContactList.value!!.isNotEmpty()) return@Observer
-                    this.notSelectedContactsList.clear()
-                        this.notSelectedContactsList.addAll(notSelectedContactsList)
-                        initializeNotSelectedReceiversList(notSelectedContactsList)
+
+        viewModel.getSelectedContactsForExpense().observe(viewLifecycleOwner,
+                Observer { selectedContactsList ->
+                    var amountPerPerson = "0"
+                    if (viewModel.getCurrentDebt().value?.spentAmount != null) {
+                        amountPerPerson = DecimalFormat("##.##").format(viewModel.getCurrentDebt().value!!.spentAmount / selectedContactsList.size)
+                    }
+                    initializeSelectedReceiversList(selectedContactsList, amountPerPerson)
                 })
 
-        viewModel.notSavedDebtSpentAmount.observe(viewLifecycleOwner, Observer {
-            Log.d("Spent amount is changed for debt, new value = $it, handle this update by simple expense fragment")
-            setAmountPerPersonForDebtTotal(it)
-        })
 
-//        val adapter = ExpensesRecyclerViewAdapter(this)
-//        add_debt_fragment_reciever_recyclerview.adapter = adapter
-//        add_debt_fragment_reciever_recyclerview.layoutManager = LinearLayoutManager(MainApplication.applicationContext())
-//
-//        viewModel.getAllExpensesForDebt(debtId).observe(this,
-//                Observer<List<Expense>> { expensesList ->
-//                    adapter.setExpenses(expensesList)
-//
-//                    if (expensesList.isEmpty()) {
-//                        add_debt_fragment_empty_list_layout.visibility = View.VISIBLE
-//                    } else {
-//                        add_debt_fragment_empty_list_layout.visibility = View.INVISIBLE
-//                    }
-//                })
-//
+        viewModel.getNotSelectedContactsForExpense().observe(viewLifecycleOwner,
+                Observer { notSelectedContactsList ->
+                    initializeNotSelectedReceiversList(notSelectedContactsList)
+                })
 
+        viewModel.getDebtSpentAmountForSimpleExpense().observe(viewLifecycleOwner,
+                Observer { spentAmount ->
+                    setAmountPerPersonForDebtTotal(spentAmount)
+                })
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -128,51 +107,42 @@ class SimpleExpensesFragment: Fragment(), SelectedReceiversWithOnClickRecyclerVi
         super.onCreate(savedInstanceState)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        viewModel.viewIsDestroyed()
-    }
+//    override fun onDestroyView() {
+//        super.onDestroyView()
+//        viewModel.viewIsDestroyed()
+//    }
 
     override fun onSelectedContactClick(selectedContact: Contact) {
         Log.d("onSelectedContactClick, contact = $selectedContact")
-        selectedContactsList.remove(selectedContact)
-        setAmountPerPersonForDebtTotal(debtTotalAmount)
-
-        notSelectedContactsList.add(selectedContact)
-        initializeNotSelectedReceiversList(notSelectedContactsList)
+        viewModel.selectedContactIsClicked(selectedContact)
     }
 
     override fun onNotSelectedContactClick(selectedContact: Contact) {
         Log.d("onNotSelectedContactClick, contact = $selectedContact")
-        selectedContactsList.add(selectedContact)
-        setAmountPerPersonForDebtTotal(debtTotalAmount)
-
-        notSelectedContactsList.remove(selectedContact)
-        initializeNotSelectedReceiversList(notSelectedContactsList)
+        viewModel.notSelectedContactIsClicked(selectedContact)
     }
 
     private fun setAmountPerPersonForDebtTotal(debtTotal: Double) {
-        this.debtTotalAmount = debtTotal
         Log.d("Amount is edited, new value = $debtTotal")
-        if (selectedContactsList.isNotEmpty()) {
-            val amountPerPerson = DecimalFormat("##.##").format(debtTotal/selectedContactsList.size)
-            initializeSelectedReceiversList(selectedContactsList, amountPerPerson)
+        if (viewModel.getSelectedContactsForExpense().value != null && viewModel.getSelectedContactsForExpense().value!!.isNotEmpty()) {
+            val amountPerPerson = DecimalFormat("##.##").format(debtTotal/viewModel.getSelectedContactsForExpense().value!!.size)
+            initializeSelectedReceiversList(viewModel.getSelectedContactsForExpense().value!!, amountPerPerson)
         }
     }
 
     private fun initializeSelectedReceiversList(contactsList: List<Contact>?, amountPerPerson: String) {
         Log.d("Update selected contacts list, size = ${contactsList?.size}")
-        viewModel.notSavedSelectedContactList.postValue(contactsList)
+        //viewModel.notSavedSelectedContactList.postValue(contactsList)
+        simple_expenses_list_selected_members_lv.adapter = SelectedReceiversWithOnClickRecyclerViewAdapter(contactsList, amountPerPerson, this)
         if (contactsList == null || contactsList.isEmpty()) {
             simple_expenses_list_empty_list_layout.visibility = View.VISIBLE
         } else {
             simple_expenses_list_empty_list_layout.visibility = View.INVISIBLE
-            simple_expenses_list_selected_members_lv.adapter = SelectedReceiversWithOnClickRecyclerViewAdapter(contactsList, amountPerPerson, this)
         }
     }
 
     private fun initializeNotSelectedReceiversList(contactsList: List<Contact>?) {
-        viewModel.notSavedNotSelectedContactList.postValue(contactsList)
+        //viewModel.notSavedNotSelectedContactList.postValue(contactsList)
         Log.d("initializeNotSelectedReceiversList and set OnClick listener")
         simple_expenses_list_notselected_members_lv.adapter = NotSelectedReceiversWithOnClickRecyclerViewAdapter(contactsList, this)
     }

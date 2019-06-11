@@ -11,6 +11,7 @@ import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.Debt
 import com.macgavrina.co_accounting.room.Expense
 import com.macgavrina.co_accounting.rxjava.Events
+import com.macgavrina.co_accounting.support.MoneyFormatter
 import kotlinx.android.synthetic.main.add_receiver_list_item.view.*
 
 
@@ -60,7 +61,7 @@ class ExpensesRecyclerViewAdapter(inputOnClickListener: OnExpenseInDebtClickList
 
         val item = mItems?.get(position)
         holder.receiversList.text = item?.receiversList
-        holder.amount.text = item?.totalAmount
+        holder.amount.text = MoneyFormatter.formatAmount(item?.totalAmount ?: 0.0)
 
         if (item?.comment.isNullOrEmpty()) {
             holder.comment.text = "..."

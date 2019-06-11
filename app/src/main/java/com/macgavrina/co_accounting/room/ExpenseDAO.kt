@@ -26,6 +26,12 @@ interface ExpenseDAO {
     fun getSelectedContactsForExpenseId(expenseId: Int): LiveData<List<Contact>>
 
     @Query("SELECT contact.* " +
+            "FROM expense " +
+            "LEFT JOIN receiverwithamountfordb ON receiverwithamountfordb.expenseId = expense.uid " +
+            "INNER JOIN contact ON receiverwithamountfordb.contactId = contact.uid WHERE expense.uid = :expenseId")
+    fun getSelectedContactsForExpenseIdRx(expenseId: Int): Single<List<Contact>>
+
+    @Query("SELECT contact.* " +
             " from contact INNER JOIN contacttotriprelation ON contacttotriprelation.contactId = contact.uid " +
             " INNER JOIN trip ON contacttotriprelation.tripId = trip.uid WHERE contact.status = \"active\" AND trip.isCurrent = 1 " +
             " AND contact.uid NOT IN " +
@@ -34,6 +40,16 @@ interface ExpenseDAO {
             "LEFT JOIN receiverwithamountfordb ON receiverwithamountfordb.expenseId = expense.uid " +
             " INNER JOIN contact ON receiverwithamountfordb.contactId = contact.uid WHERE expense.uid = :expenseId)")
     fun getNotSelectedContactsForExpenseId(expenseId: Int): LiveData<List<Contact>>
+
+    @Query("SELECT contact.* " +
+            " from contact INNER JOIN contacttotriprelation ON contacttotriprelation.contactId = contact.uid " +
+            " INNER JOIN trip ON contacttotriprelation.tripId = trip.uid WHERE contact.status = \"active\" AND trip.isCurrent = 1 " +
+            " AND contact.uid NOT IN " +
+            "(SELECT contact.uid " +
+            "FROM expense " +
+            "LEFT JOIN receiverwithamountfordb ON receiverwithamountfordb.expenseId = expense.uid " +
+            " INNER JOIN contact ON receiverwithamountfordb.contactId = contact.uid WHERE expense.uid = :expenseId)")
+    fun getNotSelectedContactsForExpenseIdRx(expenseId: Int): Single<List<Contact>>
 
 
     @Query("SELECT expense.uid, expense.debtId, expense.comment, expense.expenseName, group_concat(contact.alias, :separator) as receiversList, expense.totalAmount " +
@@ -58,5 +74,5 @@ interface ExpenseDAO {
     fun updateExpense(expense: Expense)
 
     @Query("SELECT expense.uid, expense.debtId, expense.comment, expense.expenseName, group_concat(contact.alias, \", \") as receiversList, expense.totalAmount FROM expense LEFT JOIN receiverwithamountfordb ON receiverwithamountfordb.expenseId = expense.uid INNER JOIN contact ON receiverwithamountfordb.contactId = contact.uid WHERE expense.uid IN (:expenseId) GROUP BY receiverwithamountfordb.expenseId")
-    fun getExpenseByIds(expenseId: String): Maybe<Expense>
+    fun getExpenseByIds(expenseId: Int): Maybe<Expense>
 }

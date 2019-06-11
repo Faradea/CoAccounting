@@ -7,10 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.repositories.*
-import com.macgavrina.co_accounting.room.Contact
-import com.macgavrina.co_accounting.room.Currency
-import com.macgavrina.co_accounting.room.Debt
-import com.macgavrina.co_accounting.room.Expense
+import com.macgavrina.co_accounting.room.*
 import com.macgavrina.co_accounting.support.DateFormatter
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -35,6 +32,11 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
     private var debtDate: String = ""
     private var debtTime: String = ""
 
+    private var expenseForSimpleMode: MutableLiveData<Expense> = MutableLiveData()
+    private var selectedContactsForSimpleExpense: MutableLiveData<List<Contact>> = MutableLiveData()
+    private var notSelectedContactsForSimpleExpense: MutableLiveData<List<Contact>> = MutableLiveData()
+    private var debtSpentAmountForSimpleExpense: MutableLiveData<Double> = MutableLiveData()
+
     init {
     }
 
@@ -51,6 +53,22 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
         return expensesList
     }
 
+    fun getExpenseForSimpleMode(): MutableLiveData<Expense> {
+        return expenseForSimpleMode
+    }
+
+    fun getSelectedContactsForExpense(): MutableLiveData<List<Contact>> {
+        return selectedContactsForSimpleExpense
+    }
+
+    fun getNotSelectedContactsForExpense(): MutableLiveData<List<Contact>> {
+        return notSelectedContactsForSimpleExpense
+    }
+
+    fun getDebtSpentAmountForSimpleExpense(): MutableLiveData<Double> {
+        return debtSpentAmountForSimpleExpense
+    }
+
     fun debtIdIsReceivedFromIntent(debtId: Int) {
 
         val subscription = debtRepository.getDebtByIdRx(debtId)
@@ -65,6 +83,55 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
                     Log.d("Error getting debt data from server, error = $error")
                 })
         compositeDisposable.add(subscription)
+    }
+
+    fun expenseIdForSimpleModeIsReceivedFromIntent(expenseId: Int) {
+        val subscription = expenseRepository.getExpenseByIdRx(expenseId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ expense ->
+                    Log.d("Expense data is received from DB, debt = $expense")
+                    initSelectedContactsForExpense(expense.uid)
+                    initNotSelectedContactsForExpense(expense.uid)
+                    expenseForSimpleMode.value = expense
+                }, { error ->
+                    snackbarMessage.value = "Database error"
+                    Log.d("Error getting debt data from server, error = $error")
+                }, {
+                    Log.d("No expense with such id in DB")
+                    initSelectedContactsForExpense(-1)
+                    initNotSelectedContactsForExpense(-1)
+                })
+        compositeDisposable.add(subscription)
+    }
+
+    fun selectedContactIsClicked(selectedContact: Contact) {
+        val selectedContactsListTemp = selectedContactsForSimpleExpense.value?.toMutableList()
+        selectedContactsListTemp?.remove(selectedContact)
+        selectedContactsForSimpleExpense.value = selectedContactsListTemp
+
+        val notSelectedContactsListTemp = notSelectedContactsForSimpleExpense.value?.toMutableList()
+        notSelectedContactsListTemp?.add(selectedContact)
+        notSelectedContactsForSimpleExpense.value = notSelectedContactsListTemp
+
+        //setAmountPerPersonForDebtTotal(debtTotalAmount)
+    }
+
+    fun notSelectedContactIsClicked(selectedContact: Contact) {
+        val selectedContactsListTemp = selectedContactsForSimpleExpense.value?.toMutableList()
+        selectedContactsListTemp?.add(selectedContact)
+        selectedContactsForSimpleExpense.value = selectedContactsListTemp
+
+        val notSelectedContactsListTemp = notSelectedContactsForSimpleExpense.value?.toMutableList()
+        notSelectedContactsListTemp?.remove(selectedContact)
+        notSelectedContactsForSimpleExpense.value = notSelectedContactsListTemp
+
+        //setAmountPerPersonForDebtTotal(debtTotalAmount)
+    }
+
+    fun expenseIdForSimpleModeIsNotReceivedFromIntent() {
+        initSelectedContactsForExpense(-1)
+        initNotSelectedContactsForExpense(-1)
     }
 
     fun debtIdIsNotReceivedFromIntent() {
@@ -123,6 +190,7 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
 
     fun debtSpentAmountIsChanged(newValue: Double) {
         currentDebt.value?.spentAmount = newValue
+        debtSpentAmountForSimpleExpense.value = newValue
     }
 
     fun senderIdIsChanged(newValue: Int) {
@@ -197,34 +265,129 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
     }
 
     private fun saveExpenseFromSimpleMode() {
-//        Log.d("Saving expense for simple mode, expenseId = $expenseIdForSimpleMode, debtId = $debtId")
-//
-//        if (expenseIdForSimpleMode == -1) {
-//            val expense = Expense()
-//            compositeDisposable.add(
-//                    expenseRepository.insertNewExpense(expense)
-//                            .subscribeOn(Schedulers.io())
-//                            .observeOn(AndroidSchedulers.mainThread())
-//                            .subscribe ({
-//                                Log.d("New expense is created")
-//                                expenseRepository.getLastAddedExpenseId()
-//                                        .subscribeOn(Schedulers.io())
-//                                        .observeOn(AndroidSchedulers.mainThread())
-//                                        .subscribe ({
-//                                            Log.d("Last added expenseId = $it")
-//                                            updateExpenseData(it, debtId)
-//                                        }, {
-//                                            Log.d("Error getting last expenseId from DB, $it")
-//                                            toastMessage.postValue("DB error")
-//                                        })
-//                            }, {
-//                                Log.d("Error inserting new expense to DB, $it")
-//                                toastMessage.postValue("Error creating new expense, DB error")
-//                            })
-//            )
-//
-//        } else {
-//            updateExpenseData(expenseIdForSimpleMode, debtId)
-//        }
+        Log.d("Saving expense for simple mode, expense = ${expenseForSimpleMode.value}")
+
+        if (expenseForSimpleMode.value == null || expenseForSimpleMode.value!!.uid  == -1) {
+            val expense = Expense()
+            compositeDisposable.add(
+                    expenseRepository.insertNewExpense(expense)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe ({
+                                Log.d("New expense is created")
+                                expenseRepository.getLastAddedExpenseId()
+                                        .subscribeOn(Schedulers.io())
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe ({
+                                            Log.d("Last added expenseId = $it")
+                                            if (currentDebt.value?.uid != null) {
+                                                updateExpenseData(it, currentDebt.value!!.uid)
+                                            }
+                                        }, {
+                                            Log.d("Error getting last expenseId from DB, $it")
+                                            toastMessage.postValue("DB error")
+                                        })
+                            }, {
+                                Log.d("Error inserting new expense to DB, $it")
+                                toastMessage.postValue("Error creating new expense, DB error")
+                            })
+            )
+
+        } else {
+            if (expenseForSimpleMode.value?.uid != null && currentDebt.value?.uid != null) {
+                updateExpenseData(expenseForSimpleMode.value!!.uid, currentDebt.value!!.uid)
+            }
+        }
+    }
+
+    private fun updateExpenseData(expenseId: Int, debtId: Int) {
+        Log.d("updating expense data, expenseId = $expenseId, debtId = $debtId")
+        val expense = Expense()
+        expense.uid = expenseId
+        expense.debtId = debtId
+        expense.totalAmount = currentDebt.value?.spentAmount ?: 0.0
+        expense.comment = ""
+        compositeDisposable.add(
+                expenseRepository.updateExpense(expense)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe ({
+                            Log.d("Expense is updated to $expense")
+                            recreateReceiverWithAmount(expense)
+                        }, {
+                            Log.d("Error updating expense, $it")
+                            toastMessage.postValue("DB error")
+                        })
+        )
+    }
+
+    private fun recreateReceiverWithAmount(expense: Expense) {
+        Log.d("Recreating receiversWithAmount for expense = $expense")
+
+        compositeDisposable.add(
+                expenseRepository.deleteAllReceiverWithAmountForExpense(expense.uid)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe ({
+                            Log.d("All receiver with amount are deleted for expense")
+                            addReceiversWithAmountForExpense(expense)
+                        }, {
+                            Log.d("Error deleting receivers with amount for expense, $it")
+                            toastMessage.postValue("DB error")
+                        })
+        )
+
+    }
+
+    private fun addReceiversWithAmountForExpense(expense: Expense) {
+        Log.d("Adding receivers with amount for expense, $expense, selectedContactList size = ${selectedContactsForSimpleExpense.value?.size}")
+
+        val receiversWithAmountList = mutableListOf<ReceiverWithAmountForDB>()
+
+        selectedContactsForSimpleExpense.value?.forEach { contact ->
+            val receiverWithAmount = ReceiverWithAmountForDB()
+            receiverWithAmount.expenseId = expense.uid.toString()
+            receiverWithAmount.debtId = expense.debtId.toString()
+            receiverWithAmount.contactId = contact.uid.toString()
+            receiverWithAmount.amount = ((currentDebt.value?.spentAmount ?: 0.0) / receiversWithAmountList.size).toString()
+            receiversWithAmountList.add(receiverWithAmount)
+        }
+
+        compositeDisposable.add(
+                expenseRepository.addReceiversWithAmountList(receiversWithAmountList)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe ({
+                            Log.d("Receivers list is added, total was ${receiversWithAmountList.size}")
+                        }, {
+                            Log.d("Error adding receivers list, $it")
+                        })
+        )
+    }
+
+    private fun initSelectedContactsForExpense(expenseId: Int) {
+        val subscription = expenseRepository.getSelectedContactsForExpenseRx(expenseId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe ({ selectedContactsList ->
+                    Log.d("Selected contacts list is received from DB")
+                    selectedContactsForSimpleExpense.value = selectedContactsList
+                }, {error ->
+                    Log.d("Error getting selected contact list from DB, error = $error")
+                })
+        compositeDisposable.add(subscription)
+    }
+
+    private fun initNotSelectedContactsForExpense(expenseId: Int) {
+        val subscription = expenseRepository.getNotSelectedContactsForExpenseRx(expenseId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe ({ notSelectedContactsList ->
+                    Log.d("Not selected contacts list is received from DB")
+                    notSelectedContactsForSimpleExpense.value = notSelectedContactsList
+                }, {error ->
+                    Log.d("Error getting not selected contact list from DB, error = $error")
+                })
+        compositeDisposable.add(subscription)
     }
 }

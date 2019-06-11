@@ -33,7 +33,7 @@ class Expense {
         get
 
     @ColumnInfo(name = "totalAmount")
-    public var totalAmount: String? = null
+    public var totalAmount: Double = 0.0
         set
         get
 
