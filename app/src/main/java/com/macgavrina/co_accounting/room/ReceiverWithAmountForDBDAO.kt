@@ -22,7 +22,10 @@ interface ReceiverWithAmountForDBDAO {
     fun getReceiversWithAmountForExpenseLiveData(expenseId: Int): LiveData<List<ReceiverWithAmountForDB>>
 
     @Query("DELETE FROM receiverwithamountfordb WHERE expenseId IN (:expenseId)")
-    fun deleteReceiversWithAmountForExpense(expenseId: String): Completable
+    fun deleteReceiversWithAmountForExpense(expenseId: String): Single<Int>
+
+    @Query("DELETE FROM receiverwithamountfordb WHERE expenseId IN (:expenseId)")
+    fun deleteReceiversWithAmountForExpenseWithoutResult(expenseId: String): Completable
 
     @Query ("SELECT COUNT(*) FROM receiverwithamountfordb WHERE contactId IN (:contactId)")
     fun checkReceiverWithAmountForContact(contactId: String): Single<Int>

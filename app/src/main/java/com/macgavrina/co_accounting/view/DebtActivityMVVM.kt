@@ -26,6 +26,7 @@ import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.room.Currency
 import com.macgavrina.co_accounting.room.Debt
+import com.macgavrina.co_accounting.room.Expense
 import com.macgavrina.co_accounting.support.DateFormatter
 import com.macgavrina.co_accounting.support.MoneyFormatter
 import com.macgavrina.co_accounting.viewmodel.DebtViewModel
@@ -55,6 +56,9 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
     private var expenseIdForSimpleMode: Int = -1
     private var extendedExpensesFragment: ExtendedExpensesFragment? = null
     private var simpleExpensesFragment: SimpleExpensesFragment? = null
+
+    private var expensesListSize: Int = -1
+    private var expensesList = mutableListOf<Expense>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -131,9 +135,6 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
                         }
                     }
                 })
-
-
-
 
 
         debt_fragment_delete_fab.setOnClickListener { view ->
@@ -229,37 +230,7 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
                 displayExpensesForSimpleMode()
             }
         }
-
     }
-
-
-    override fun onResume() {
-        super.onResume()
-//
-//        if (::friendsList.isInitialized && senderId != null) {
-//
-//            if (::contactIdToPositionMap.isInitialized && contactIdToPositionMap[senderId!!] != null) {
-//                setSender(contactIdToPositionMap[senderId!!]!!)
-//            }
-//        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-
-//        if (extendedExpensesFragment!= null && extendedExpensesFragment!!.isAdded) {
-//            supportFragmentManager.beginTransaction()
-//                    .remove(extendedExpensesFragment!!)
-//                    .commit()
-//        }
-//
-//        if (simpleExpensesFragment!= null && simpleExpensesFragment!!.isAdded) {
-//            supportFragmentManager.beginTransaction()
-//                    .remove(simpleExpensesFragment!!)
-//                    .commit()
-//        }
-    }
-
 
     //For action bar
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -592,6 +563,9 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
 
         fun displayExpensesForExpertMode() {
 
+            if (!add_debt_fragment_expertmode_switch.isChecked) return
+            if (viewModel.getCurrentDebt().value?.expertModeIsEnabled == false) return
+
             Log.d("displayExpensesForExpertMode fragment")
 
             //clearContainerForExpensesList()
@@ -617,45 +591,63 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
 
         fun displayExpensesForSimpleMode() {
 
+            if (add_debt_fragment_expertmode_switch.isChecked) return
+            if (viewModel.getCurrentDebt().value?.expertModeIsEnabled == true) return
+
             Log.d("displayExpensesForSimpleMode fragment, viewModel.getExpensesList() = ${viewModel.getExpensesList()}")
 
-            //clearContainerForExpensesList()
-            viewModel.getExpensesList()?.observe(this,
-                    Observer { expensesList ->
-                        Log.d("Expenses list for debt is loaded, size = ${expensesList.size}, value = $expensesList")
-                        if (expensesList.size > 1) {
-                            Log.d("somehow there is simple mode but more than 1 expense, force switch to expert mode")
-                            add_debt_fragment_expertmode_switch.isChecked = true
-                        }
-                        else {
-
-                            if (extendedExpensesFragment != null && extendedExpensesFragment!!.isAdded) {
-                                supportFragmentManager.beginTransaction()
-                                        .remove(extendedExpensesFragment!!)
-                                        .commit()
-                            }
-
-                            if (simpleExpensesFragment == null || (simpleExpensesFragment != null && !simpleExpensesFragment!!.isAdded)) {
-
-                                simpleExpensesFragment = SimpleExpensesFragment()
-                                if (expensesList.isNotEmpty()) {
-                                    val bundle: Bundle = Bundle()
-                                    Log.d("expenseIdForSimpleMode = $expenseIdForSimpleMode")
-                                    expenseIdForSimpleMode = expensesList[0].uid
-                                    bundle.putInt(EXPENSE_ID_KEY, expenseIdForSimpleMode)
-                                    simpleExpensesFragment!!.arguments = bundle
-                                }
-
-                                val supportFragmentManager = supportFragmentManager
-                                supportFragmentManager.beginTransaction()
-                                        .add(R.id.debt_fragment_container_for_expenses, simpleExpensesFragment!!)
-                                        //.addToBackStack("DebtsFragment")
-                                        .commit()
-                            }
-                        }
-                    })
-
+            if (expensesListSize == -1) {
+                Log.d("It's time to observe expenses, viewModel.getExpensesList() = ${viewModel.getExpensesList()}")
+                viewModel.getExpensesList()?.observe(this,
+                        Observer { expensesList ->
+                            Log.d("Expenses list is received from DB, size = ${expensesList.size}")
+                            expensesListSize = expensesList.size
+                            this.expensesList.clear()
+                            this.expensesList.addAll(expensesList)
+                            checkNumberOfExpenseAndDisplaySimpleExpensesFragment()
+                        })
+            } else {
+                checkNumberOfExpenseAndDisplaySimpleExpensesFragment()
+            }
         }
+
+    private fun checkNumberOfExpenseAndDisplaySimpleExpensesFragment() {
+        if (expensesListSize > 1) {
+            Log.d("somehow there is simple mode but more than 1 expense, force switch to expert mode")
+            add_debt_fragment_expertmode_switch.isChecked = true
+        } else {
+
+            if (add_debt_fragment_expertmode_switch.isChecked) return
+            if (viewModel.getCurrentDebt().value?.expertModeIsEnabled == true) return
+
+            if (extendedExpensesFragment != null && extendedExpensesFragment!!.isAdded) {
+                supportFragmentManager.beginTransaction()
+                        .remove(extendedExpensesFragment!!)
+                        .commit()
+            }
+
+
+            if (simpleExpensesFragment != null && simpleExpensesFragment!!.isAdded) return
+
+            if (simpleExpensesFragment == null || (simpleExpensesFragment != null && !simpleExpensesFragment!!.isAdded)) {
+
+                simpleExpensesFragment = SimpleExpensesFragment()
+                if (expensesListSize > 0) {
+                    val bundle: Bundle = Bundle()
+                    Log.d("expenseIdForSimpleMode = $expenseIdForSimpleMode")
+                    expenseIdForSimpleMode = expensesList[0].uid
+                    bundle.putInt(EXPENSE_ID_KEY, expenseIdForSimpleMode)
+                    simpleExpensesFragment!!.arguments = bundle
+                }
+
+                val supportFragmentManager = supportFragmentManager
+                supportFragmentManager.beginTransaction()
+                        .add(R.id.debt_fragment_container_for_expenses, simpleExpensesFragment!!)
+                        //.addToBackStack("DebtsFragment")
+                        .commit()
+            }
+        }
+    }
 
     private fun clearContainerForExpensesList() {
         if (supportFragmentManager.findFragmentById(R.id.debt_fragment_container_for_expenses) != null) {
@@ -663,4 +655,42 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
         }
     }
 
+    private fun d() {
+        if (expensesListSize > 1) {
+            Log.d("somehow there is simple mode but more than 1 expense, force switch to expert mode")
+            add_debt_fragment_expertmode_switch.isChecked = true
+        } else {
+
+            if (add_debt_fragment_expertmode_switch.isChecked) return
+            if (viewModel.getCurrentDebt().value?.expertModeIsEnabled == true) return
+
+            if (extendedExpensesFragment != null && extendedExpensesFragment!!.isAdded) {
+                supportFragmentManager.beginTransaction()
+                        .remove(extendedExpensesFragment!!)
+                        .commit()
+            }
+
+
+            if (simpleExpensesFragment != null && simpleExpensesFragment!!.isAdded) return
+
+            if (simpleExpensesFragment == null || (simpleExpensesFragment != null && !simpleExpensesFragment!!.isAdded)) {
+
+                simpleExpensesFragment = SimpleExpensesFragment()
+                if (expensesListSize > 0) {
+                    val bundle: Bundle = Bundle()
+                    Log.d("expenseIdForSimpleMode = $expenseIdForSimpleMode")
+                    expenseIdForSimpleMode = expensesList[0].uid
+                    bundle.putInt(EXPENSE_ID_KEY, expenseIdForSimpleMode)
+                    simpleExpensesFragment!!.arguments = bundle
+                }
+
+                val supportFragmentManager = supportFragmentManager
+                supportFragmentManager.beginTransaction()
+                        .add(R.id.debt_fragment_container_for_expenses, simpleExpensesFragment!!)
+                        //.addToBackStack("DebtsFragment")
+                        .commit()
+            }
+        }
     }
+
+}

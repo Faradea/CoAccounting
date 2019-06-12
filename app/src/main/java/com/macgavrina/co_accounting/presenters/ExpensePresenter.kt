@@ -9,6 +9,7 @@ import com.macgavrina.co_accounting.room.ReceiverWithAmountForDB
 import com.macgavrina.co_accounting.rxjava.Events
 import io.reactivex.Completable
 import io.reactivex.CompletableObserver
+import io.reactivex.SingleObserver
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.observers.DisposableMaybeObserver
@@ -275,38 +276,34 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
 
                         override fun onComplete() {
                             Log.d("Expense is updated, deleting old receivers with amount for this expense...")
-                            Completable.fromAction {
-                                MainApplication.db.receiverWithAmountForDBDAO().deleteReceiversWithAmountForExpense(expense?.uid.toString())
-                            }.observeOn(AndroidSchedulers.mainThread())
-                                    .subscribeOn(Schedulers.io()).subscribe(object : CompletableObserver {
-                                        override fun onSubscribe(d: Disposable) {}
 
-                                        override fun onComplete() {
-                                            Log.d("Old receivers with amount are deleted, adding new list...")
-                                            receiversWithAmountList?.forEach { receiversWithAmount ->
-                                                receiversWithAmount.expenseId = expense?.uid.toString()
-                                            }
-
-                                            Completable.fromAction {
-                                                MainApplication.db.receiverWithAmountForDBDAO().insertAll(*receiversWithAmountList!!.toTypedArray())
-                                            }.observeOn(AndroidSchedulers.mainThread())
-                                                    .subscribeOn(Schedulers.io()).subscribe(object : CompletableObserver {
-                                                        override fun onSubscribe(d: Disposable) {}
-
-                                                        override fun onComplete() {
-                                                            Log.d("New receivers with amount for updated expense are added")
-                                                            getView()?.finishSelf()
-                                                        }
-
-                                                        override fun onError(e: Throwable) {
-                                                            Log.d("Error adding new receivers with amount for expense, $e")
-                                                        }
-                                                    })
+                            val subscription = MainApplication.db.receiverWithAmountForDBDAO().deleteReceiversWithAmountForExpense(expense?.uid.toString())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribeOn(Schedulers.io())
+                                    .subscribe ({ numberOfDeleteRows ->
+                                        Log.d("Old receivers with amount are deleted, number = $numberOfDeleteRows")
+                                        receiversWithAmountList?.forEach { receiversWithAmount ->
+                                            receiversWithAmount.expenseId = expense?.uid.toString()
                                         }
 
-                                        override fun onError(e: Throwable) {
-                                            Log.d("Error deleting old receiver with amount for expense, $e")
-                                        }
+                                        Log.d("Adding new list, size = ${receiversWithAmountList.size}")
+                                        Completable.fromAction {
+                                            MainApplication.db.receiverWithAmountForDBDAO().insertAll(*receiversWithAmountList!!.toTypedArray())
+                                        }.observeOn(AndroidSchedulers.mainThread())
+                                                .subscribeOn(Schedulers.io()).subscribe(object : CompletableObserver {
+                                                    override fun onSubscribe(d: Disposable) {}
+
+                                                    override fun onComplete() {
+                                                        Log.d("New receivers with amount for updated expense are added")
+                                                        getView()?.finishSelf()
+                                                    }
+
+                                                    override fun onError(e: Throwable) {
+                                                        Log.d("Error adding new receivers with amount for expense, $e")
+                                                    }
+                                                })
+                                    }, {e ->
+                                        Log.d("Error deleting old receiver with amount for expense, $e")
                                     })
                         }
                     })

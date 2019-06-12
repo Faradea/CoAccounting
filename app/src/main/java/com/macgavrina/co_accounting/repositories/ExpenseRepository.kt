@@ -60,7 +60,7 @@ class ExpenseRepository {
     }
 
     fun deleteAllReceiverWithAmountForExpense(expenseId: Int): Completable {
-        return receiverWithAmountForDBDAO.deleteReceiversWithAmountForExpense(expenseId.toString())
+        return receiverWithAmountForDBDAO.deleteReceiversWithAmountForExpenseWithoutResult(expenseId.toString())
     }
 
     fun addReceiversWithAmountList(receiversWithAmountList: List<ReceiverWithAmountForDB>): Completable {
