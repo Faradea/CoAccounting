@@ -53,10 +53,6 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
         return expensesList
     }
 
-    fun getExpenseForSimpleMode(): MutableLiveData<Expense> {
-        return expenseForSimpleMode
-    }
-
     fun getSelectedContactsForExpense(): MutableLiveData<List<Contact>> {
         return selectedContactsForSimpleExpense
     }

@@ -61,7 +61,7 @@ class ExpensesRecyclerViewAdapter(inputOnClickListener: OnExpenseInDebtClickList
 
         val item = mItems?.get(position)
         holder.receiversList.text = item?.receiversList
-        holder.amount.text = MoneyFormatter.formatAmount(item?.totalAmount ?: 0.0)
+        holder.amount.text = MoneyFormatter.formatAmountForReadOnlyText(item?.totalAmount ?: 0.0)
 
         if (item?.comment.isNullOrEmpty()) {
             holder.comment.text = "..."

@@ -15,15 +15,11 @@ import com.macgavrina.co_accounting.adapters.ExpensesRecyclerViewAdapter
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.Expense
 import com.macgavrina.co_accounting.viewmodel.DebtViewModel
-import com.macgavrina.co_accounting.viewmodel.DebtsViewModel
 import kotlinx.android.synthetic.main.expended_expenses_list.*
-
-const val DEBT_ID_KEY = "debtId"
 
 class ExtendedExpensesFragment: Fragment(), ExpensesRecyclerViewAdapter.OnExpenseInDebtClickListener {
 
     private lateinit var viewModel: DebtViewModel
-    //private var tripsList: MutableList<Trip> = mutableListOf()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -35,8 +31,6 @@ class ExtendedExpensesFragment: Fragment(), ExpensesRecyclerViewAdapter.OnExpens
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        Log.d("ExtendedExpensesFragment: onActivityCreated")
-
         activity?.let {
             viewModel = ViewModelProviders.of(it).get(DebtViewModel::class.java)
         }
@@ -45,9 +39,7 @@ class ExtendedExpensesFragment: Fragment(), ExpensesRecyclerViewAdapter.OnExpens
         add_debt_fragment_reciever_recyclerview.adapter = adapter
         add_debt_fragment_reciever_recyclerview.layoutManager = LinearLayoutManager(MainApplication.applicationContext())
 
-
-        Log.d("viewModel.getExpensesList() = ${viewModel.getExpensesList()}, currentDebt = ${viewModel.getCurrentDebt().value}")
-        viewModel.getExpensesList()?.observe(this,
+        viewModel.getExpensesList()?.observe(viewLifecycleOwner,
                 Observer<List<Expense>> { expensesList ->
                     Log.d("expenses list size = ${expensesList.size}, value = $expensesList")
                     adapter.setExpenses(expensesList)
