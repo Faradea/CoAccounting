@@ -61,6 +61,9 @@ interface ExpenseDAO {
             "ORDER BY expense.uid")
     fun getExpensesForDebtDraft(separator: String): LiveData<List<Expense>>
 
+    @Query("SELECT SUM(totalAmount) from expense WHERE debtId = :debtId")
+    fun getExpensesTotalAmountForDebt(debtId: Int): Single<Double>
+
     @Query("DELETE FROM expense WHERE debtId IN (:debtId)")
     fun deleteExpensesForDebt(debtId: String)
 

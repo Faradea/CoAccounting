@@ -12,4 +12,5 @@
     <color name="colorTextHints">#000000</color>
     <color name="colorOwed">#2e7d32</color>
     <color name="colorOwes">#d32f2f</color>
+    <color name="incorrectDebt">#F8BBD0</color>
 </resources>

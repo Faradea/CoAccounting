@@ -27,6 +27,10 @@ class ExpenseRepository {
         }
     }
 
+    fun getExpensesTotalAmountForDebt(debtId: Int): Single<Double> {
+        return expenseDao.getExpensesTotalAmountForDebt(debtId)
+    }
+
     fun getSelectedContactsForExpense(expenseId: Int): LiveData<List<Contact>> {
         return expenseDao.getSelectedContactsForExpenseId(expenseId)
     }

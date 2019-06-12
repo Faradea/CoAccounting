@@ -57,7 +57,12 @@ class Debt {
         set
         get
 
+    @ColumnInfo(name = "isCorrect")
+    public var isCorrect: Boolean = false
+        set
+        get
+
     override fun toString(): String {
-        return "uid = $uid, tripId = $tripId, senderId = $senderId, spentAmount = $spentAmount, datetime = $datetime, comment = $comment, status = $status, currencyId = $currencyId, expertModeIsEnabled = $expertModeIsEnabled"
+        return "uid = $uid, tripId = $tripId, senderId = $senderId, spentAmount = $spentAmount, datetime = $datetime, comment = $comment, status = $status, currencyId = $currencyId, expertModeIsEnabled = $expertModeIsEnabled, isCorrect = $isCorrect"
     }
 }

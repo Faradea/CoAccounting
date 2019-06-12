@@ -30,6 +30,7 @@ class DebtsRecyclerViewAdapter:
         val amount = view.debts_list_item_amount_tv
         val datetime = view.debts_list_item_datetime_tv
         val comment = view.contacts_list_item_title_tv
+        val errorIcon = view.debts_list_item_error_icon
 
         private var mItem: Debt? = null
 
@@ -83,6 +84,13 @@ class DebtsRecyclerViewAdapter:
         } else {
             holder.comment.text = "..."
         }
+
+        if (item.isCorrect) {
+            holder.errorIcon.visibility = View.INVISIBLE
+        } else {
+            holder.errorIcon.visibility = View.VISIBLE
+        }
+
         holder.setItem(mItems?.get(position)!!)
     }
 

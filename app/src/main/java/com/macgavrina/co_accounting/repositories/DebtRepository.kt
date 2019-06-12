@@ -44,6 +44,7 @@ class DebtRepository {
     }
 
     fun updateDebtInDB(debt: Debt) {
+
         TripRepository().getCurrentTrip()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -60,6 +61,7 @@ class DebtRepository {
                                         .subscribeOn(Schedulers.io())
                                         .subscribe({
                                             Log.d("Debt is updated, debt = $debt")
+                                            checkDebtCorrectness(debt)
                                         }, { error ->
                                             Log.d("Error updating debt, $error")
                                         })
@@ -90,7 +92,34 @@ class DebtRepository {
                 }, { error ->
                     Log.d("Error deleting debt, $error")
                 })
+    }
 
+    private fun checkDebtCorrectness(debt: Debt) {
+
+        Log.d("Checking debt correctness")
+        ExpenseRepository().getExpensesTotalAmountForDebt(debt.uid)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe ({ expensesTotalAmount ->
+                    Log.d("expensesTotalAmount = $expensesTotalAmount")
+                    if (expensesTotalAmount == debt.spentAmount) {
+                        if (!debt.isCorrect) {
+                            debt.isCorrect = true
+                            updateDebtInDB(debt)
+                        }
+                    } else {
+                        if (debt.isCorrect) {
+                            debt.isCorrect = false
+                            updateDebtInDB(debt)
+                        }
+                    }
+                }, {error ->
+                    Log.d("Error getting expenses total from db, $error")
+                    if (debt.isCorrect) {
+                        debt.isCorrect = false
+                        updateDebtInDB(debt)
+                    }
+                })
     }
 
 }
