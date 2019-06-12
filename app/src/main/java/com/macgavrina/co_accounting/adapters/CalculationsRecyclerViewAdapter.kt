@@ -9,6 +9,7 @@ import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.Calculation
+import com.macgavrina.co_accounting.support.MoneyFormatter
 import kotlinx.android.synthetic.main.calculation_list_item.view.*
 
 
@@ -66,10 +67,9 @@ class CalculationsRecyclerViewAdapter:
 
         Log.d("Bind item = $item, currencySymbol = ${item.currencySymbol}")
 
-
-        //val totalAmountRounded = Math.round(item.totalAmount * 100.0) / 100
-        val amountRounded = String.format("%.2f", item.totalAmount)
-        holder.amount.text = "$amountRounded ${item.currencySymbol}"
+        //val amountRounded = String.format("%.2f", item.totalAmount)
+        Log.d("item.totalAmount = ${item.totalAmount}")
+        holder.amount.text = "${MoneyFormatter.formatAmountForReadOnlyText(item.totalAmount)} ${item.currencySymbol}"
 
         if (item.totalAmount > 0) {
             holder.statusDesc.text = "You are owed"

@@ -325,7 +325,7 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
             setComment(debt.comment!!)
         }
 
-        if (debtId == -1) {
+        if (debt.status == "draft") {
             hideDeleteButton()
             showClearButton()
         } else {

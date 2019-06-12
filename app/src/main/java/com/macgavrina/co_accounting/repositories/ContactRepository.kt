@@ -44,6 +44,17 @@ class ContactRepository {
         }
     }
 
+    fun setLastAddedContactCheckedForCurrentTrip() {
+        contactDao.getLastAddedContact()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({contact ->
+                    setIsContactCheckedForCurrentTrip(contact.uid.toString(), true)
+                }, {error ->
+                    Log.d("Error getting last added contact")
+                })
+    }
+
     fun updateContact(contact: Contact): Completable {
         return Completable.fromAction {
             contactDao.updateContact(contact)

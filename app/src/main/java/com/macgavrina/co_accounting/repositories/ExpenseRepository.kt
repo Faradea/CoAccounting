@@ -69,6 +69,12 @@ class ExpenseRepository {
         }
     }
 
+    fun deleteAllExpensesForDebt(debtId: Int): Completable {
+        return Completable.fromAction {
+            expenseDao.deleteExpensesForDebt(debtId.toString())
+        }
+    }
+
 
 
 //    fun getDebtById(debtId: Int): LiveData<Debt> {

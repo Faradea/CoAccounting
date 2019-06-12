@@ -2,6 +2,7 @@ package com.macgavrina.co_accounting.room
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 
@@ -34,4 +35,6 @@ interface ContactDAO {
     @Query("SELECT contact.*, Trip.isCurrent as isActiveForCurrentTrip from contact INNER JOIN contacttotriprelation ON contacttotriprelation.contactId = contact.uid INNER JOIN trip ON contacttotriprelation.tripId = trip.uid WHERE contact.status = \"active\" AND trip.isCurrent = 1")
     fun getActiveContactsForCurrentTripRx(): Maybe<List<Contact>>
 
+    @Query("SELECT * FROM contact ORDER BY uid DESC LIMIT 1")
+    fun getLastAddedContact(): Maybe<Contact>
 }

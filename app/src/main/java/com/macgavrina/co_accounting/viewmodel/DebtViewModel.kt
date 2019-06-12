@@ -177,11 +177,25 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
     }
 
     fun clearDebtDraft() {
-        //ToDo не забыть удалить expenses (именно удалить а не проставить deleted)
-            currentDebt.value?.datetime = System.currentTimeMillis().toString()
-            currentDebt.value?.spentAmount = 0.0
-            currentDebt.value?.comment = ""
-            currentDebt.value?.senderId = -1
+        if (currentDebt.value == null) return
+
+        val tempDebt = currentDebt.value!!
+        tempDebt.datetime = System.currentTimeMillis().toString()
+        tempDebt.spentAmount = 0.0
+        tempDebt.comment = ""
+        tempDebt.senderId = -1
+
+        currentDebt.value = tempDebt
+
+        compositeDisposable.add(expenseRepository.deleteAllExpensesForDebt(currentDebt.value!!.uid)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe ({
+                    Log.d("All expenses for debt draft are deleted")
+                }, {error ->
+                    Log.d("Delete all expenses for debt error, $error")
+                })
+        )
     }
 
     fun debtSpentAmountIsChanged(newValue: Double) {

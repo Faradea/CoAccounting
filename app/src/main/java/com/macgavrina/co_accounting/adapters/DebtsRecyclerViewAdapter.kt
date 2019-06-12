@@ -11,6 +11,7 @@ import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.room.Debt
 import com.macgavrina.co_accounting.rxjava.Events
 import com.macgavrina.co_accounting.support.DateFormatter
+import com.macgavrina.co_accounting.support.MoneyFormatter
 import kotlinx.android.synthetic.main.debts_list_item.view.*
 
 class DebtsRecyclerViewAdapter:
@@ -66,13 +67,9 @@ class DebtsRecyclerViewAdapter:
         val item = mItems?.get(position) ?: return
 
         if (item.currencyId == -1) {
-            holder.amount.text = item.spentAmount.toString()
+            holder.amount.text = MoneyFormatter.formatAmountForReadOnlyText(item.spentAmount)
         } else {
-            if (item.spentAmount != null && item.spentAmount?.toFloat()!! > 0F) {
-                holder.amount.text = "${item.spentAmount} ${item.currencySymbol}"
-            } else {
-                holder.amount.text = "0 ${item.currencySymbol}"
-            }
+            holder.amount.text = "${MoneyFormatter.formatAmountForReadOnlyText(item.spentAmount)} ${item.currencySymbol}"
         }
 
         if (item.datetime != null && item.datetime!!.isNotEmpty()) {

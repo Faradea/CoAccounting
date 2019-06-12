@@ -18,6 +18,7 @@ import com.macgavrina.co_accounting.adapters.SelectedReceiversRecyclerViewAdapte
 import com.macgavrina.co_accounting.interfaces.AddReceiverInAddDebtContract
 import com.macgavrina.co_accounting.presenters.ExpensePresenter
 import com.macgavrina.co_accounting.room.Contact
+import com.macgavrina.co_accounting.support.MoneyFormatter
 import kotlinx.android.synthetic.main.add_receiver_dialog_fragment.*
 
 import kotlinx.android.synthetic.main.expense_activity.*
@@ -177,7 +178,8 @@ class ExpenseActivity : AppCompatActivity(), AddReceiverInAddDebtContract.View, 
     }
 
     override fun setAmount(totalAmount: String?) {
-        add_receiver_dialog_fragment_amount_et.setText(totalAmount)
+        if (totalAmount.isNullOrEmpty()) return
+        add_receiver_dialog_fragment_amount_et.setText(MoneyFormatter.formatAmountForEditableText(totalAmount!!.toDouble()))
     }
 
     override fun finishSelf() {

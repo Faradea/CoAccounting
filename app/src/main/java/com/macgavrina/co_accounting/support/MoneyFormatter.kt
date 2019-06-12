@@ -8,7 +8,7 @@ object MoneyFormatter {
     fun formatAmountForEditableText(amount: Double): String {
         if (amount == 0.0) return ""
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            val format = DecimalFormat("0.#")
+            val format = DecimalFormat("0.##")
             return format.format(amount)
         } else {
             return amount.toString()
@@ -17,7 +17,7 @@ object MoneyFormatter {
 
     fun formatAmountForReadOnlyText(amount: Double): String {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            val format = DecimalFormat("0.#")
+            val format = DecimalFormat("0.##")
             return format.format(amount)
         } else {
             return amount.toString()

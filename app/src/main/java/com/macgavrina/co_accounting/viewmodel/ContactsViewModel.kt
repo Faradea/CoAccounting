@@ -49,6 +49,7 @@ class ContactsViewModel(application: Application) : AndroidViewModel(MainApplica
                 .subscribeOn(Schedulers.io())
                 .subscribe ({
                     Log.d("Contact is inserted")
+                    getLastAddedContactAndActivateItForTrip()
                 }, {error ->
                     Log.d("Error inserting contact, $error")
                     toastMessage.value = "Database error"
@@ -71,6 +72,10 @@ class ContactsViewModel(application: Application) : AndroidViewModel(MainApplica
 
     fun addContactButtonIsPressed() {
         MainApplication.bus.send(Events.AddContact())
+    }
+
+    private fun getLastAddedContactAndActivateItForTrip() {
+        repository.setLastAddedContactCheckedForCurrentTrip()
     }
 
     private fun subscribeToEventBus() {
@@ -122,7 +127,7 @@ class ContactsViewModel(application: Application) : AndroidViewModel(MainApplica
 
         Log.d("updateContactsListForTrip, contactId = $contactId, checked = $checked")
 
-        ContactRepository().setIsContactCheckedForCurrentTrip(contactId, checked)
+        repository.setIsContactCheckedForCurrentTrip(contactId, checked)
 
         if (!checked) {
             checkDebtsAndExpensesForContact(contactId)
