@@ -152,12 +152,12 @@ class ExpenseActivity : AppCompatActivity(), AddReceiverInAddDebtContract.View, 
         inputMethodManager.hideSoftInputFromWindow(this.currentFocus?.windowToken, 0)
     }
 
-    override fun getAmount(): Float {
+    override fun getAmount(): Double {
         val etText = add_receiver_dialog_fragment_amount_et.text
         return if (etText != null && etText.isNotEmpty()) {
-            etText.toString().replace(",", ".").toFloat()
+            etText.toString().replace(",", ".").toDouble()
         } else {
-            0F
+            0.0
         }
     }
 
@@ -177,9 +177,8 @@ class ExpenseActivity : AppCompatActivity(), AddReceiverInAddDebtContract.View, 
         add_receiver_dialog_fragment_delete_fab.show()
     }
 
-    override fun setAmount(totalAmount: String?) {
-        if (totalAmount.isNullOrEmpty()) return
-        add_receiver_dialog_fragment_amount_et.setText(MoneyFormatter.formatAmountForEditableText(totalAmount!!.toDouble()))
+    override fun setAmount(totalAmount: Double) {
+        add_receiver_dialog_fragment_amount_et.setText(MoneyFormatter.formatAmountForEditableText(totalAmount))
     }
 
     override fun finishSelf() {

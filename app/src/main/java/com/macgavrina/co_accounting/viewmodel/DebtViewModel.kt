@@ -293,9 +293,13 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
     }
 
     private fun saveExpenseFromSimpleMode() {
-        Log.d("Saving expense for simple mode, expense = ${expenseForSimpleMode.value}")
+        Log.d("Saving expense for simple mode, expense = ${expenseForSimpleMode.value}, selectedContactsList size = ${selectedContactsForSimpleExpense.value?.size}")
 
         if (expenseForSimpleMode.value == null || expenseForSimpleMode.value!!.uid  == -1) {
+
+            if (selectedContactsForSimpleExpense.value == null) return
+            if (selectedContactsForSimpleExpense.value!!.isEmpty()) return
+
             val expense = Expense()
             compositeDisposable.add(
                     expenseRepository.insertNewExpense(expense)
@@ -322,10 +326,33 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
             )
 
         } else {
+            if (selectedContactsForSimpleExpense.value == null) {
+                deleteExpenseForSimpleMode()
+                return
+            }
+
+            if (selectedContactsForSimpleExpense.value!!.isEmpty()) {
+                deleteExpenseForSimpleMode()
+                return
+            }
+
             if (expenseForSimpleMode.value?.uid != null && currentDebt.value?.uid != null) {
                 updateExpenseData(expenseForSimpleMode.value!!.uid, currentDebt.value!!.uid)
             }
         }
+    }
+
+    private fun deleteExpenseForSimpleMode() {
+        compositeDisposable.add(expenseRepository.deleteAllExpensesForDebt(currentDebt.value!!.uid)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe ({
+                    Log.d("All expenses are deleted for debt")
+                }, {
+                    Log.d("Error deleting expenses for debt, $it")
+                    toastMessage.postValue("DB error")
+                })
+        )
     }
 
     private fun updateExpenseData(expenseId: Int, debtId: Int) {

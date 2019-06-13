@@ -69,23 +69,23 @@ class ContactActivity : AppCompatActivity() {
             finishSelf()
         }
 
-        contact_fragment_email_et.addTextChangedListener(object : TextWatcher {
-
-            override fun afterTextChanged(s: Editable) {}
-
-            override fun beforeTextChanged(s: CharSequence, start: Int,
-                                           count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence, start: Int,
-                                       before: Int, count: Int) {
-                if (s.isEmpty()) {
-                    contact_fragment_email_til.error = "Enter email"
-                } else {
-                    contact_fragment_email_til.error = null
-                }
-            }
-        })
+//        contact_fragment_email_et.addTextChangedListener(object : TextWatcher {
+//
+//            override fun afterTextChanged(s: Editable) {}
+//
+//            override fun beforeTextChanged(s: CharSequence, start: Int,
+//                                           count: Int, after: Int) {
+//            }
+//
+//            override fun onTextChanged(s: CharSequence, start: Int,
+//                                       before: Int, count: Int) {
+//                if (s.isEmpty()) {
+//                    contact_fragment_email_til.error = "Enter email"
+//                } else {
+//                    contact_fragment_email_til.error = null
+//                }
+//            }
+//        })
 
         contact_fragment_name_et.addTextChangedListener(object : TextWatcher {
 
@@ -112,7 +112,7 @@ class ContactActivity : AppCompatActivity() {
         when (item.itemId) {
             R.id.action_menu_done -> {
 
-                if (!getEmail().isNullOrEmpty() && !getAlias().isNullOrEmpty()) {
+                if (!getAlias().isNullOrEmpty()) {
 
                     if (contact == null) {
                         contact = Contact()
@@ -132,15 +132,7 @@ class ContactActivity : AppCompatActivity() {
 
                     return true
                 } else {
-
-                    if (getEmail().isNullOrEmpty()) {
-                        contact_fragment_email_til.error = "Enter email"
-                    }
-
-                    if (getAlias().isNullOrEmpty()) {
-                        contact_fragment_name_til.error = "Enter name"
-                    }
-
+                    contact_fragment_name_til.error = "Enter name"
                     return true
                 }
             }

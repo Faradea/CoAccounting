@@ -2,6 +2,7 @@ package com.macgavrina.co_accounting.support
 
 import android.icu.text.DecimalFormat
 import android.os.Build
+import com.macgavrina.co_accounting.logging.Log
 
 object MoneyFormatter {
 

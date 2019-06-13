@@ -9,7 +9,6 @@ import com.macgavrina.co_accounting.room.ReceiverWithAmountForDB
 import com.macgavrina.co_accounting.rxjava.Events
 import io.reactivex.Completable
 import io.reactivex.CompletableObserver
-import io.reactivex.SingleObserver
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.observers.DisposableMaybeObserver
@@ -114,7 +113,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
 
                         getView()?.showDeleteButton()
 
-                        getView()?.setAmount(expense.totalAmount.toString())
+                        getView()?.setAmount(expense.totalAmount)
 
                         getView()?.setComment(expense.comment)
 
@@ -194,6 +193,11 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
 
 
         if (expense == null) {
+
+            if (selectedContactsList.isEmpty()) {
+                getView()?.finishSelf()
+                return
+            }
             expense = Expense()
             expense!!.totalAmount = DecimalFormat("##.##").format(getView()?.getAmount()).toDouble()
             expense!!.comment = getView()?.getComment() ?: ""
@@ -256,7 +260,11 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
                     })
 
         } else {
-            expense!!.totalAmount = DecimalFormat("##.##").format(getView()?.getAmount()).toDouble()
+            if (selectedContactsList.isEmpty()) {
+                deleteCurrentExpense()
+                return
+            }
+            expense!!.totalAmount = getView()?.getAmount() ?: 0.0
             expense!!.comment = getView()?.getComment() ?: ""
             expense!!.debtId = debtId
 
@@ -314,25 +322,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
 
         Log.d("Delete button is pressed, deleting expense from DB...")
 
-        Completable.fromAction {
-            MainApplication.db.expenseDAO().deleteExpense(expense!!)
-        }
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(object : CompletableObserver {
-
-                    override fun onSubscribe(d: Disposable) {}
-
-                    override fun onError(e: Throwable) {
-                        Log.d("Error deleting expense, $e")
-                    }
-
-                    override fun onComplete() {
-                        Log.d("Expense is deleted")
-                        getView()?.finishSelf()
-                        //MainApplication.bus.send(Events.HideAddReceiverInAddDebtFragment(true))
-                    }
-                })
+        deleteCurrentExpense()
     }
 
     private fun updateReceiverWithAmountListWithDataFromDB() {
@@ -391,6 +381,28 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
 
                     override fun onComplete() {
                         Log.d("No contacts in DB")
+                    }
+                })
+    }
+
+    private fun deleteCurrentExpense() {
+        Completable.fromAction {
+            MainApplication.db.expenseDAO().deleteExpense(expense!!)
+        }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : CompletableObserver {
+
+                    override fun onSubscribe(d: Disposable) {}
+
+                    override fun onError(e: Throwable) {
+                        Log.d("Error deleting expense, $e")
+                    }
+
+                    override fun onComplete() {
+                        Log.d("Expense is deleted")
+                        getView()?.finishSelf()
+                        //MainApplication.bus.send(Events.HideAddReceiverInAddDebtFragment(true))
                     }
                 })
     }

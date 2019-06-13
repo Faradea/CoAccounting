@@ -16,13 +16,13 @@ interface AddReceiverInAddDebtContract {
 
         fun initializeSelectedReceiversList(contactsList: List<Contact>?, amountPerPerson: String)
 
-        fun getAmount(): Float
+        fun getAmount(): Double
 
         fun hideDeleteButton()
 
         fun showDeleteButton()
 
-        fun setAmount(totalAmount: String?)
+        fun setAmount(totalAmount: Double)
 
         fun finishSelf()
 
