@@ -59,7 +59,7 @@ interface DebtDAO {
             "            INNER JOIN Contact ON Contact.uid = Debt.senderId " +
             "            INNER JOIN trip ON Debt.tripId = Trip.uid " +
             " INNER JOIN currency ON Debt.currencyId = Currency.uid " +
-            "            WHERE Trip.isCurrent = 1 AND trip.status = \"active\" AND debt.status = \"active\" " +
+            "            WHERE Trip.isCurrent = 1 AND trip.status = \"active\" AND debt.status = \"active\" AND debt.isCorrect = 1 " +
             "            UNION ALL " +
             "            select Contact.alias, ReceiverWithAmountForDB.contactId, -SUM(ReceiverWithAmountForDB.amount) as amount, " +
             " currency.uid as currencyId, currency.symbol as currencySymbol  from ReceiverWithAmountForDB " +
@@ -68,7 +68,7 @@ interface DebtDAO {
             "            INNER JOIN debt ON debt.uid = Expense.debtId " +
             "            INNER JOIN trip ON debt.tripId = Trip.uid " +
             " INNER JOIN currency ON Debt.currencyId = Currency.uid " +
-            "            WHERE Trip.isCurrent = 1 AND trip.status = \"active\" AND debt.status = \"active\" " +
+            "            WHERE Trip.isCurrent = 1 AND trip.status = \"active\" AND debt.status = \"active\" AND debt.isCorrect = 1 " +
             "            GROUP BY ReceiverWithAmountForDB.contactId) " +
             "            GROUP BY contactId, currencyId")
     fun getAllCalculationsForCurrentTrip(): LiveData<List<Calculation>>
