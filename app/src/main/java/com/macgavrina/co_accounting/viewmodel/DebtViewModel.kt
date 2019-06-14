@@ -50,6 +50,9 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
     }
 
     fun getExpensesList(): LiveData<List<Expense>>? {
+        if (expensesList?.value != null) {
+            Log.d("Getting expenses list, size = ${expensesList!!.value!!.size}, value = ${expensesList?.value}")
+        }
         return expensesList
     }
 
@@ -234,7 +237,6 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
     }
 
     fun doneButton() {
-
         Log.d("Saving debt, ${currentDebt.value}")
         saveCurrentDateWithStatus("active")
     }
@@ -399,14 +401,18 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
 
         val receiversWithAmountList = mutableListOf<ReceiverWithAmountForDB>()
 
+        if (selectedContactsForSimpleExpense.value == null) return
+
         selectedContactsForSimpleExpense.value?.forEach { contact ->
             val receiverWithAmount = ReceiverWithAmountForDB()
             receiverWithAmount.expenseId = expense.uid.toString()
             receiverWithAmount.debtId = expense.debtId.toString()
-            receiverWithAmount.contactId = contact.uid.toString()
-            receiverWithAmount.amount = ((currentDebt.value?.spentAmount ?: 0.0) / receiversWithAmountList.size).toString()
+            receiverWithAmount.contactId = contact.uid
+            receiverWithAmount.amount = ((currentDebt.value?.spentAmount ?: 0.0) / selectedContactsForSimpleExpense.value!!.size).toString()
             receiversWithAmountList.add(receiverWithAmount)
         }
+
+
 
         compositeDisposable.add(
                 expenseRepository.addReceiversWithAmountList(receiversWithAmountList)

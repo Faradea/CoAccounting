@@ -69,7 +69,7 @@ interface DebtDAO {
             "            INNER JOIN trip ON debt.tripId = Trip.uid " +
             " INNER JOIN currency ON Debt.currencyId = Currency.uid " +
             "            WHERE Trip.isCurrent = 1 AND trip.status = \"active\" AND debt.status = \"active\" AND debt.isCorrect = 1 " +
-            "            GROUP BY ReceiverWithAmountForDB.contactId) " +
+            "            GROUP BY ReceiverWithAmountForDB.contactId, Debt.currencyId) " +
             "            GROUP BY contactId, currencyId")
     fun getAllCalculationsForCurrentTrip(): LiveData<List<Calculation>>
 }

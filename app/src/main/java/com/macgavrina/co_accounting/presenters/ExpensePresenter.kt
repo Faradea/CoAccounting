@@ -181,7 +181,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
 
             val receiverWithAmount = ReceiverWithAmountForDB()
             receiverWithAmount.amount = amountPerPerson
-            receiverWithAmount.contactId = contact.uid.toString()
+            receiverWithAmount.contactId = contact.uid
             receiversWithAmountList.add(receiverWithAmount)
 
             if (receiversListString == "") {
@@ -332,7 +332,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
             receiversWithAmountList.forEach { receiversWithAmount ->
 
                 val contactId = receiversWithAmount.contactId
-                val contact = contactsListToIdMap!![contactId!!]
+                val contact: Contact? = contactsListToIdMap!![contactId.toString()]
                 selectedContactsList.add(contact!!)
                 notSelectedContactsList.remove(contact)
             }
