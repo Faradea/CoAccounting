@@ -184,7 +184,7 @@ class ContactActivity : AppCompatActivity() {
     }
 
     private fun hideDeleteButton() {
-        contact_fragment_delete_fab.hide()
+        contact_fragment_delete_fab.visibility = View.INVISIBLE
     }
 
 //    private fun displayAlert(text: String, title: String) {

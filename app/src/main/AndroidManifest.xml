@@ -80,6 +80,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".view.ContactActivity"
+            android:windowSoftInputMode="adjustPan"
             android:launchMode="singleTask"
             android:label="Contact"
             android:theme="@style/Theme.MaterialComponents.Light.NoActionBar">

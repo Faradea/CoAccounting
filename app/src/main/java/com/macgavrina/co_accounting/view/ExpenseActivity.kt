@@ -170,11 +170,11 @@ class ExpenseActivity : AppCompatActivity(), AddReceiverInAddDebtContract.View, 
     }
 
     override fun hideDeleteButton() {
-        add_receiver_dialog_fragment_delete_fab.hide()
+        add_receiver_dialog_fragment_delete_fab.visibility = View.INVISIBLE
     }
 
     override fun showDeleteButton() {
-        add_receiver_dialog_fragment_delete_fab.show()
+        add_receiver_dialog_fragment_delete_fab.visibility = View.VISIBLE
     }
 
     override fun setAmount(totalAmount: Double) {
