@@ -23,7 +23,7 @@ class ReceiverWithAmountForDB {
         get
 
     @ColumnInfo(name = "amount")
-    public var amount: String? = null
+    public var amount: Double = 0.0
         set
         get
 

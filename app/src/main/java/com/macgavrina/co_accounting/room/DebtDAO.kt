@@ -53,6 +53,26 @@ interface DebtDAO {
     @Update
     fun updateDebt(debt: Debt)
 
+    //For DBBrowser:
+//    SELECT contactAlias as contactAlias, contactId, SUM(amount) as totalAmount, currencySymbol
+//    FROM (select Contact.alias as contactAlias, Debt.senderId as contactId, Debt.spentAmount as amount,
+//    currency.uid as currencyId, currency.symbol as currencySymbol from Debt
+//    INNER JOIN Contact ON Contact.uid = Debt.senderId
+//    INNER JOIN trip ON Debt.tripId = Trip.uid
+//    INNER JOIN currency ON Debt.currencyId = Currency.uid
+//    WHERE Trip.isCurrent = 1 AND trip.status = "active" AND debt.status = "active" AND debt.isCorrect = 1
+//    UNION ALL
+//    select Contact.alias as contactAlias, ReceiverWithAmountForDB.contactId as contactId, -SUM(ReceiverWithAmountForDB.amount) as amount,
+//    currency.uid as currencyId, currency.symbol as currencySymbol
+//    FROM ReceiverWithAmountForDB
+//    LEFT JOIN Expense ON ReceiverWithAmountForDB.expenseId = Expense.uid
+//    INNER JOIN Contact ON ReceiverWithAmountForDB.contactId = Contact.uid
+//    INNER JOIN debt ON debt.uid = Expense.debtId
+//    INNER JOIN trip ON debt.tripId = Trip.uid
+//    INNER JOIN currency ON Debt.currencyId = Currency.uid
+//    WHERE Trip.isCurrent = 1 AND trip.status = "active" AND debt.status = "active" AND debt.isCorrect = 1
+//    GROUP BY ReceiverWithAmountForDB.contactId, Debt.currencyId)
+//    GROUP BY contactAlias, currencyId
     @Query("SELECT alias as contactAlias, contactId, SUM(amount) as totalAmount, currencySymbol " +
             "FROM (select Contact.alias, Debt.senderId as contactId, Debt.spentAmount as amount, " +
             "currency.uid as currencyId, currency.symbol as currencySymbol from Debt " +

@@ -408,7 +408,7 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
             receiverWithAmount.expenseId = expense.uid.toString()
             receiverWithAmount.debtId = expense.debtId.toString()
             receiverWithAmount.contactId = contact.uid
-            receiverWithAmount.amount = ((currentDebt.value?.spentAmount ?: 0.0) / selectedContactsForSimpleExpense.value!!.size).toString()
+            receiverWithAmount.amount = ((currentDebt.value?.spentAmount ?: 0.0) / selectedContactsForSimpleExpense.value!!.size)
             receiversWithAmountList.add(receiverWithAmount)
         }
 

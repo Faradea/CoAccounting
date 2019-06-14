@@ -26,4 +26,9 @@
 
     <style name="PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="Delete.Button" parent="Base.Widget.AppCompat.Button.Colored">
+        <item name="colorPrimary">@color/colorAccent</item>
+        <item name="colorButtonNormal">@color/colorAccent</item>
+    </style>
+
 </resources>

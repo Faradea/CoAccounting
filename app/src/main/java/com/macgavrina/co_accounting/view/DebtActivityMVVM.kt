@@ -360,19 +360,19 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
     }
 
     private fun hideDeleteButton() {
-        debt_fragment_delete_fab.hide()
+        debt_fragment_delete_fab.visibility = View.INVISIBLE
     }
 
     private fun showDeleteButton() {
-        debt_fragment_delete_fab.show()
+        debt_fragment_delete_fab.visibility = View.VISIBLE
     }
 
     private fun hideClearButton() {
-        debt_fragment_clear_fab.hide()
+        debt_fragment_clear_fab.visibility = View.INVISIBLE
     }
 
     private fun showClearButton() {
-        debt_fragment_clear_fab.show()
+        debt_fragment_clear_fab.visibility = View.VISIBLE
     }
 
     private fun displayTimePickerDialog() {

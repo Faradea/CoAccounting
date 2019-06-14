@@ -32,7 +32,7 @@ interface AddReceiverInAddDebtContract {
 
     interface Presenter:BasePresenterContract<View> {
 
-        fun amountIsEdited(newAmount: Float)
+        fun amountIsEdited(newAmount: Double)
 
         fun cancelButtonInToolbarIsClicked()
 

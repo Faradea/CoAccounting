@@ -117,9 +117,9 @@ class ExpenseActivity : AppCompatActivity(), AddReceiverInAddDebtContract.View, 
     override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
         if (s != null) {
             if (s.isNotEmpty()) {
-                presenter.amountIsEdited(s.toString().replace(",", ".").toFloat())
+                presenter.amountIsEdited(s.toString().replace(",", ".").toDouble())
             } else {
-                presenter.amountIsEdited(0.0F)
+                presenter.amountIsEdited(0.0)
             }
         }
     }

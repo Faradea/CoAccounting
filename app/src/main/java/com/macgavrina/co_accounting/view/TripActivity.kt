@@ -287,7 +287,7 @@ class TripActivity : AppCompatActivity() {
     }
 
     private fun hideDeleteButton() {
-        trip_fragment_delete_fab.hide()
+        trip_fragment_delete_fab.visibility = View.INVISIBLE
     }
 
     private fun displayAlertDialog(alertText: String) {
