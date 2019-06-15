@@ -60,7 +60,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
                                 Log.d("amountPerPerson = $amountPerPerson, totalAmount = ${getView()?.getAmount()}, selectedContactsList.size = ${selectedContactsList.size}")
 
                                 getView()?.initializeNotSelectedReceiversList(notSelectedContactsList)
-                                getView()?.initializeSelectedReceiversList(selectedContactsList, amountPerPerson.toString())
+                                getView()?.initializeSelectedReceiversList(selectedContactsList, amountPerPerson)
                             }
                             is Events.onClickSelectedReceiverOnAddExpenseFragment -> {
                                 Log.d("Catch Events.onClickSelectedReceiverOnAddExpenseFragment event")
@@ -71,7 +71,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
                                 amountPerPerson = (getView()?.getAmount() ?:0.0) / selectedContactsList.size
 
                                 getView()?.initializeNotSelectedReceiversList(notSelectedContactsList)
-                                getView()?.initializeSelectedReceiversList(selectedContactsList, amountPerPerson.toString())
+                                getView()?.initializeSelectedReceiversList(selectedContactsList, amountPerPerson)
 
                             }
                         }
@@ -147,7 +147,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
         Log.d("Amount is edited, new value = $newAmount")
         if (selectedContactsList.isNotEmpty()) {
             amountPerPerson = newAmount/selectedContactsList.size
-            getView()?.initializeSelectedReceiversList(selectedContactsList, amountPerPerson.toString())
+            getView()?.initializeSelectedReceiversList(selectedContactsList, amountPerPerson)
         }
 
     }
@@ -335,7 +335,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
             amountPerPerson = (getView()?.getAmount() ?:0.0) / selectedContactsList.size
 
             getView()?.initializeNotSelectedReceiversList(notSelectedContactsList)
-            getView()?.initializeSelectedReceiversList(selectedContactsList, amountPerPerson.toString())
+            getView()?.initializeSelectedReceiversList(selectedContactsList, amountPerPerson)
 
         }
     }

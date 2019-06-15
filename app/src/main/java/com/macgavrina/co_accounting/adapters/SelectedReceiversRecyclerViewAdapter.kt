@@ -11,7 +11,7 @@ import com.macgavrina.co_accounting.rxjava.Events
 import com.macgavrina.co_accounting.support.MoneyFormatter
 import kotlinx.android.synthetic.main.selected_receivers_list_item.view.*
 
-class SelectedReceiversRecyclerViewAdapter (contactsList: List<Contact>?, amountPerPerson: String) :
+class SelectedReceiversRecyclerViewAdapter (contactsList: List<Contact>?, amountPerPerson: Double) :
         RecyclerView.Adapter<SelectedReceiversRecyclerViewAdapter.ViewHolder>() {
 
     private val amountPerPerson = amountPerPerson
@@ -56,7 +56,7 @@ class SelectedReceiversRecyclerViewAdapter (contactsList: List<Contact>?, amount
         // - replace the contents of the view with that element
 
         val item = mItems?.get(position)
-        holder.amount.text = MoneyFormatter.formatAmountForReadOnlyText(amountPerPerson.toDouble())
+        holder.amount.text = MoneyFormatter.formatAmountForReadOnlyText(amountPerPerson)
         holder.receiverName.text = item?.alias
         holder.setItem(mItems?.get(position)!!)
     }

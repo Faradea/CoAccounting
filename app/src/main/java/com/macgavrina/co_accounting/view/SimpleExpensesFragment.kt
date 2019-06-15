@@ -68,9 +68,9 @@ class SimpleExpensesFragment: Fragment(), SelectedReceiversWithOnClickRecyclerVi
 
         viewModel.getSelectedContactsForExpense().observe(viewLifecycleOwner,
                 Observer { selectedContactsList ->
-                    var amountPerPerson = "0"
+                    var amountPerPerson = 0.0
                     if (viewModel.getCurrentDebt().value?.spentAmount != null) {
-                        amountPerPerson = DecimalFormat("##.##").format(viewModel.getCurrentDebt().value!!.spentAmount / selectedContactsList.size)
+                        amountPerPerson = viewModel.getCurrentDebt().value!!.spentAmount / selectedContactsList.size
                     }
                     initializeSelectedReceiversList(selectedContactsList, amountPerPerson)
                 })
@@ -97,12 +97,12 @@ class SimpleExpensesFragment: Fragment(), SelectedReceiversWithOnClickRecyclerVi
 
     private fun setAmountPerPersonForDebtTotal(debtTotal: Double) {
         if (viewModel.getSelectedContactsForExpense().value != null && viewModel.getSelectedContactsForExpense().value!!.isNotEmpty()) {
-            val amountPerPerson = DecimalFormat("##.##").format(debtTotal/viewModel.getSelectedContactsForExpense().value!!.size)
+            val amountPerPerson = debtTotal/viewModel.getSelectedContactsForExpense().value!!.size
             initializeSelectedReceiversList(viewModel.getSelectedContactsForExpense().value!!, amountPerPerson)
         }
     }
 
-    private fun initializeSelectedReceiversList(contactsList: List<Contact>?, amountPerPerson: String) {
+    private fun initializeSelectedReceiversList(contactsList: List<Contact>?, amountPerPerson: Double) {
         //viewModel.notSavedSelectedContactList.postValue(contactsList)
         simple_expenses_list_selected_members_lv.adapter = SelectedReceiversWithOnClickRecyclerViewAdapter(contactsList, amountPerPerson, this)
         if (contactsList == null || contactsList.isEmpty()) {

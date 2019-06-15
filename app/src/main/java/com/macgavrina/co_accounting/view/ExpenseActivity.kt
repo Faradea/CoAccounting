@@ -135,7 +135,7 @@ class ExpenseActivity : AppCompatActivity(), AddReceiverInAddDebtContract.View, 
         simple_expenses_list_notselected_members_lv.adapter?.notifyDataSetChanged()
     }
 
-    override fun initializeSelectedReceiversList(contactsList: List<Contact>?, amountPerPerson: String) {
+    override fun initializeSelectedReceiversList(contactsList: List<Contact>?, amountPerPerson: Double) {
 
         //ToDo REFACT Add amountPerPerson inside selectedReceiversList and update recycler view with notifyDataSetChanged
 

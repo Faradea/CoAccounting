@@ -14,7 +14,7 @@ interface AddReceiverInAddDebtContract {
 
         fun initializeNotSelectedReceiversList(contactsList: List<Contact>?)
 
-        fun initializeSelectedReceiversList(contactsList: List<Contact>?, amountPerPerson: String)
+        fun initializeSelectedReceiversList(contactsList: List<Contact>?, amountPerPerson: Double)
 
         fun getAmount(): Double
 

@@ -160,7 +160,7 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
                     } else {
                         currenciesAdapter.setCurrencies(currenciesList)
 
-                        if (currenciesList[0].lastUsedCurrencyId < 1) {
+                        if (currenciesList.isNotEmpty() && currenciesList[0].lastUsedCurrencyId < 1) {
                             viewModel.onCurrencyClick(currenciesList[0].uid)
                         } else {
                             viewModel.onCurrencyClick(currenciesList[0].lastUsedCurrencyId)
@@ -208,16 +208,17 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
             }
         })
 
-        add_debt_fragment_sender_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+
+        add_debt_fragment_sender_spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, id: Long) {
                 if (positionToContactIdMap[position] != null && positionToContactIdMap[position]?.uid != null) {
                     viewModel.senderIdIsChanged(positionToContactIdMap[position]!!.uid)
                 }
             }
 
-            override fun onNothingSelected(parent: AdapterView<*>) {
-
+            override fun onNothingSelected(p0: AdapterView<*>?) {
             }
+
         }
 
         add_debt_fragment_date_et.addTextChangedListener(object : TextWatcher {
@@ -296,8 +297,8 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
         if (senderId == null) {
             if (debt.senderId != -1 && ::friendsList.isInitialized) {
 
-                if (::contactIdToPositionMap.isInitialized && debt != null && contactIdToPositionMap?.isNotEmpty() && contactIdToPositionMap[debt.senderId?.toInt()] != null) {
-                    setSender(contactIdToPositionMap[debt.senderId?.toInt()]!!)
+                if (::contactIdToPositionMap.isInitialized && debt != null && contactIdToPositionMap.isNotEmpty() && contactIdToPositionMap[debt.senderId.toInt()] != null) {
+                    setSender(contactIdToPositionMap[debt.senderId.toInt()]!!)
                 }
             }
 
