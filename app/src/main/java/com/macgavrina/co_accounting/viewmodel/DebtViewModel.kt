@@ -31,6 +31,7 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
     private var expensesList: LiveData<List<Expense>>? = null
     private var debtDate: String = ""
     private var debtTime: String = ""
+    private var tripsList: LiveData<List<Trip>> = TripRepository().getAll()
 
     private var expenseForSimpleMode: MutableLiveData<Expense> = MutableLiveData()
     private var selectedContactsForSimpleExpense: MutableLiveData<List<Contact>> = MutableLiveData()
@@ -47,6 +48,10 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
 
     fun getCurrentDebt(): MutableLiveData<Debt> {
         return currentDebt
+    }
+
+    fun getAllTrips(): LiveData<List<Trip>> {
+        return tripsList
     }
 
     fun getExpensesList(): LiveData<List<Expense>>? {
@@ -151,6 +156,7 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
         compositeDisposable.add(subscription)
     }
 
+
     private fun createDebtDraft() {
         val subscription = debtRepository.createDebtDraft()
                 .subscribeOn(Schedulers.io())
@@ -211,6 +217,13 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
         currentDebt.value?.senderId = newValue
     }
 
+    fun tripIsChanged(tripTitle: String) {
+        tripsList.value?.forEach { trip ->
+            if (trip.title == tripTitle) {
+                currentDebt.value?.tripId = trip.uid
+            }
+        }
+    }
     fun onCurrencyClick(currencyId: Int) {
         currentDebt.value?.currencyId = currencyId
         tripRepository.setupLastUsedCurrencyForCurrentTrip(currencyId)

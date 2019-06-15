@@ -281,7 +281,6 @@
                     android:completionThreshold="0"
                     android:editable="false"
                     android:padding="12dp"
-                    android:text="trip1"
                     android:textSize="14sp" />
 
             </com.google.android.material.textfield.TextInputLayout>

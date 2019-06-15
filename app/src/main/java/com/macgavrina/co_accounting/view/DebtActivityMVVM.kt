@@ -23,17 +23,12 @@ import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.adapters.DebtCurrenciesRecyclerViewAdapter
 import com.macgavrina.co_accounting.logging.Log
-import com.macgavrina.co_accounting.room.Contact
+import com.macgavrina.co_accounting.room.*
 import com.macgavrina.co_accounting.room.Currency
-import com.macgavrina.co_accounting.room.Debt
-import com.macgavrina.co_accounting.room.Expense
 import com.macgavrina.co_accounting.support.DateFormatter
 import com.macgavrina.co_accounting.support.MoneyFormatter
 import com.macgavrina.co_accounting.viewmodel.DebtViewModel
-import com.macgavrina.co_accounting.viewmodel.DebtsViewModel
 import com.macgavrina.co_accounting.viewmodel.EXPENSE_ID_KEY
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.add_debt_fragment.*
 import kotlinx.android.synthetic.main.debt_activity.*
 import java.util.*
@@ -74,8 +69,6 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
         setupViewModelAndObservers()
 
         setOnClickListeners()
-
-        setTripsList()
     }
 
     //For action bar
@@ -170,6 +163,12 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
                     }
                 })
 
+        viewModel.getAllTrips().observe(this,
+                Observer<List<Trip>> { tripsList ->
+                    Log.d("Trips list is received from DB, size = ${tripsList.size}, value = $tripsList")
+                    setTripsList(tripsList)
+                })
+
     }
 
     private fun setOnClickListeners() {
@@ -262,6 +261,19 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
                 displayExpensesForSimpleMode()
             }
         }
+
+        add_debt_fragment_trip_autocompletetv.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable) {}
+
+            override fun beforeTextChanged(s: CharSequence, start: Int,
+                                           count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence, start: Int,
+                                       before: Int, count: Int) {
+                viewModel.tripIsChanged(s.toString())
+            }
+        })
     }
 
     private fun hideKeyboard() {
@@ -613,21 +625,27 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
             supportFragmentManager.beginTransaction().remove(supportFragmentManager.findFragmentById(R.id.debt_fragment_container_for_expenses)!!).commit()
         }
     }
-    private fun setTripsList() {
+    private fun setTripsList(tripsList: List<Trip>) {
 
         add_debt_fragment_trip_autocompletetv.setOnClickListener {
             add_debt_fragment_trip_autocompletetv.forceFiltering()
         }
 
-        val tripsList = arrayOfNulls<String>(3)
-        tripsList[0] = "trip1"
-        tripsList[1] = "trip2"
-        tripsList[2] = "trip3"
+        val tripsArray = arrayOfNulls<String>(tripsList.size)
+
+        var i = 0
+        tripsList.forEach { trip ->
+            tripsArray[i] = trip.title
+            i += 1
+            if (trip.isCurrent) {
+                add_debt_fragment_trip_autocompletetv.setText(trip.title)
+            }
+        }
 
         val adapter = ArrayAdapter<String>(
                 MainApplication.applicationContext(),
                 R.layout.dropdown_menu_popup_item,
-                tripsList
+                tripsArray
         )
 
         add_debt_fragment_trip_autocompletetv.setAdapter(adapter)
