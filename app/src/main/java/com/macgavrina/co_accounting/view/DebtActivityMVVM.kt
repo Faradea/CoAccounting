@@ -74,6 +74,8 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
         setupViewModelAndObservers()
 
         setOnClickListeners()
+
+        setTripsList()
     }
 
     //For action bar
@@ -610,6 +612,25 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
         if (supportFragmentManager.findFragmentById(R.id.debt_fragment_container_for_expenses) != null) {
             supportFragmentManager.beginTransaction().remove(supportFragmentManager.findFragmentById(R.id.debt_fragment_container_for_expenses)!!).commit()
         }
+    }
+    private fun setTripsList() {
+
+        add_debt_fragment_trip_autocompletetv.setOnClickListener {
+            add_debt_fragment_trip_autocompletetv.forceFiltering()
+        }
+
+        val tripsList = arrayOfNulls<String>(3)
+        tripsList[0] = "trip1"
+        tripsList[1] = "trip2"
+        tripsList[2] = "trip3"
+
+        val adapter = ArrayAdapter<String>(
+                MainApplication.applicationContext(),
+                R.layout.dropdown_menu_popup_item,
+                tripsList
+        )
+
+        add_debt_fragment_trip_autocompletetv.setAdapter(adapter)
     }
 
 }
