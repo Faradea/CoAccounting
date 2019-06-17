@@ -6,11 +6,15 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import io.reactivex.Maybe
+import io.reactivex.Single
 
 @Dao
 interface TripDAO {
     @Query("SELECT * FROM trip WHERE status IN (:status) ORDER BY uid DESC")
     fun getAll(status: String): LiveData<List<Trip>>
+
+    @Query("SELECT * FROM trip WHERE status IN (:status) ORDER BY uid DESC")
+    fun getAllRx(status: String): Single<List<Trip>>
 
     @Query("SELECT COUNT (*) FROM trip")
     fun getTripsCount(): Int
@@ -23,6 +27,9 @@ interface TripDAO {
 
     @Query("SELECT * FROM trip WHERE isCurrent IN (:isCurrent) AND status IN (:status) ORDER BY uid DESC LIMIT 1")
     fun getLastTripByIsCurrentValue(isCurrent: Boolean, status: String): Maybe<Trip>
+
+    @Query("SELECT * FROM trip WHERE isCurrent IN (:isCurrent) AND status IN (:status) ORDER BY uid DESC LIMIT 1")
+    fun getLastTripByIsCurrentValueLiveData(isCurrent: Boolean, status: String): LiveData<Trip>
 
     @Query("SELECT * FROM trip WHERE isCurrent IN (:isCurrent) AND status IN (:status) AND uid NOT IN (:exceptTripId) ORDER BY uid DESC LIMIT 1")
     fun getLastTripByIsCurrentValueExceptChosenTrip(isCurrent: Boolean, status: String, exceptTripId: String): Maybe<Trip>

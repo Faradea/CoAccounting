@@ -139,7 +139,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView5">
+                app:layout_constraintTop_toBottomOf="@+id/add_debt_fragment_trip_name_tv">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/add_debt_fragment_comment_et"
@@ -172,14 +172,14 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/add_debt_fragment_trip_lil" />
+                app:layout_constraintTop_toBottomOf="@+id/linearLayout2" />
 
             <TextView
-                android:id="@+id/textView5"
+                android:id="@+id/add_debt_fragment_trip_name_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:text="General info"
+                android:text="Trip: ..."
                 android:textSize="14sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
@@ -259,31 +259,6 @@
                         android:textSize="14sp" />
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/add_debt_fragment_trip_lil"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:hint="Trip"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
-
-                <com.macgavrina.co_accounting.support.InstantAutoComplete
-                    android:id="@+id/add_debt_fragment_trip_autocompletetv"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:completionThreshold="0"
-                    android:editable="false"
-                    android:padding="12dp"
-                    android:textSize="14sp" />
-
-            </com.google.android.material.textfield.TextInputLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>

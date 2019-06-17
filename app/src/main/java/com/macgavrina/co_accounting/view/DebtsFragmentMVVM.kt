@@ -1,9 +1,12 @@
 package com.macgavrina.co_accounting.view
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -14,6 +17,7 @@ import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.adapters.DebtsRecyclerViewAdapter
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.Debt
+import com.macgavrina.co_accounting.room.Trip
 import com.macgavrina.co_accounting.viewmodel.DebtsViewModel
 import kotlinx.android.synthetic.main.debts_fragment.*
 
@@ -65,6 +69,25 @@ class DebtsFragmentMVVM: Fragment() {
             }
         })
 
+        viewModel.getAllTrips().observe(this,
+                Observer<List<Trip>> { tripsList ->
+                    Log.d("Trips list is received from DB, size = ${tripsList.size}, value = $tripsList")
+                    setTripsList(tripsList)
+                })
+
+        debts_fragment_trip_autocompletetv.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable) {}
+
+            override fun beforeTextChanged(s: CharSequence, start: Int,
+                                           count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence, start: Int,
+                                       before: Int, count: Int) {
+                viewModel.tripIsChanged(s.toString())
+            }
+        })
+
 //        tripsViewModel.snackbarMessage.observe(this, Observer { text ->
 //            Log.d("snackbar text is changed, observer reacts!")
 //            val snackBar = Snackbar.make(trips_fragment_const_layout, "Trip is deleted", Snackbar.LENGTH_LONG)
@@ -94,5 +117,31 @@ class DebtsFragmentMVVM: Fragment() {
 
     private fun hideProgress() {
         debts_fragment_progress_bar.visibility = View.INVISIBLE
+    }
+
+    private fun setTripsList(tripsList: List<Trip>) {
+
+        debts_fragment_trip_autocompletetv.setOnClickListener {
+            debts_fragment_trip_autocompletetv.forceFiltering()
+        }
+
+        val tripsArray = arrayOfNulls<String>(tripsList.size)
+
+        var i = 0
+        tripsList.forEach { trip ->
+            tripsArray[i] = trip.title
+            i += 1
+            if (trip.isCurrent) {
+                debts_fragment_trip_autocompletetv.setText(trip.title)
+            }
+        }
+
+        val adapter = ArrayAdapter<String>(
+                MainApplication.applicationContext(),
+                R.layout.dropdown_menu_popup_item,
+                tripsArray
+        )
+
+        debts_fragment_trip_autocompletetv.setAdapter(adapter)
     }
 }

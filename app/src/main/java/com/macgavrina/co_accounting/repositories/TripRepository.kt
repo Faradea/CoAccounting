@@ -7,10 +7,7 @@ import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.Trip
 import com.macgavrina.co_accounting.room.TripDAO
-import io.reactivex.Completable
-import io.reactivex.CompletableObserver
-import io.reactivex.Maybe
-import io.reactivex.Observable
+import io.reactivex.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -31,6 +28,10 @@ class TripRepository {
         return allTrips
     }
 
+    fun getAllRx(): Single<List<Trip>> {
+        return tripDao.getAllRx("active")
+    }
+
     fun getLastActiveTripId(): Observable<Maybe<Int>> {
         Log.d("getting last active trip id....")
         return Observable.fromCallable { tripDao.getLastTripId("active") }
@@ -38,6 +39,10 @@ class TripRepository {
 
     fun getCurrentTrip(): Observable<Maybe<Trip>> {
         return Observable.fromCallable { tripDao.getLastTripByIsCurrentValue(true, "active") }
+    }
+
+    fun getCurrentTripLiveData(): LiveData<Trip> {
+        return tripDao.getLastTripByIsCurrentValueLiveData(true, "active")
     }
 
     fun getTripsAmount(): Observable<Int> {

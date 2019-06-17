@@ -24,9 +24,21 @@ class DebtsViewModel(application: Application) : AndroidViewModel(MainApplicatio
     internal val toastMessage = SingleLiveEvent<String>()
     internal val snackbarMessage = SingleLiveEvent<String>()
 
-    private var repository: DebtRepository = DebtRepository()
+    private var tripsList = MutableLiveData<List<Trip>>()
 
-    private var allDebtsForCurrentTrip: LiveData<List<Debt>> = repository.getAllDebtsForCurrentTrip()
+    private var allDebtsForCurrentTrip: LiveData<List<Debt>> = DebtRepository().getAllDebtsForCurrentTrip()
+
+    init {
+        compositeDisposable.add(TripRepository().getAllRx()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe ({ tripsList ->
+                    this.tripsList.value = tripsList
+                }, {error ->
+                    Log.d("Error getting trips list, $error")
+                })
+        )
+    }
 
     fun getAllDebtsForCurrentTrip(): LiveData<List<Debt>> {
         return allDebtsForCurrentTrip
@@ -38,5 +50,18 @@ class DebtsViewModel(application: Application) : AndroidViewModel(MainApplicatio
 
     fun viewIsDestroyed() {
         compositeDisposable.clear()
+    }
+
+    fun getAllTrips(): LiveData<List<Trip>> {
+        return tripsList
+    }
+
+    fun tripIsChanged(tripTitle: String) {
+        tripsList.value?.forEach { trip ->
+            if (trip.title == tripTitle) {
+                TripRepository().updateTripIsCurrentField(trip.uid.toString(), true)
+                TripRepository().disableAllTripsExceptOne(trip.uid.toString())
+            }
+        }
     }
 }

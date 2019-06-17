@@ -31,7 +31,6 @@ class TripsRecyclerViewAdapter(private var tripsViewModel: TripsViewModel) :
 
         val titleTV = view.trips_list_item_title_tv
         val datesTV = view.trips_list_item_dates_tv
-        val isCurrentSwitch = view.trips_list_item_switch
 
         private var mItem: Trip? = null
 
@@ -39,10 +38,6 @@ class TripsRecyclerViewAdapter(private var tripsViewModel: TripsViewModel) :
 
             view.setOnClickListener{
                 MainApplication.bus.send(Events.OnClickTripList(mItem?.uid.toString()))
-            }
-
-            isCurrentSwitch.setOnClickListener {
-                MainApplication.bus.send(Events.OnClickSwitchTripList(mItem?.uid.toString(), isCurrentSwitch.isChecked))
             }
         }
 
@@ -84,7 +79,6 @@ class TripsRecyclerViewAdapter(private var tripsViewModel: TripsViewModel) :
         }
 
         holder.datesTV.text = datesText
-        holder.isCurrentSwitch.isChecked = item.isCurrent
 
         holder.setItem(mItems!![position])
     }

@@ -148,8 +148,6 @@ class TripActivity : AppCompatActivity() {
             trip_fragment_enddate_et.setText(DateFormatter().formatDateFromTimestamp(trip.enddate!!))
         }
 
-        trip_fragment_switch.isChecked = trip.isCurrent
-
         if (trip.status == "draft") {
             hideDeleteButton()
         }
@@ -209,7 +207,6 @@ class TripActivity : AppCompatActivity() {
                     trip!!.title = getTripTitle()
                     trip!!.startdate = getStartDate()
                     trip!!.enddate = getEndDate()
-                    trip!!.isCurrent = getSwitchStatus()
                     trip!!.status = "active"
 
                     if (trip?.uid == null) {
@@ -257,10 +254,6 @@ class TripActivity : AppCompatActivity() {
 
     private fun getTripTitle(): String {
         return trip_fragment_title_et.text.toString()
-    }
-
-    private fun getSwitchStatus(): Boolean {
-        return trip_fragment_switch.isChecked
     }
 
     private fun hideKeyboard() {

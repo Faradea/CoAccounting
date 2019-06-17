@@ -23,12 +23,11 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:hint="Title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/trip_fragment_switch">
+        app:layout_constraintTop_toBottomOf="@+id/trip_fragment_progressBar">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/trip_fragment_title_et"
@@ -85,16 +84,6 @@
         </com.google.android.material.textfield.TextInputLayout>
 
     </LinearLayout>
-
-    <Switch
-        android:id="@+id/trip_fragment_switch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:checked="true"
-        android:text="Is current trip?"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/trip_fragment_progressBar" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/trip_fragment_currencies_layout"
