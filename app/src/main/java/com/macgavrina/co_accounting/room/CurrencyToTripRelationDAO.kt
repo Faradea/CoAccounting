@@ -38,6 +38,11 @@ interface CurrencyToTripRelationDAO {
             "WHERE tripId IN (:tripId)")
     fun getAllActiveCurrenciesForTrip(tripId: Int): LiveData<List<Currency>>
 
+    @Query("select Currency.*, CurrencyToTripRelation.tripId as activeTripId from Currency " +
+            "INNER JOIN CurrencyToTripRelation ON CurrencyToTripRelation.currencyId = Currency.uid " +
+            "WHERE tripId IN (:tripId)")
+    fun getAllActiveCurrenciesForTripRx(tripId: Int): Single<List<Currency>>
+
     @Query("select Currency.*, CurrencyToTripRelation.tripId as activeTripId, Trip.lastUsedCurrencyId from Currency " +
             "INNER JOIN CurrencyToTripRelation ON CurrencyToTripRelation.currencyId = Currency.uid " +
             "INNER JOIN Trip ON CurrencyToTripRelation.tripId = Trip.uid " +

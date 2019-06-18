@@ -17,15 +17,8 @@ class TripRepository {
 
     private var tripDao: TripDAO = MainApplication.db.tripDAO()
 
-    private var allTrips: LiveData<List<Trip>>
-
-    init {
-        allTrips = tripDao.getAll("active")
-    }
-
     fun getAll(): LiveData<List<Trip>> {
-        Log.d("get all trips, list size = ${allTrips.value?.size}")
-        return allTrips
+        return tripDao.getAll("active")
     }
 
     fun getAllRx(): Single<List<Trip>> {
@@ -45,8 +38,8 @@ class TripRepository {
         return tripDao.getLastTripByIsCurrentValueLiveData(true, "active")
     }
 
-    fun getTripsAmount(): Observable<Int> {
-        return Observable.fromCallable { tripDao.getTripsCount() }
+    fun getActiveTripsAmount(): Observable<Int> {
+        return Observable.fromCallable { tripDao.getActiveTripsCount() }
     }
 
     fun restoreDeletedTrip(trip: Trip): Completable {
@@ -59,6 +52,10 @@ class TripRepository {
     fun getTripById(tripId: Int): LiveData<Trip> {
         return tripDao.getTripById(tripId)
         //Observable.fromCallable { tripDao.getTripById(tripId) }
+    }
+
+    fun getTripByIdRx(tripId: Int): Maybe<Trip> {
+        return tripDao.getTripByIdRx(tripId)
     }
 
     fun getLastTripByIsCurrentValue(isCurrent: Boolean): Observable<Maybe<Trip>> {
@@ -76,9 +73,7 @@ class TripRepository {
     }
 
     fun updateTrip(trip: Trip): Completable {
-        return Completable.fromAction {
-            tripDao.updateTrip(trip)
-        }
+        return tripDao.updateTrip(trip)
     }
 
     fun deleteTrip(trip: Trip): Completable {
@@ -159,6 +154,10 @@ class TripRepository {
 
     fun getTripDraft(): LiveData<Trip> {
         return tripDao.getTripDraft()
+    }
+
+    fun getTripDraftRx(): Maybe<Trip> {
+        return tripDao.getTripDraftRx()
     }
 
     fun createTripDraft(): Completable {

@@ -30,7 +30,6 @@ class TripsViewModel(application: Application) : AndroidViewModel(MainApplicatio
     private var repository: TripRepository = TripRepository()
     private var allTrips: LiveData<List<Trip>> = repository.getAll()
     private var selectedTrip: LiveData<Trip>? = null
-    private var currenciesList: LiveData<List<Currency>>? = null
 
     private var lastDeletedTrip: Trip? = null
 
@@ -42,101 +41,8 @@ class TripsViewModel(application: Application) : AndroidViewModel(MainApplicatio
         return allTrips
     }
 
-    fun getTripById(tripId: Int): LiveData<Trip>? {
-
-        selectedTripId = tripId
-
-        if (tripId != -1) {
-            selectedTrip = repository.getTripById(tripId)
-        } else {
-            selectedTrip = repository.getTripDraft()
-        }
-
-        return selectedTrip
-    }
-
-    fun createTripDraft(): Completable {
-        return repository.createTripDraft()
-    }
-
     fun viewIsDestroyed() {
         compositeDisposable.clear()
-    }
-
-    fun insertTrip(trip: Trip) {
-        Log.d("Insert trip = $trip")
-        val subscription = repository.insertTrip(trip)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe ({
-                    if (trip.isCurrent) {
-                        repository.getLastActiveTripId()
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribeOn(Schedulers.io())
-                                .subscribe ({ maybeInt ->
-                                    maybeInt
-                                            .observeOn(AndroidSchedulers.mainThread())
-                                            .subscribeOn(Schedulers.io())
-                                            .subscribe ({ tripId ->
-                                                repository.disableAllTripsExceptOne(tripId.toString())
-                                            }, {error ->
-                                                Log.d("Error disabling all trips except inserted one, $error")
-                                                toastMessage.value = "Database error"
-                                            })
-                                        }, {error ->
-                                            Log.d("Error getting last active trip id, $error")
-                                            toastMessage.value = "Database error"
-                                        })
-                    }
-                }, {error ->
-                    Log.d("Error inserting trip, $error")
-                    toastMessage.value = "Database error"
-                })
-        compositeDisposable.add(subscription)
-    }
-
-    fun updateTrip(trip: Trip) {
-        Log.d("update trip, new values = $trip")
-        val subscription = repository.updateTrip(trip)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe ({
-                    if (trip.isCurrent) {
-                        disableAllTripsExceptOne(trip.uid.toString())
-                    } else {
-                        checkIfThereIsCurrentTripInTheList(trip.uid.toString())
-                    }
-                }, {error ->
-                    Log.d("Error updating trip, $error")
-                    toastMessage.value = "Database error"
-                })
-        compositeDisposable.add(subscription)
-    }
-
-    fun deleteTrip(trip: Trip) {
-        if (allTrips.value?.size == 1) {
-            toastMessage.value = "The only one trip in the list can't be deleted"
-            return
-        } else {
-            lastDeletedTrip = trip
-            snackbarMessage.value = "Trip is deleted"
-            val subscription = repository.deleteTrip(trip)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeOn(Schedulers.io())
-                    .subscribe ({
-                        if (trip.isCurrent) {
-                            checkIfThereIsCurrentTripInTheList(trip.uid.toString())
-                        }
-                    }, {error ->
-                        Log.d("Error deleting trip, $error")
-                        toastMessage.value = "Database error"
-                    })
-            compositeDisposable.add(subscription)
-        }
-    }
-
-    fun disableAllTripsExceptOne(tripId: String) {
-        repository.disableAllTripsExceptOne(tripId)
     }
 
     fun addTripButtonIsPressed() {
@@ -163,37 +69,29 @@ class TripsViewModel(application: Application) : AndroidViewModel(MainApplicatio
             compositeDisposable.add(subscriptionToBus)
     }
 
-    fun restoreLastDeletedTrip() {
-
-        if (lastDeletedTrip == null) return
-
-        repository.restoreDeletedTrip(lastDeletedTrip!!)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io()).subscribe(object : CompletableObserver {
-                    override fun onSubscribe(d: Disposable) {}
-
-                    override fun onComplete() {
-                        Log.d("Trip is restored")
-                        if (lastDeletedTrip != null && lastDeletedTrip!!.isCurrent) {
-                            updateClickedTripIsCurrentField(lastDeletedTrip!!.uid.toString(), lastDeletedTrip!!.isCurrent)
-                        }
-                        lastDeletedTrip = null
-                    }
-
-                    override fun onError(e: Throwable) {
-                        Log.d("Error restoring trip, $e")
-                        toastMessage.value = "Database error"
-                    }
-                })
-    }
-
-    fun getCurrenciesForTrip(): LiveData<List<Currency>>? {
-        if (selectedTrip != null && selectedTrip?.value != null) {
-            return CurrencyRepository().getAllCurrenciesForTripLiveData(selectedTrip!!.value!!.uid)
-        } else {
-            return null
-        }
-    }
+//    fun restoreLastDeletedTrip() {
+//
+//        if (lastDeletedTrip == null) return
+//
+//        repository.restoreDeletedTrip(lastDeletedTrip!!)
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribeOn(Schedulers.io()).subscribe(object : CompletableObserver {
+//                    override fun onSubscribe(d: Disposable) {}
+//
+//                    override fun onComplete() {
+//                        Log.d("Trip is restored")
+//                        if (lastDeletedTrip != null && lastDeletedTrip!!.isCurrent) {
+//                            updateClickedTripIsCurrentField(lastDeletedTrip!!.uid.toString(), lastDeletedTrip!!.isCurrent)
+//                        }
+//                        lastDeletedTrip = null
+//                    }
+//
+//                    override fun onError(e: Throwable) {
+//                        Log.d("Error restoring trip, $e")
+//                        toastMessage.value = "Database error"
+//                    }
+//                })
+//    }
 
     private fun updateClickedTripIsCurrentField(tripId: String, isCurrent: Boolean) {
 

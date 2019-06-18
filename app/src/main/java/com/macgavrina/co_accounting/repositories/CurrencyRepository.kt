@@ -73,11 +73,11 @@ class CurrencyRepository {
                 })
     }
 
-    fun getAllActiveCurrenciesForTrip(tripId: Int?): LiveData<List<Currency>> {
+    fun getAllActiveCurrenciesForTripRx(tripId: Int?): Single<List<Currency>> {
         if (tripId == null) {
-            return currencyToTripRelationDAO.getAllActiveCurrenciesForTrip(-1)
+            return currencyToTripRelationDAO.getAllActiveCurrenciesForTripRx(-1)
         } else {
-            return currencyToTripRelationDAO.getAllActiveCurrenciesForTrip(tripId)
+            return currencyToTripRelationDAO.getAllActiveCurrenciesForTripRx(tripId)
         }
     }
 

@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
+import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Single
 
@@ -16,14 +17,17 @@ interface TripDAO {
     @Query("SELECT * FROM trip WHERE status IN (:status) ORDER BY uid DESC")
     fun getAllRx(status: String): Single<List<Trip>>
 
-    @Query("SELECT COUNT (*) FROM trip")
-    fun getTripsCount(): Int
+    @Query("SELECT COUNT (*) FROM trip WHERE status = \"active\"")
+    fun getActiveTripsCount(): Int
 
     @Query("SELECT uid FROM trip WHERE status IN (:status) ORDER BY uid DESC LIMIT 1")
     fun getLastTripId(status: String): Maybe<Int>
 
     @Query("SELECT * FROM trip WHERE uid IN (:tripId)")
     fun getTripById(tripId: Int): LiveData<Trip>
+
+    @Query("SELECT * FROM trip WHERE uid IN (:tripId)")
+    fun getTripByIdRx(tripId: Int): Maybe<Trip>
 
     @Query("SELECT * FROM trip WHERE isCurrent IN (:isCurrent) AND status IN (:status) ORDER BY uid DESC LIMIT 1")
     fun getLastTripByIsCurrentValue(isCurrent: Boolean, status: String): Maybe<Trip>
@@ -38,7 +42,7 @@ interface TripDAO {
     fun insertTrip(trip: Trip)
 
     @Update
-    fun updateTrip(trip: Trip)
+    fun updateTrip(trip: Trip): Completable
 
     @Query("UPDATE trip SET status = :status, isCurrent = 0 WHERE uid IN (:tripId)")
     fun deleteTrip(tripId: String, status: String)
@@ -55,6 +59,9 @@ interface TripDAO {
     @Query("UPDATE trip SET lastUsedCurrencyId = :currencyId WHERE isCurrent = 1")
     fun setupLastUsedCurrencyForCurrentTrip(currencyId: Int)
 
-    @Query("SELECT * FROM trip WHERE status = \"draft\"")
+    @Query("SELECT * FROM trip WHERE status = \"draft\" ORDER BY uid DESC LIMIT 1")
     fun getTripDraft(): LiveData<Trip>
+
+    @Query("SELECT * FROM trip WHERE status = \"draft\" ORDER BY uid DESC LIMIT 1")
+    fun getTripDraftRx(): Maybe<Trip>
 }

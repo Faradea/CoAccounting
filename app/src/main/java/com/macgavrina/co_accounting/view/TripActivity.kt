@@ -1,11 +1,14 @@
 package com.macgavrina.co_accounting.view
 
+import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.icu.util.Calendar
 import android.os.Build
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -24,6 +27,7 @@ import com.macgavrina.co_accounting.room.Currency
 import com.macgavrina.co_accounting.room.Debt
 import com.macgavrina.co_accounting.room.Trip
 import com.macgavrina.co_accounting.support.DateFormatter
+import com.macgavrina.co_accounting.viewmodel.TripViewModel
 import com.macgavrina.co_accounting.viewmodel.TripsViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -32,11 +36,9 @@ import kotlinx.android.synthetic.main.trip_fragment.*
 
 class TripActivity : AppCompatActivity() {
 
-    private lateinit var viewModel: TripsViewModel
+    private lateinit var viewModel: TripViewModel
     private var startDatePickerDialog: DatePickerDialog? = null
     private var endDatePickerDialog: DatePickerDialog? = null
-    private var tripId: Int = -1
-    private var trip: Trip? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,8 +47,19 @@ class TripActivity : AppCompatActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        viewModel = ViewModelProviders.of(this).get(TripsViewModel::class.java)
+        viewModel = ViewModelProviders.of(this).get(TripViewModel::class.java)
 
+        setupObserversForViewModel()
+
+        setupOnChangeListeners()
+
+        val extras = intent.extras
+        val tripId = extras?.getInt("tripId")?: -1
+
+        viewModel.tripIdIsReceivedFromActivity(tripId)
+    }
+
+    private fun setupObserversForViewModel() {
         viewModel.toastMessage.observe(this, Observer { res ->
             if (res != null) {
                 displayToast(res)
@@ -64,48 +77,41 @@ class TripActivity : AppCompatActivity() {
 //                snackBar.show()
 //        })
 
-        //ToDo REFACT Использовать фрагмент вместо activity и this.viewLifecycleOwner вместо this для всех observe
-        viewModel.getAll().observe(this, Observer<List<Trip>> {})
+        viewModel.getCurrentTrip().observe(this,
+                Observer<Trip> { trip ->
+                    displayTrip(trip)
+                })
 
-        val extras = intent.extras
-        tripId = extras?.getInt("tripId")?: -1
+        val adapter = ActiveCurrenciesRecyclerViewAdapter()
+        trip_fragment_used_currencies_list.adapter = adapter
+        trip_fragment_used_currencies_list.layoutManager = LinearLayoutManager(MainApplication.applicationContext(), LinearLayoutManager.HORIZONTAL, false)
 
-            viewModel.getTripById(tripId)!!
-                    .observe(this,
-                            Observer<Trip> { trip ->
-                                if (trip != null) {
-                                    Log.d("Display existing trip = $trip")
-                                    displayTrip(trip)
-                                } else {
-                                    Log.d("There is no trip or trip draft, so create new trip draft")
-                                    viewModel.createTripDraft()
-                                            .observeOn(AndroidSchedulers.mainThread())
-                                            .subscribeOn(Schedulers.io())
-                                            .subscribe ({
-                                                viewModel.getTripById(tripId)!!
-                                                        .observe(this,
-                                                                Observer<Trip> { trip ->
-                                                                    if (trip != null) {
-                                                                        displayTrip(trip)
-                                                                    }
-                                                                })
-                                            }, {error ->
-                                                Log.d("Error creating trip draft, $error")
-                                            })
-                                }
-                            })
+        viewModel.getCurrencies()?.observe(this,
+                Observer<List<Currency>> { currencyList ->
 
+                    adapter.setCurrencies(currencyList)
+
+                    if (currencyList.isNotEmpty()) {
+                        trip_fragment_empty_currencies_list.visibility = View.INVISIBLE
+                    } else {
+                        trip_fragment_empty_currencies_list.visibility = View.VISIBLE
+                    }
+                })
+    }
+
+    private fun setupOnChangeListeners() {
         trip_fragment_edit_currencies_list_text.setOnClickListener {
             Log.d("onClick trip_fragment_edit_currencies_list_text")
-            if (trip?.uid == null) return@setOnClickListener
-            startCurrencyActivity(trip!!.uid)
+            startCurrencyActivity(viewModel.getCurrentTrip().value?.uid ?: -1)
         }
 
         trip_fragment_delete_fab.setOnClickListener { view ->
-            if (trip != null) {
-                viewModel.deleteTrip(trip!!)
+            if (viewModel.isTripCanBeDeleted()) {
+                viewModel.deleteTrip()
+                finishSelf()
+            } else {
+                displayAlertDialog("The only one trip can't be deleted")
             }
-            finishSelf()
         }
 
         trip_fragment_startdate_et.setOnClickListener {
@@ -116,28 +122,45 @@ class TripActivity : AppCompatActivity() {
             displayEndDatePickerDialog()
         }
 
-//        contact_fragment_email_et.addTextChangedListener(object : TextWatcher {
-//
-//            override fun afterTextChanged(s: Editable) {}
-//
-//            override fun beforeTextChanged(s: CharSequence, start: Int,
-//                                           count: Int, after: Int) {
-//            }
-//
-//            override fun onTextChanged(s: CharSequence, start: Int,
-//                                       before: Int, count: Int) {
-//                if (s.isEmpty()) {
-//                    contact_fragment_email_til.error = "Enter email"
-//                } else {
-//                    contact_fragment_email_til.error = null
-//                }
-//            }
-//        })
+        trip_fragment_title_et.addTextChangedListener(object: TextWatcher {
+            override fun afterTextChanged(p0: Editable?) {
+            }
+
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                viewModel.tripTitleIsChanged(p0.toString())
+            }
+        })
+
+        trip_fragment_startdate_et.addTextChangedListener(object: TextWatcher {
+            override fun afterTextChanged(p0: Editable?) {
+            }
+
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                viewModel.startdateIsChanged(p0.toString())
+            }
+        })
+
+        trip_fragment_enddate_et.addTextChangedListener(object: TextWatcher {
+            override fun afterTextChanged(p0: Editable?) {
+            }
+
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                viewModel.enddateIsChanged(p0.toString())
+            }
+        })
 
     }
 
     private fun displayTrip(trip: Trip) {
-        this.trip = trip
         trip_fragment_title_et.setText(trip.title)
 
         if (trip.startdate != null) {
@@ -150,38 +173,10 @@ class TripActivity : AppCompatActivity() {
 
         if (trip.status == "draft") {
             hideDeleteButton()
+        } else {
+            showDeleteButton()
         }
 
-
-        val adapter = ActiveCurrenciesRecyclerViewAdapter()
-        trip_fragment_used_currencies_list.adapter = adapter
-        trip_fragment_used_currencies_list.layoutManager = LinearLayoutManager(MainApplication.applicationContext(), LinearLayoutManager.HORIZONTAL, false)
-
-        if (viewModel.getCurrenciesForTrip() != null) {
-            viewModel.getCurrenciesForTrip()!!
-                    .observe(this,
-                            Observer<List<Currency>> { currencyList ->
-
-                                Log.d("currencyList = $currencyList")
-
-                                val filteredCurrenciesList = mutableListOf<Currency>()
-                                currencyList.forEach { currency ->
-                                    if (currency.activeTripId > 0) {
-                                        filteredCurrenciesList.add(currency)
-                                    }
-                                }
-
-                                Log.d("filtered currencyList = $filteredCurrenciesList")
-
-                                adapter.setCurrencies(filteredCurrenciesList)
-
-                                if (filteredCurrenciesList.isNotEmpty()) {
-                                    trip_fragment_empty_currencies_list.visibility = View.INVISIBLE
-                                } else {
-                                    trip_fragment_empty_currencies_list.visibility = View.VISIBLE
-                                }
-                            })
-        }
     }
 
     //For back button in action bar
@@ -200,20 +195,7 @@ class TripActivity : AppCompatActivity() {
 
                 if (!getTripTitle().isNullOrEmpty() && duration >= 0 ) {
 
-                    if (trip == null) {
-                        trip = Trip()
-                    }
-
-                    trip!!.title = getTripTitle()
-                    trip!!.startdate = getStartDate()
-                    trip!!.enddate = getEndDate()
-                    trip!!.status = "active"
-
-                    if (trip?.uid == null) {
-                        viewModel.insertTrip(trip!!)
-                    } else {
-                        viewModel.updateTrip(trip!!)
-                    }
+                    viewModel.saveTrip()
                     finishSelf()
                     return true
                 } else {
@@ -237,11 +219,6 @@ class TripActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_done, menu)
         return true
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        viewModel.viewIsDestroyed()
     }
 
     private fun getEndDate(): Long? {
@@ -281,6 +258,10 @@ class TripActivity : AppCompatActivity() {
 
     private fun hideDeleteButton() {
         trip_fragment_delete_fab.visibility = View.INVISIBLE
+    }
+
+    private fun showDeleteButton() {
+        trip_fragment_delete_fab.visibility = View.VISIBLE
     }
 
     private fun displayAlertDialog(alertText: String) {
@@ -381,7 +362,16 @@ class TripActivity : AppCompatActivity() {
         val intent = Intent()
         intent.action = "com.macgavrina.indebt.CURRENCY"
         intent.putExtra("tripId", tripId)
-        startActivity(intent)
+        startActivityForResult(intent, 1)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        Log.d("onActivityResult, requestCode = $requestCode, resultCode = $requestCode")
+        if (requestCode == 1) {
+            viewModel.returnFromCurrenciesActivity()
+        }
+
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
 }
