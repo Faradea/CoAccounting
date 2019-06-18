@@ -190,7 +190,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
         if (expense == null) {
 
             if (selectedContactsList.isEmpty()) {
-                getView()?.finishSelf()
+                getView()?.showAlertAndFinishSelf("Selected contacts list is empty, expense won't be saved")
                 return
             }
             expense = Expense()
@@ -256,7 +256,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
 
         } else {
             if (selectedContactsList.isEmpty()) {
-                deleteCurrentExpense()
+                getView()?.showAlertAndFinishSelfWithCallback("Selected contacts list is empty, expense will be deleted")
                 return
             }
             expense!!.totalAmount = getView()?.getAmount() ?: 0.0
@@ -313,6 +313,10 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
         }
     }
 
+    override fun userHasReadAlertAboutDeletingExpense() {
+        deleteCurrentExpense()
+        getView()?.finishSelf()
+    }
     override fun deleteButtonIsPressed() {
 
         Log.d("Delete button is pressed, deleting expense from DB...")

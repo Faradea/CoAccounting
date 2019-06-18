@@ -8,6 +8,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -32,6 +33,7 @@ class ExpenseActivity : AppCompatActivity(), AddReceiverInAddDebtContract.View, 
     private var notSelectedReceiversList = mutableListOf<Contact>()
     var debtId: Int? = null
     var expenseId: Int? = null
+    private var alertDialog: AlertDialog? = null
 
     companion object {
         const val DEBT_ID_KEY = "debtid"
@@ -139,11 +141,12 @@ class ExpenseActivity : AppCompatActivity(), AddReceiverInAddDebtContract.View, 
 
         //ToDo REFACT Add amountPerPerson inside selectedReceiversList and update recycler view with notifyDataSetChanged
 
+        simple_expenses_list_selected_members_lv.adapter = SelectedReceiversRecyclerViewAdapter(contactsList, amountPerPerson)
+        
         if (contactsList == null || contactsList.isEmpty()) {
             add_expense_emplty_selected_list_layout.visibility = View.VISIBLE
         } else {
             add_expense_emplty_selected_list_layout.visibility = View.INVISIBLE
-            simple_expenses_list_selected_members_lv.adapter = SelectedReceiversRecyclerViewAdapter(contactsList, amountPerPerson)
         }
     }
 
@@ -183,5 +186,31 @@ class ExpenseActivity : AppCompatActivity(), AddReceiverInAddDebtContract.View, 
 
     override fun finishSelf() {
         onBackPressed()
+    }
+
+    override fun showAlertAndFinishSelf(alertText: String) {
+        if (alertDialog == null || alertDialog?.isShowing == false) {
+            val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
+            alertDialogBuilder.setMessage(alertText)
+                    .setTitle("Alert")
+            alertDialogBuilder.setPositiveButton("Ok") { _, _ ->
+                finishSelf()
+            }
+            alertDialog = alertDialogBuilder.create()
+            alertDialog?.show()
+        }
+    }
+
+    override fun showAlertAndFinishSelfWithCallback(alertText: String) {
+        if (alertDialog == null || alertDialog?.isShowing == false) {
+            val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
+            alertDialogBuilder.setMessage(alertText)
+                    .setTitle("Alert")
+            alertDialogBuilder.setPositiveButton("Ok") { _, _ ->
+                presenter.userHasReadAlertAboutDeletingExpense()
+            }
+            alertDialog = alertDialogBuilder.create()
+            alertDialog?.show()
+        }
     }
 }

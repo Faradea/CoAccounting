@@ -42,7 +42,7 @@
                 android:layout_marginBottom="8dp"
                 android:alpha="0.25"
                 android:padding="8dp"
-                app:layout_constraintBottom_toBottomOf="@+id/simple_expenses_list_selected_members_lv"
+                app:layout_constraintBottom_toTopOf="@+id/simple_expenses_list_divider2"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/simple_expenses_list_textView7">
@@ -52,6 +52,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginBottom="24dp"
                     android:padding="8dp"
                     android:text="Please select friends from the list below"
                     android:textColor="@color/colorTextHints"

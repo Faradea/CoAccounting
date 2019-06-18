@@ -28,6 +28,9 @@ interface AddReceiverInAddDebtContract {
 
         fun getComment(): String
         fun setComment(comment: String)
+
+        fun showAlertAndFinishSelf(text: String)
+        fun showAlertAndFinishSelfWithCallback(alertText: String)
     }
 
     interface Presenter:BasePresenterContract<View> {
@@ -44,5 +47,6 @@ interface AddReceiverInAddDebtContract {
 
         fun deleteButtonIsPressed()
 
+        fun userHasReadAlertAboutDeletingExpense()
     }
 }
