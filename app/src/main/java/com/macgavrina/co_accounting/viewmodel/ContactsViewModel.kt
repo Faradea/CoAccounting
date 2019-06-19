@@ -28,7 +28,6 @@ class ContactsViewModel(application: Application) : AndroidViewModel(MainApplica
     private var lastDeletedContact: Contact? = null
 
     init {
-        subscribeToEventBus()
     }
 
     fun getAllContactsForCurrentTrip(): LiveData<List<Contact>> {
@@ -76,27 +75,6 @@ class ContactsViewModel(application: Application) : AndroidViewModel(MainApplica
 
     private fun getLastAddedContactAndActivateItForTrip() {
         repository.setLastAddedContactCheckedForCurrentTrip()
-    }
-
-    private fun subscribeToEventBus() {
-
-        val subscriptionToBus = MainApplication
-                .bus
-                .toObservable()
-                .subscribe { `object` ->
-                    when (`object`) {
-//                        is Events.DeletedContactIsRestored -> {
-//                            Log.d("catch Events.DeletedContactIsRestored event, updating contacts list...")
-//                            getAndDisplayAllContacts()
-//                        }
-                        is Events.OnClickCheckboxContactList -> {
-                            Log.d("catch Events.OnClickCheckboxContactList event")
-                            updateContactsListForTrip(`object`.contactId, `object`.isChecked)
-                        }
-                    }
-                }
-
-        compositeDisposable.add(subscriptionToBus)
     }
 
     fun restoreLastDeletedContact() {

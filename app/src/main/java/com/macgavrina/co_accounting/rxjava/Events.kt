@@ -5,20 +5,11 @@ import com.macgavrina.co_accounting.room.Debt
 import com.macgavrina.co_accounting.room.Trip
 
 object Events {
-    class TripIsAdded(inputTrip: Trip) {
-        val trip = inputTrip
-    }
-
-    class TripIsUpdated(inputTripId: String, inputIsCurrent: Boolean) {
-        val tripId = inputTripId
-        val isCurrent = inputIsCurrent
-    }
 
     class OnClickTripList(inputTripId: String) {
         val tripId = inputTripId
     }
 
-    //ToDo REFACT add subcategories
     class FromRegisterToLoginEvent(enteredLogin: String?) {
         val myEnteredLogin = enteredLogin
     }
@@ -54,14 +45,8 @@ object Events {
         val myUid: String? = uid
     }
 
-    class ContactEditingIsFinished{}
-
     class ContactIsDeleted(inputContact: Contact) {
         val contact = inputContact
-    }
-
-    class DebtIsDeleted(inputDebt: Debt) {
-        val debt = inputDebt
     }
 
     class OnClickDebtItemList(uid: String?) {
@@ -73,11 +58,6 @@ object Events {
     class DebtIsAdded
 
     class AddTrip
-
-    class AddDebtReceiverWithAmountListIsChanged(positionInList: Int, newText: String) {
-        val myPositionInList = positionInList
-        val myNewText = newText
-    }
 
     class AddReceiverButtonInAddDebtFragment(uid: Int) {
         val myUid = uid
@@ -95,32 +75,17 @@ object Events {
 
     class AddDebtFragmentRequiresRefresh
 
-    class onClickSelectedReceiverOnAddExpenseFragment(contact: Contact) {
+    class OnClickSelectedReceiverOnAddExpenseFragment(contact: Contact) {
         val myContact = contact
     }
 
     class DeletedContactIsRestored
-
-    class DeletedDebtIsRestored
 
     class OnClickSwitchTripList(inputTripId: String, inputSwitchIsChecked: Boolean) {
         val tripId = inputTripId
         val switchIsChecked = inputSwitchIsChecked
     }
 
-    class TripIsDeleted(inputTrip: Trip) {
-        val trip = inputTrip
-    }
-
-    class OnClickCheckboxContactList(inputContactId: String, inputIsChecked: Boolean) {
-        val contactId = inputContactId
-        val isChecked = inputIsChecked
-    }
-
     class OnClickCheckboxCurrency(val currencyId: Int, val isChecked: Boolean)
-
-    //class SetupLastUsedCurrency(val currencyId: Int)
-
-    class OnClickCurrencyInDebt(val currencyId: Int)
 
 }

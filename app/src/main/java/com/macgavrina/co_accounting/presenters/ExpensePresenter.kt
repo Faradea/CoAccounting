@@ -13,7 +13,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.observers.DisposableMaybeObserver
 import io.reactivex.schedulers.Schedulers
-import java.text.DecimalFormat
 
 class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddReceiverInAddDebtContract.Presenter {
 
@@ -62,8 +61,8 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
                                 getView()?.initializeNotSelectedReceiversList(notSelectedContactsList)
                                 getView()?.initializeSelectedReceiversList(selectedContactsList, amountPerPerson)
                             }
-                            is Events.onClickSelectedReceiverOnAddExpenseFragment -> {
-                                Log.d("Catch Events.onClickSelectedReceiverOnAddExpenseFragment event")
+                            is Events.OnClickSelectedReceiverOnAddExpenseFragment -> {
+                                Log.d("Catch Events.OnClickSelectedReceiverOnAddExpenseFragment event")
                                 val contact = `object`.myContact
                                 selectedContactsList.remove(contact)
                                 notSelectedContactsList.add(contact)

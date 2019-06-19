@@ -34,7 +34,7 @@ class SelectedReceiversRecyclerViewAdapter (contactsList: List<Contact>?, amount
         }
 
         override fun onClick(view: View) {
-            MainApplication.bus.send(Events.onClickSelectedReceiverOnAddExpenseFragment(mItem!!))
+            MainApplication.bus.send(Events.OnClickSelectedReceiverOnAddExpenseFragment(mItem!!))
         }
 
     }

@@ -26,18 +26,11 @@ class ContactsRecyclerViewAdapter:
 
         val friendAliasTV = view.contacts_list_item_title_tv
         val friendEmailTV = view.contacts_list_item_email_tv
-        val linkedToCurrentTripCheckBox = view.contacts_list_item_linked_to_current_trip_checkBox
         private var mItem: Contact? = null
 
         init {
             view.setOnClickListener{
                 MainApplication.bus.send(Events.OnClickContactList(mItem?.uid.toString()))
-            }
-
-            linkedToCurrentTripCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
-                if (buttonView != null && mItem != null && mItem!!.uid != null) {
-                    MainApplication.bus.send(Events.OnClickCheckboxContactList(mItem?.uid.toString(), isChecked))
-                }
             }
         }
 
@@ -70,7 +63,6 @@ class ContactsRecyclerViewAdapter:
 
         holder.friendAliasTV.text = item.alias
         holder.friendEmailTV.text = item.email
-        holder.linkedToCurrentTripCheckBox.isChecked = item.isActiveForCurrentTrip
 
         holder.setItem(mItems!![position])
     }
