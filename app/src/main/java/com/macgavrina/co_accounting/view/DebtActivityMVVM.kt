@@ -31,6 +31,7 @@ import com.macgavrina.co_accounting.viewmodel.DebtViewModel
 import com.macgavrina.co_accounting.viewmodel.EXPENSE_ID_KEY
 import kotlinx.android.synthetic.main.add_debt_fragment.*
 import kotlinx.android.synthetic.main.debt_activity.*
+import kotlinx.android.synthetic.main.debts_fragment.*
 import java.util.*
 
 class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.OnCurrencyClickListener {
@@ -165,7 +166,7 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
 
         viewModel.getCurrentTrip().observe(this,
                 Observer<Trip> { trip ->
-                    add_debt_fragment_trip_name_tv.text = "Trip: ${trip.title}"
+                    add_debt_fragment_trip_name_tv.text = "Trip: ${trip?.title}"
                 })
     }
 
@@ -208,17 +209,38 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
         })
 
 
-        add_debt_fragment_sender_spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, id: Long) {
-                if (positionToContactIdMap[position] != null && positionToContactIdMap[position]?.uid != null) {
-                    viewModel.senderIdIsChanged(positionToContactIdMap[position]!!.uid)
+        add_debt_fragment_sender_autocompletetv.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(p0: Editable?) {
+            }
+
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                if (s != null) {
+                    if (s.isNotEmpty()) {
+                        viewModel.getAllActiveContactsForCurrentTrip().value?.forEach {contact ->
+                            if (contact.alias == s.toString()) {
+                                viewModel.senderIdIsChanged(contact.uid)
+                                return@forEach
+                            }
+                        }
+                    }
                 }
             }
+        })
 
-            override fun onNothingSelected(p0: AdapterView<*>?) {
-            }
-
-        }
+//        add_debt_fragment_sender_spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+//            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, id: Long) {
+//                if (positionToContactIdMap[position] != null && positionToContactIdMap[position]?.uid != null) {
+//                    viewModel.senderIdIsChanged(positionToContactIdMap[position]!!.uid)
+//                }
+//            }
+//
+//            override fun onNothingSelected(p0: AdapterView<*>?) {
+//            }
+//
+//        }
 
         add_debt_fragment_date_et.addTextChangedListener(object : TextWatcher {
 
@@ -352,7 +374,11 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
 
 
     private fun setSender(position: Int) {
-        add_debt_fragment_sender_spinner.setSelection(position)
+        if (positionToContactIdMap[position] != null && positionToContactIdMap[position]!!.alias != null) {
+            val senderName: String = positionToContactIdMap[position]!!.alias!!
+            add_debt_fragment_sender_autocompletetv.setText(senderName)
+            //add_debt_fragment_sender_spinner.setSelection(position)
+        }
     }
 
     private fun setExpertMode(isEnabled: Boolean) {
@@ -508,15 +534,19 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
 
         private fun setupSenderSpinner(contactsList: Array<String?>) {
 
+
+            add_debt_fragment_sender_autocompletetv.setOnClickListener {
+                add_debt_fragment_sender_autocompletetv.forceFiltering()
+            }
+
+
             val adapter = ArrayAdapter<String>(
                     MainApplication.applicationContext(),
-                    android.R.layout.simple_spinner_item,
+                    R.layout.dropdown_menu_popup_item,
                     contactsList
             )
 
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-
-            add_debt_fragment_sender_spinner.adapter = adapter
+            add_debt_fragment_sender_autocompletetv.setAdapter(adapter)
 
             if (viewModel.getCurrentDebt().value != null && viewModel.getCurrentDebt().value!!.senderId != -1) {
                 if (contactIdToPositionMap[viewModel.getCurrentDebt().value!!.senderId] == null) return

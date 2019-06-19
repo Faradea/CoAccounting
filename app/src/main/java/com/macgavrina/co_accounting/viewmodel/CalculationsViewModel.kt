@@ -29,7 +29,14 @@ class CalculationsViewModel(application: Application) : AndroidViewModel(MainApp
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe ({ tripsList ->
-                        this.tripsList.value = tripsList
+                        tripsList.forEach { trip ->
+                            if (trip.isCurrent) {
+                                this.tripsList.value = tripsList
+                                return@subscribe
+                            }
+                        }
+                        Log.d("There is no current list in the trips list")
+                        setupCurrentTrip(tripsList)
                     }, {error ->
                         Log.d("Error getting trips list, $error")
                     })
@@ -55,6 +62,14 @@ class CalculationsViewModel(application: Application) : AndroidViewModel(MainApp
                 TripRepository().updateTripIsCurrentField(trip.uid.toString(), true)
                 TripRepository().disableAllTripsExceptOne(trip.uid.toString())
             }
+        }
+    }
+
+    private fun setupCurrentTrip(tripsList: List<Trip>) {
+        if (tripsList.isNotEmpty()) {
+            TripRepository().updateTripIsCurrentField(tripsList[0].uid.toString(), true)
+            tripsList[0].isCurrent = true
+            this.tripsList.value = tripsList
         }
     }
 

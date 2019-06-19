@@ -19,7 +19,8 @@
             android:name=".view.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask"
-            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar">
+            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -31,7 +32,8 @@
             android:label="@string/title_activity_debt"
             android:launchMode="singleTask"
             android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"
-            android:windowSoftInputMode="adjustPan">
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="com.macgavrina.indebt.DEBT" />
 
@@ -72,7 +74,8 @@
             android:label="@string/title_activity_expense"
             android:launchMode="singleTask"
             android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"
-            android:windowSoftInputMode="adjustPan">
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="com.macgavrina.indebt.EXPENSE" />
 
@@ -83,7 +86,8 @@
             android:windowSoftInputMode="adjustPan"
             android:launchMode="singleTask"
             android:label="Contact"
-            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar">
+            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="com.macgavrina.indebt.CONTACT" />
 
@@ -94,7 +98,8 @@
             android:launchMode="singleTask"
             android:label="Trip"
             android:windowSoftInputMode="adjustPan"
-            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar">
+            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="com.macgavrina.indebt.TRIP" />
 
@@ -104,7 +109,8 @@
         <activity android:name=".view.CurrencyActivity"
             android:launchMode="singleTask"
             android:label="Currencies"
-            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar">
+            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="com.macgavrina.indebt.CURRENCY" />
 
