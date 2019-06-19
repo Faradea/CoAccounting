@@ -22,7 +22,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.adapters.ActiveCurrenciesRecyclerViewAdapter
+import com.macgavrina.co_accounting.adapters.ContactsRecyclerViewAdapter
+import com.macgavrina.co_accounting.adapters.NotSelectedReceiversWithOnClickRecyclerViewAdapter
+import com.macgavrina.co_accounting.adapters.SelectedReceiversWithOnClickRecyclerViewAdapter
 import com.macgavrina.co_accounting.logging.Log
+import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.room.Currency
 import com.macgavrina.co_accounting.room.Debt
 import com.macgavrina.co_accounting.room.Trip
@@ -32,6 +36,10 @@ import com.macgavrina.co_accounting.viewmodel.TripsViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_trip.*
+import kotlinx.android.synthetic.main.add_receiver_dialog_fragment.*
+import kotlinx.android.synthetic.main.add_receiver_dialog_fragment.simple_expenses_list_selected_members_lv
+import kotlinx.android.synthetic.main.contacts_fragment.*
+import kotlinx.android.synthetic.main.simple_expenses_list.*
 import kotlinx.android.synthetic.main.trip_fragment.*
 
 class TripActivity : AppCompatActivity() {
@@ -96,6 +104,54 @@ class TripActivity : AppCompatActivity() {
                     } else {
                         trip_fragment_empty_currencies_list.visibility = View.VISIBLE
                     }
+                })
+
+//        val contactsAdapter = ContactsRecyclerViewAdapter()
+//        trip_fragment_contacts_list.adapter = contactsAdapter
+//        trip_fragment_contacts_list.layoutManager = LinearLayoutManager(MainApplication.applicationContext())
+//
+//        viewModel.getAllContactsForCurrentTrip().observe(this,
+//                Observer<List<Contact>> { contactsList ->
+//                    contactsAdapter.setContacts(contactsList)
+//
+//                    Log.d("contactsList size = ${contactsList.size}")
+////                    if (contactsList.isNotEmpty()) {
+////                        contacts_fragment_empty_list_layout.visibility = View.INVISIBLE
+////                    } else {
+////                        contacts_fragment_empty_list_layout.visibility = View.VISIBLE
+////                    }
+//                })
+
+        val viewManagerForSelected = LinearLayoutManager(MainApplication.applicationContext())
+        trip_fragment_list_selected_members_lv.layoutManager = viewManagerForSelected
+
+        viewModel.getSelectedContactsForCurrentTrip().observe(this,
+                Observer {contactsList ->
+                    trip_fragment_list_selected_members_lv.adapter = NotSelectedReceiversWithOnClickRecyclerViewAdapter(contactsList,
+                            object: NotSelectedReceiversWithOnClickRecyclerViewAdapter.OnNotSelectedContactClickListener {
+                                override fun onNotSelectedContactClick(selectedContact: Contact) {
+                                    viewModel.onSelectedContactClick(selectedContact)
+                                }
+
+                            })
+                    if (contactsList == null || contactsList.isEmpty()) {
+                        trip_fragment_contacts_list_empty_list_layout.visibility = View.VISIBLE
+                    } else {
+                        trip_fragment_contacts_list_empty_list_layout.visibility = View.INVISIBLE
+                    }
+                })
+
+        val viewManagerForNotSelected = LinearLayoutManager(MainApplication.applicationContext())
+        trip_fragment_list_notselected_members_lv.layoutManager = viewManagerForNotSelected
+
+        viewModel.getNotSelectedContactsForCurrentTrip().observe(this,
+                Observer {contactsList ->
+                    trip_fragment_list_notselected_members_lv.adapter = NotSelectedReceiversWithOnClickRecyclerViewAdapter(contactsList, object: NotSelectedReceiversWithOnClickRecyclerViewAdapter.OnNotSelectedContactClickListener {
+                        override fun onNotSelectedContactClick(selectedContact: Contact) {
+                            viewModel.onNotSelectedContactClick(selectedContact)
+                        }
+
+                    })
                 })
     }
 

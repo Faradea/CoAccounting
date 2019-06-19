@@ -9,6 +9,7 @@ import com.macgavrina.co_accounting.room.ContactDAO
 import com.macgavrina.co_accounting.room.ContactToTripRelation
 import io.reactivex.Completable
 import io.reactivex.CompletableObserver
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -27,6 +28,33 @@ class ContactRepository {
     fun getAllContactsForCurrentTrip(): LiveData<List<Contact>> {
         Log.d("getAllContactsForCurrentTrip, allContactsForCurrentTrip.value.size = ${allContactsForCurrentTrip.value?.size}")
         return allContactsForCurrentTrip
+    }
+
+    fun getAllActiveContactsForTrip(tripId: Int): Single<List<Contact>> {
+        return contactDao.getAllActiveContactsForTrip(tripId)
+    }
+
+    fun unbindAllContactsFromTrip(tripId: Int): Completable {
+        return contactDao.unbindAllContactsFromTrip(tripId)
+    }
+
+    fun bindContactsToTrip(contacts: List<Contact>, tripId: Int): Completable {
+
+        val contactToTripRelationList = mutableListOf<ContactToTripRelation>()
+        contacts.forEach { contact ->
+            val contactToTripRelation = ContactToTripRelation(contact.uid, tripId)
+            contactToTripRelationList.add(contactToTripRelation)
+        }
+
+        return contactDao.bindContactsToTrip(*contactToTripRelationList!!.toTypedArray())
+    }
+
+    fun getAllNotActiveContactsForTrip(tripId: Int): Single<List<Contact>> {
+        return contactDao.getAllNotActiveContactsForTrip(tripId)
+    }
+
+    fun getAllContactsWithIsUsedForTrip(tripId: Int): Single<List<Contact>> {
+        return contactDao.getAllContactsWithIsUsedForTrip(tripId)
     }
 
     fun getAllActiveContactsForCurrentTrip(): LiveData<List<Contact>> {

@@ -6,8 +6,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.logging.Log
+import com.macgavrina.co_accounting.repositories.ContactRepository
 import com.macgavrina.co_accounting.repositories.CurrencyRepository
 import com.macgavrina.co_accounting.repositories.TripRepository
+import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.room.Currency
 import com.macgavrina.co_accounting.room.Trip
 import com.macgavrina.co_accounting.support.DateFormatter
@@ -23,6 +25,9 @@ class TripViewModel(application: Application) : AndroidViewModel(MainApplication
 
     private var currentTrip = MutableLiveData<Trip>()
     private var currencies = MutableLiveData<List<Currency>>()
+    private var contacts = MutableLiveData<List<Contact>>()
+    private var selectedContacts = MutableLiveData<List<Contact>>()
+    private var notSelectedContacts = MutableLiveData<List<Contact>>()
     private var allTripsAmount: Int = 0
 
     init {
@@ -61,6 +66,48 @@ class TripViewModel(application: Application) : AndroidViewModel(MainApplication
                     Log.d("Error getting currencies list for trip from DB, $error")
                 })
         )
+
+        compositeDisposable.add(ContactRepository().getAllContactsWithIsUsedForTrip(tripId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe ({ contactsList ->
+                    contacts.value = contactsList
+                }, { error ->
+                    Log.d("Error getting contacts list from DB, $error")
+                })
+        )
+
+        compositeDisposable.add(ContactRepository().getAllActiveContactsForTrip(tripId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe ({ contactsList ->
+                    selectedContacts.value = contactsList
+                }, { error ->
+                    Log.d("Error getting active for trip contacts list from DB, $error")
+                })
+        )
+
+        compositeDisposable.add(ContactRepository().getAllNotActiveContactsForTrip(tripId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe ({ contactsList ->
+                    notSelectedContacts.value = contactsList
+                }, { error ->
+                    Log.d("Error getting not-active for trip contacts list from DB, $error")
+                })
+        )
+    }
+
+    fun getAllContactsForCurrentTrip(): LiveData<List<Contact>> {
+        return contacts
+    }
+
+    fun getSelectedContactsForCurrentTrip(): LiveData<List<Contact>> {
+        return selectedContacts
+    }
+
+    fun getNotSelectedContactsForCurrentTrip(): LiveData<List<Contact>> {
+        return notSelectedContacts
     }
 
     fun getCurrentTrip(): LiveData<Trip> {
@@ -120,6 +167,8 @@ class TripViewModel(application: Application) : AndroidViewModel(MainApplication
                     Log.d("Error updating trip, $error")
                 })
         )
+
+        recreateContactsForTripRelations(currentTrip.value!!.uid)
     }
 
     fun tripTitleIsChanged(newTitle: String) {
@@ -133,6 +182,32 @@ class TripViewModel(application: Application) : AndroidViewModel(MainApplication
     fun enddateIsChanged(newValue: String) {
         currentTrip.value?.enddate = DateFormatter().getTimestampFromFormattedDate(newValue)
     }
+
+    fun onSelectedContactClick(contact: Contact) {
+        Log.d("onSelectedContact click, contact = $contact")
+
+        val selectedContactsListTemp = selectedContacts.value?.toMutableList()
+        selectedContactsListTemp?.remove(contact)
+        selectedContacts.value = selectedContactsListTemp
+
+        val notSelectedContactsListTemp = notSelectedContacts.value?.toMutableList()
+        notSelectedContactsListTemp?.add(contact)
+        notSelectedContacts.value = notSelectedContactsListTemp
+    }
+
+    fun onNotSelectedContactClick(contact: Contact) {
+        Log.d("onNotSelectedContact click, contact = $contact")
+
+        val selectedContactsListTemp = selectedContacts.value?.toMutableList()
+        selectedContactsListTemp?.add(contact)
+        selectedContacts.value = selectedContactsListTemp
+
+        val notSelectedContactsListTemp = notSelectedContacts.value?.toMutableList()
+        notSelectedContactsListTemp?.remove(contact)
+        notSelectedContacts.value = notSelectedContactsListTemp
+    }
+
+
     override fun onCleared() {
         super.onCleared()
         compositeDisposable.clear()
@@ -159,6 +234,35 @@ class TripViewModel(application: Application) : AndroidViewModel(MainApplication
                             currentTrip.value = trip
                         }, {error ->
                             Log.d("Error getting trip draft, $error")
+                        })
+        )
+    }
+
+    private fun recreateContactsForTripRelations(tripId: Int) {
+
+        compositeDisposable.add(
+                ContactRepository().unbindAllContactsFromTrip(tripId)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe({
+                            if (selectedContacts.value != null) {
+                                bindSelectedContactsToTrip(selectedContacts.value!!, tripId)
+                            }
+                        }, {error ->
+                            Log.d("Error unbinding all contacts from trip, $error")
+                        })
+        )
+    }
+
+    private fun bindSelectedContactsToTrip(contacts: List<Contact>, tripId: Int) {
+        compositeDisposable.add(
+                ContactRepository().bindContactsToTrip(contacts, tripId)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe({
+                            Log.d("Contacts for trip are updated")
+                        }, {error ->
+                            Log.d("Error binding contacts to trip, $error")
                         })
         )
     }
