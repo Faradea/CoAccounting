@@ -11,7 +11,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -31,7 +30,6 @@ import com.macgavrina.co_accounting.viewmodel.DebtViewModel
 import com.macgavrina.co_accounting.viewmodel.EXPENSE_ID_KEY
 import kotlinx.android.synthetic.main.add_debt_fragment.*
 import kotlinx.android.synthetic.main.debt_activity.*
-import kotlinx.android.synthetic.main.debts_fragment.*
 import java.util.*
 
 class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.OnCurrencyClickListener {
@@ -82,7 +80,11 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
 
         when (item.itemId) {
             R.id.action_menu_done -> {
-                doneButtonIsPressed()
+                if (add_debt_fragment_sender_autocompletetv.text.isNotEmpty()) {
+                    doneButtonIsPressed()
+                } else {
+                    add_debt_fragment_sender_lil.error = "Select who paid"
+                }
                 return true
             }
         }
@@ -168,6 +170,12 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
                 Observer<Trip> { trip ->
                     add_debt_fragment_trip_name_tv.text = "Trip: ${trip?.title}"
                 })
+
+
+        viewModel.getSenderForCurrentTrip().observe(this,
+                Observer { contact ->
+                    add_debt_fragment_sender_autocompletetv.setText(contact.alias)
+                })
     }
 
     private fun setOnClickListeners() {
@@ -219,6 +227,7 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
             override fun onTextChanged(s: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 if (s != null) {
                     if (s.isNotEmpty()) {
+                        add_debt_fragment_sender_lil.error = null
                         viewModel.getAllActiveContactsForCurrentTrip().value?.forEach {contact ->
                             if (contact.alias == s.toString()) {
                                 viewModel.senderIdIsChanged(contact.uid)
@@ -315,18 +324,6 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
     private fun displayDebtData(debt: Debt) {
         this.debtId = debt.uid
         Log.d("Displaying debt = $debt")
-        if (senderId == null) {
-            if (debt.senderId != -1 && ::friendsList.isInitialized) {
-
-                if (::contactIdToPositionMap.isInitialized && debt != null && contactIdToPositionMap.isNotEmpty() && contactIdToPositionMap[debt.senderId.toInt()] != null) {
-                    setSender(contactIdToPositionMap[debt.senderId.toInt()]!!)
-                }
-            }
-
-            if (debt.senderId == -1 && ::friendsList.isInitialized) {
-                setSender(0)
-            }
-        }
 
         setExpertMode(debt.expertModeIsEnabled)
 
@@ -373,7 +370,11 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
     }
 
 
-    private fun setSender(position: Int) {
+    private fun setSender(position: Int?) {
+        if (position == null) {
+            add_debt_fragment_sender_autocompletetv.setText("")
+            return
+        }
         if (positionToContactIdMap[position] != null && positionToContactIdMap[position]!!.alias != null) {
             val senderName: String = positionToContactIdMap[position]!!.alias!!
             add_debt_fragment_sender_autocompletetv.setText(senderName)
@@ -548,10 +549,10 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
 
             add_debt_fragment_sender_autocompletetv.setAdapter(adapter)
 
-            if (viewModel.getCurrentDebt().value != null && viewModel.getCurrentDebt().value!!.senderId != -1) {
-                if (contactIdToPositionMap[viewModel.getCurrentDebt().value!!.senderId] == null) return
-                setSender(contactIdToPositionMap[viewModel.getCurrentDebt().value!!.senderId]!!)
-            }
+//            if (viewModel.getCurrentDebt().value != null && viewModel.getCurrentDebt().value!!.senderId != -1) {
+//                if (contactIdToPositionMap[viewModel.getCurrentDebt().value!!.senderId] == null) return
+//                setSender(contactIdToPositionMap[viewModel.getCurrentDebt().value!!.senderId]!!)
+//            }
         }
 
         private fun displayExpensesForExpertMode() {

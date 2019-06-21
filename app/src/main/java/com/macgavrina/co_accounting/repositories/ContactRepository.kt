@@ -9,6 +9,7 @@ import com.macgavrina.co_accounting.room.ContactDAO
 import com.macgavrina.co_accounting.room.ContactToTripRelation
 import io.reactivex.Completable
 import io.reactivex.CompletableObserver
+import io.reactivex.Maybe
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -62,8 +63,11 @@ class ContactRepository {
     }
 
     fun getContactById(contactId: String): LiveData<Contact> {
-
         return contactDao.getContactByIds(contactId)
+    }
+
+    fun getContactByIdRx(contactId: Int): Maybe<Contact> {
+        return contactDao.getContactByIdRx(contactId)
     }
 
     fun insertContact(contact: Contact): Completable {

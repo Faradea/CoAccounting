@@ -15,6 +15,9 @@ interface ContactDAO {
     @Query("SELECT * FROM contact WHERE uid IN (:contactId)")
     fun getContactByIds(contactId: String): LiveData<Contact>
 
+    @Query("SELECT * FROM contact WHERE uid IN (:contactId)")
+    fun getContactByIdRx(contactId: Int): Maybe<Contact>
+
     @Insert
     fun insertContact(contact: Contact)
 

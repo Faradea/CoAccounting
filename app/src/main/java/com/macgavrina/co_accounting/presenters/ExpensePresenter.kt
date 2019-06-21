@@ -331,8 +331,10 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
 
                 val contactId = receiversWithAmount.contactId
                 val contact: Contact? = contactsListToIdMap!![contactId.toString()]
-                selectedContactsList.add(contact!!)
-                notSelectedContactsList.remove(contact)
+                if (contact != null) {
+                    selectedContactsList.add(contact!!)
+                    notSelectedContactsList.remove(contact)
+                }
             }
 
             amountPerPerson = (getView()?.getAmount() ?:0.0) / selectedContactsList.size

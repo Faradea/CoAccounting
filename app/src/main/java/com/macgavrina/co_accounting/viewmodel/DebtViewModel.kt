@@ -32,6 +32,7 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
     private var debtDate: String = ""
     private var debtTime: String = ""
     private var currentTrip = TripRepository().getCurrentTripLiveData()
+    private var senderForCurrentTrip = MutableLiveData<Contact>()
 
     private var expenseForSimpleMode: MutableLiveData<Expense> = MutableLiveData()
     private var selectedContactsForSimpleExpense: MutableLiveData<List<Contact>> = MutableLiveData()
@@ -73,6 +74,10 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
         return debtSpentAmountForSimpleExpense
     }
 
+    fun getSenderForCurrentTrip(): MutableLiveData<Contact> {
+        return senderForCurrentTrip
+    }
+
     fun debtIdIsReceivedFromIntent(debtId: Int) {
 
         val subscription = debtRepository.getDebtByIdRx(debtId)
@@ -82,6 +87,8 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
                     Log.d("Debt data is received from DB, debt = $debt")
                     expensesList = expenseRepository.getAllExpensesForDebt(debt.uid)
                     currentDebt.value = debt
+
+                    initializeSender(debt.senderId)
                 }, { error ->
                     snackbarMessage.value = "Database error"
                     Log.d("Error getting debt data from server, error = $error")
@@ -156,6 +163,21 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
         compositeDisposable.add(subscription)
     }
 
+
+    private fun initializeSender(senderId: Int) {
+        if (senderId != -1) {
+            compositeDisposable.add(
+                    contactsRepository.getContactByIdRx(senderId)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe ({ sender ->
+                                senderForCurrentTrip.value = sender
+                            }, {error ->
+                                Log.d("Error getting contact data for debt sender, error = $error")
+                            })
+            )
+        }
+    }
 
     private fun createDebtDraft() {
         val subscription = debtRepository.createDebtDraft()
