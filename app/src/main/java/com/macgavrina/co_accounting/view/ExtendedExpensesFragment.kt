@@ -14,6 +14,7 @@ import com.macgavrina.co_accounting.R
 import com.macgavrina.co_accounting.adapters.ExpensesRecyclerViewAdapter
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.Expense
+import com.macgavrina.co_accounting.support.MoneyFormatter
 import com.macgavrina.co_accounting.viewmodel.DebtViewModel
 import kotlinx.android.synthetic.main.expended_expenses_list.*
 
@@ -57,6 +58,19 @@ class ExtendedExpensesFragment: Fragment(), ExpensesRecyclerViewAdapter.OnExpens
             }
         }
 
+        viewModel.getExpensesSum()?.observe(viewLifecycleOwner,
+                Observer<Double> { expensesSum ->
+                    if (expensesSum != null) {
+                        setTextForRemains(expensesSum, viewModel.getCurrentDebt().value?.spentAmount
+                                ?: 0.0)
+                    }
+                })
+
+        viewModel.getDebtSpentAmountForSimpleExpense().observe(viewLifecycleOwner,
+                Observer<Double> { debtAmount ->
+                    setTextForRemains(viewModel.getExpensesSum()?.value ?: 0.0, debtAmount)
+                })
+
     }
 
     override fun onExpenseClick(expense: Expense) {
@@ -80,5 +94,15 @@ class ExtendedExpensesFragment: Fragment(), ExpensesRecyclerViewAdapter.OnExpens
         }
 
         startActivity(intent)
+    }
+
+    private fun setTextForRemains(expensesSum: Double, debtSum: Double) {
+        if (expensesSum != debtSum) {
+            val textForRemains = "Total: ${MoneyFormatter.formatAmountForReadOnlyText(expensesSum)} / " +
+                    "${MoneyFormatter.formatAmountForReadOnlyText(debtSum)}"
+            add_debt_fragment_remains_tv.text = textForRemains
+        } else {
+            add_debt_fragment_remains_tv.text = ""
+        }
     }
 }

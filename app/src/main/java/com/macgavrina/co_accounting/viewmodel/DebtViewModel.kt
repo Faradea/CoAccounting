@@ -9,6 +9,7 @@ import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.repositories.*
 import com.macgavrina.co_accounting.room.*
 import com.macgavrina.co_accounting.support.DateFormatter
+import com.macgavrina.co_accounting.support.MoneyFormatter
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -33,6 +34,7 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
     private var debtTime: String = ""
     private var currentTrip = TripRepository().getCurrentTripLiveData()
     private var senderForCurrentTrip = MutableLiveData<Contact>()
+    private var expensesSum: LiveData<Double>? = null
 
     private var expenseForSimpleMode: MutableLiveData<Expense> = MutableLiveData()
     private var selectedContactsForSimpleExpense: MutableLiveData<List<Contact>> = MutableLiveData()
@@ -78,6 +80,10 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
         return senderForCurrentTrip
     }
 
+    fun getExpensesSum(): LiveData<Double>? {
+        return expensesSum
+    }
+
     fun debtIdIsReceivedFromIntent(debtId: Int) {
 
         val subscription = debtRepository.getDebtByIdRx(debtId)
@@ -89,6 +95,9 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
                     currentDebt.value = debt
 
                     initializeSender(debt.senderId)
+
+                    expensesSum = expenseRepository.getExpensesSumForDebt(debtId)
+
                 }, { error ->
                     snackbarMessage.value = "Database error"
                     Log.d("Error getting debt data from server, error = $error")

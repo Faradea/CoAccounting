@@ -79,6 +79,10 @@ class ExpenseRepository {
         }
     }
 
+    fun getExpensesSumForDebt(debtId: Int): LiveData<Double> {
+        return expenseDao.getExpensesSumForDebt(debtId)
+    }
+
 
 
 //    fun getDebtById(debtId: Int): LiveData<Debt> {

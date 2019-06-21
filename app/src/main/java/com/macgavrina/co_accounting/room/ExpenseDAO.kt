@@ -78,4 +78,7 @@ interface ExpenseDAO {
 
     @Query("SELECT expense.uid, expense.debtId, expense.comment, expense.expenseName, group_concat(contact.alias, \", \") as receiversList, expense.totalAmount FROM expense LEFT JOIN receiverwithamountfordb ON receiverwithamountfordb.expenseId = expense.uid INNER JOIN contact ON receiverwithamountfordb.contactId = contact.uid WHERE expense.uid IN (:expenseId) GROUP BY receiverwithamountfordb.expenseId")
     fun getExpenseByIds(expenseId: Int): Maybe<Expense>
+
+    @Query("select SUM(totalAmount) from expense where debtId = :debtId")
+    fun getExpensesSumForDebt(debtId: Int): LiveData<Double>
 }
