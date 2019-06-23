@@ -43,6 +43,7 @@ class TripViewModel(application: Application) : AndroidViewModel(MainApplication
     }
 
     fun tripIdIsReceivedFromActivity(tripId: Int) {
+        Log.d("TripId is received from activity, = $tripId")
         compositeDisposable.add(TripRepository().getTripByIdRx(tripId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -51,8 +52,8 @@ class TripViewModel(application: Application) : AndroidViewModel(MainApplication
                 }, {error ->
                     Log.d("Error getting trip by id = $tripId, error = $error")
                 }, {
-                    Log.d("No trip with such id in DB, creating new one")
-                    createTripDraft()
+                    Log.d("No trip with such id in DB, use draft")
+                    getTripDraftAsCurrentTrip()
                 })
         )
 
@@ -226,14 +227,19 @@ class TripViewModel(application: Application) : AndroidViewModel(MainApplication
     }
 
     private fun getTripDraftAsCurrentTrip() {
+        Log.d("Getting trip draft as current trip...")
         compositeDisposable.add(
                 TripRepository().getTripDraftRx()
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe({trip ->
+                            Log.d("Trip draft is received from DB: $trip")
                             currentTrip.value = trip
                         }, {error ->
                             Log.d("Error getting trip draft, $error")
+                        }, {
+                            Log.d("There is no trip draft in DB, so create a new one")
+                            createTripDraft()
                         })
         )
     }

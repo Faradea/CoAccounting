@@ -91,7 +91,7 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ debt ->
                     Log.d("Debt data is received from DB, debt = $debt")
-                    expensesList = expenseRepository.getAllExpensesForDebt(debt.uid)
+                    expensesList = expenseRepository.getAllExpensesForDebt(debtId)
                     currentDebt.value = debt
 
                     initializeSender(debt.senderId)
@@ -161,6 +161,7 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
                 .subscribe({ debt ->
                     Log.d("Debt draft is received from DB, debt = $debt")
                     expensesList = expenseRepository.getAllExpensesForDebt(debt.uid)
+                    expensesSum = expenseRepository.getExpensesSumForDebt(debt.uid)
                     currentDebt.value = debt
                 }, { error ->
                     snackbarMessage.value = "Database error"

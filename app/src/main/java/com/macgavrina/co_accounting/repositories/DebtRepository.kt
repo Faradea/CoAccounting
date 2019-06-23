@@ -6,6 +6,7 @@ import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.ContactToTripRelation
 import com.macgavrina.co_accounting.room.Debt
 import com.macgavrina.co_accounting.room.DebtDAO
+import com.macgavrina.co_accounting.support.MoneyFormatter
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Single
@@ -44,6 +45,8 @@ class DebtRepository {
     }
 
     fun updateDebtInDB(debt: Debt) {
+
+        debt.spentAmount = MoneyFormatter.justRound(debt.spentAmount)
 
         TripRepository().getCurrentTrip()
                 .observeOn(AndroidSchedulers.mainThread())

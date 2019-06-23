@@ -145,6 +145,7 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
                     if (currenciesList.isEmpty()) {
                         Log.d("Currencies list is empty, show alert")
                         showAlertAndGoToCurrencies("Please specify at least one currency for the trip first")
+                        return@Observer
                     }
 
                     val debt = viewModel.getCurrentDebt().value
@@ -158,7 +159,7 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
                     } else {
                         currenciesAdapter.setCurrencies(currenciesList)
 
-                        if (currenciesList.isNotEmpty() && currenciesList[0].lastUsedCurrencyId < 1) {
+                        if (currenciesList[0].lastUsedCurrencyId < 1) {
                             viewModel.onCurrencyClick(currenciesList[0].uid)
                         } else {
                             viewModel.onCurrencyClick(currenciesList[0].lastUsedCurrencyId)

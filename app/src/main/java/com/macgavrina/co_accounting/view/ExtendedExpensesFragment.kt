@@ -99,7 +99,9 @@ class ExtendedExpensesFragment: Fragment(), ExpensesRecyclerViewAdapter.OnExpens
     }
 
     private fun setTextForRemains(expensesSum: Double, debtSum: Double) {
-        val remains = debtSum - expensesSum
+        Log.d("Set text for remains, expensesSum = $expensesSum, debtSum = $debtSum")
+
+        val remains = MoneyFormatter.justRound(debtSum) - expensesSum
 
         if (remains == 0.0) {
             add_debt_fragment_remains_tv.text = ""

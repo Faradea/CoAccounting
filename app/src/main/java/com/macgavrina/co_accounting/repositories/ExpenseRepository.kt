@@ -2,7 +2,9 @@ package com.macgavrina.co_accounting.repositories
 
 import androidx.lifecycle.LiveData
 import com.macgavrina.co_accounting.MainApplication
+import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.*
+import com.macgavrina.co_accounting.support.MoneyFormatter
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Single
@@ -58,6 +60,8 @@ class ExpenseRepository {
     }
 
     fun updateExpense(expense: Expense): Completable {
+        expense.totalAmount = MoneyFormatter.justRound(expense.totalAmount)
+        Log.d("Expense after rounding = $expense")
         return Completable.fromAction {
             expenseDao.updateExpense(expense)
         }
@@ -68,8 +72,17 @@ class ExpenseRepository {
     }
 
     fun addReceiversWithAmountList(receiversWithAmountList: List<ReceiverWithAmountForDB>): Completable {
+
+        val receiversWithAmountListRounded = mutableListOf<ReceiverWithAmountForDB>()
+        receiversWithAmountList.forEach { receiverWithAmount ->
+            receiverWithAmount.amount = MoneyFormatter.justRound(receiverWithAmount.amount)
+            receiversWithAmountListRounded.add(receiverWithAmount)
+        }
+
+        Log.d("ReceiverWithAmount list after rounding = $receiversWithAmountListRounded")
+
         return Completable.fromAction {
-            MainApplication.db.receiverWithAmountForDBDAO().insertAll(*receiversWithAmountList!!.toTypedArray())
+            MainApplication.db.receiverWithAmountForDBDAO().insertAll(*receiversWithAmountListRounded!!.toTypedArray())
         }
     }
 

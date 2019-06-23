@@ -3,6 +3,7 @@ package com.macgavrina.co_accounting.support
 import android.icu.text.DecimalFormat
 import android.os.Build
 import com.macgavrina.co_accounting.logging.Log
+import kotlin.math.roundToInt
 
 object MoneyFormatter {
 
@@ -23,5 +24,9 @@ object MoneyFormatter {
         } else {
             return amount.toString()
         }
+    }
+
+    fun justRound(amount: Double): Double {
+        return (((amount * 100).roundToInt())/100.0)
     }
 }

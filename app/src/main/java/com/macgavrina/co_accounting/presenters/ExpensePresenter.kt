@@ -7,6 +7,7 @@ import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.room.Expense
 import com.macgavrina.co_accounting.room.ReceiverWithAmountForDB
 import com.macgavrina.co_accounting.rxjava.Events
+import com.macgavrina.co_accounting.support.MoneyFormatter
 import io.reactivex.Completable
 import io.reactivex.CompletableObserver
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -221,6 +222,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
                                         override fun onSuccess(uid: Int) {
                                             receiversWithAmountList?.forEach { receiversWithAmount ->
                                                 receiversWithAmount.expenseId = uid.toString()
+                                                receiversWithAmount.amount = MoneyFormatter.justRound(receiversWithAmount.amount)
                                             }
 
                                             Log.d("Saving receiverWithAmountList for expenseId = $uid")
@@ -258,7 +260,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
                 getView()?.showAlertAndFinishSelfWithCallback("Selected contacts list is empty, expense will be deleted")
                 return
             }
-            expense!!.totalAmount = getView()?.getAmount() ?: 0.0
+            expense!!.totalAmount = MoneyFormatter.justRound(getView()?.getAmount() ?: 0.0)
             expense!!.comment = getView()?.getComment() ?: ""
             expense!!.debtId = debtId
 
@@ -286,6 +288,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
                                         Log.d("Old receivers with amount are deleted, number = $numberOfDeleteRows")
                                         receiversWithAmountList?.forEach { receiversWithAmount ->
                                             receiversWithAmount.expenseId = expense?.uid.toString()
+                                            receiversWithAmount.amount = MoneyFormatter.justRound(receiversWithAmount.amount)
                                         }
 
                                         Log.d("Adding new list, size = ${receiversWithAmountList.size}")
