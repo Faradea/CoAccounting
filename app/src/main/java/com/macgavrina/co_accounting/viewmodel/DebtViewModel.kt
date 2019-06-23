@@ -106,14 +106,17 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
     }
 
     fun expenseIdForSimpleModeIsReceivedFromIntent(expenseId: Int) {
+        Log.d("expenseIdForSimpleModeIsReceivedFromIntent, $expenseId")
         val subscription = expenseRepository.getExpenseByIdRx(expenseId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ expense ->
                     Log.d("Expense data is received from DB, debt = $expense")
-                    initSelectedContactsForExpense(expense.uid)
-                    initNotSelectedContactsForExpense(expense.uid)
-                    expenseForSimpleMode.value = expense
+                    if (selectedContactsForSimpleExpense.value == null && notSelectedContactsForSimpleExpense.value == null) {
+                        initSelectedContactsForExpense(expense.uid)
+                        initNotSelectedContactsForExpense(expense.uid)
+                        expenseForSimpleMode.value = expense
+                    }
                 }, { error ->
                     snackbarMessage.value = "Database error"
                     Log.d("Error getting debt data from server, error = $error")
@@ -150,8 +153,11 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
     }
 
     fun expenseIdForSimpleModeIsNotReceivedFromIntent() {
-        initSelectedContactsForExpense(-1)
-        initNotSelectedContactsForExpense(-1)
+        Log.d("expenseIdForSimpleModeIsNotReceivedFromIntent")
+        if (selectedContactsForSimpleExpense.value == null && notSelectedContactsForSimpleExpense.value == null) {
+            initSelectedContactsForExpense(-1)
+            initNotSelectedContactsForExpense(-1)
+        }
     }
 
     fun debtIdIsNotReceivedFromIntent() {
