@@ -9,7 +9,6 @@ import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.repositories.*
 import com.macgavrina.co_accounting.room.*
 import com.macgavrina.co_accounting.support.DateFormatter
-import com.macgavrina.co_accounting.support.MoneyFormatter
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -29,7 +28,8 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
     private var currentDebt: MutableLiveData<Debt> = MutableLiveData()
     private var currenciesList: LiveData<List<Currency>> = CurrencyRepository().getAllActiveCurrenciesWithLastUsedMarkerForCurrentTrip()
     private var contactsList = contactsRepository.getAllActiveContactsForCurrentTrip()
-    private var expensesList: LiveData<List<Expense>>? = null
+    private var expensesListForSimpleMode: LiveData<List<Expense>>? = null
+    private var expensesListForExpertMode: LiveData<List<Expense>>? = null
     private var debtDate: String = ""
     private var debtTime: String = ""
     private var currentTrip = TripRepository().getCurrentTripLiveData()
@@ -57,11 +57,12 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
         return currentDebt
     }
 
-    fun getExpensesList(): LiveData<List<Expense>>? {
-        if (expensesList?.value != null) {
-            Log.d("Getting expenses list, size = ${expensesList!!.value!!.size}, value = ${expensesList?.value}")
-        }
-        return expensesList
+    fun getExpensesListForSimpleMode(): LiveData<List<Expense>>? {
+        return expensesListForSimpleMode
+    }
+
+    fun getExpensesListForExpertMode(): LiveData<List<Expense>>? {
+        return expensesListForExpertMode
     }
 
     fun getSelectedContactsForExpense(): MutableLiveData<List<Contact>> {
@@ -91,12 +92,13 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ debt ->
                     Log.d("Debt data is received from DB, debt = $debt")
-                    expensesList = expenseRepository.getAllExpensesForDebt(debtId)
+                    expensesListForSimpleMode = expenseRepository.getAllExpensesForDebtSimpleMode(debtId)
+                    expensesListForExpertMode = expenseRepository.getAllExpensesForDebtExpertMode(debtId)
                     currentDebt.value = debt
 
                     initializeSender(debt.senderId)
 
-                    expensesSum = expenseRepository.getExpensesSumForDebt(debtId)
+                    expensesSum = expenseRepository.getExpensesSumForDebtAndExpertMode(debtId)
 
                 }, { error ->
                     snackbarMessage.value = "Database error"
@@ -166,8 +168,10 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ debt ->
                     Log.d("Debt draft is received from DB, debt = $debt")
-                    expensesList = expenseRepository.getAllExpensesForDebt(debt.uid)
-                    expensesSum = expenseRepository.getExpensesSumForDebt(debt.uid)
+                    expensesListForSimpleMode = expenseRepository.getAllExpensesForDebtSimpleMode(debt.uid)
+                    expensesListForExpertMode = expenseRepository.getAllExpensesForDebtExpertMode(debt.uid)
+
+                    expensesSum = expenseRepository.getExpensesSumForDebtAndExpertMode(debt.uid)
                     currentDebt.value = debt
                 }, { error ->
                     snackbarMessage.value = "Database error"
@@ -299,15 +303,29 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
             }
             currentDebt.value?.status = debtStatus
             debtRepository.updateDebtInDB(currentDebt.value!!)
-        }
 
-        if (currentDebt.value != null && !currentDebt.value!!.expertModeIsEnabled) {
-            deleteAllExpensesAndSaveNewOneForSimpleMode()
-        } else {
-            debtRepository.checkDebtCorrectness(currentDebt.value!!)
+
+            if (!currentDebt.value!!.expertModeIsEnabled) {
+                deleteAllExpensesAndSaveNewOneForSimpleMode()
+            } else {
+                deleteAllExpensesForSimpleMode(currentDebt.value!!.uid)
+            }
         }
     }
 
+    private fun deleteAllExpensesForSimpleMode(debtId: Int) {
+        compositeDisposable.add(
+                expenseRepository.deleteAllExpensesForDebtAndSimpleMode(debtId)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe({
+                            Log.d("All expenses for simple mode are deleted")
+                            debtRepository.checkDebtCorrectness(currentDebt.value!!)
+                        }, {error ->
+                            Log.d("Error deleting expenses for simple mode, $error")
+                        })
+        )
+    }
     private fun dateTimeIsChanged() {
         if (debtDate.isNotEmpty()) {
 

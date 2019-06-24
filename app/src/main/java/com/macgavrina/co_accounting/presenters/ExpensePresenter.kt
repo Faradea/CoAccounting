@@ -197,6 +197,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
             expense!!.totalAmount = getView()?.getAmount() ?: 0.0
             expense!!.comment = getView()?.getComment() ?: ""
             expense!!.debtId = debtId
+            expense!!.isForExpertMode = true
 
             Log.d("Adding new expense to DB, expense = $expense")
 
@@ -263,6 +264,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
             expense!!.totalAmount = MoneyFormatter.justRound(getView()?.getAmount() ?: 0.0)
             expense!!.comment = getView()?.getComment() ?: ""
             expense!!.debtId = debtId
+            expense!!.isForExpertMode = true
 
             Log.d("Updating existing expense in DB, $expense")
             Completable.fromAction {

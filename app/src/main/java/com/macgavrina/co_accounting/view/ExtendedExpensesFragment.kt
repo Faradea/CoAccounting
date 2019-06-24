@@ -41,7 +41,7 @@ class ExtendedExpensesFragment: Fragment(), ExpensesRecyclerViewAdapter.OnExpens
         add_debt_fragment_reciever_recyclerview.adapter = adapter
         add_debt_fragment_reciever_recyclerview.layoutManager = LinearLayoutManager(MainApplication.applicationContext())
 
-        viewModel.getExpensesList()?.observe(viewLifecycleOwner,
+        viewModel.getExpensesListForExpertMode()?.observe(viewLifecycleOwner,
                 Observer<List<Expense>> { expensesList ->
                     Log.d("expenses list size = ${expensesList.size}, value = $expensesList")
                     adapter.setExpenses(expensesList)

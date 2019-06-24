@@ -587,7 +587,7 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
             if (viewModel.getCurrentDebt().value?.expertModeIsEnabled == true) return
 
             if (expensesListSize == -1) {
-                viewModel.getExpensesList()?.observe(this,
+                viewModel.getExpensesListForSimpleMode()?.observe(this,
                         Observer { expensesList ->
                             Log.d("Expenses list is received from DB, size = ${expensesList.size}")
                             expensesListSize = expensesList.size

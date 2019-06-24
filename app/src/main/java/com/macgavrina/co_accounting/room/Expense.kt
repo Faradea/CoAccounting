@@ -42,7 +42,12 @@ class Expense {
         set
         get
 
+    @ColumnInfo(name = "isForExpertMode")
+    public var isForExpertMode: Boolean = false
+        set
+        get
+
     override fun toString(): String {
-        return "debtId = $debtId, expenseName = $expenseName, receiversList = $receiversList, totalAmount = $totalAmount"
+        return "debtId = $debtId, expenseName = $expenseName, receiversList = $receiversList, totalAmount = $totalAmount, isForExpertMode = $isForExpertMode"
     }
 }

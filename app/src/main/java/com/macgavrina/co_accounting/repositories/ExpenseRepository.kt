@@ -21,11 +21,19 @@ class ExpenseRepository {
         return expenseDao.getExpenseByIds(expenseId)
     }
 
-    fun getAllExpensesForDebt(debtId: Int): LiveData<List<Expense>> {
+    fun getAllExpensesForDebtSimpleMode(debtId: Int): LiveData<List<Expense>> {
         if (debtId != -1) {
-            return expenseDao.getExpensesForDebt(debtId, ", ")
+            return expenseDao.getExpensesForDebt(debtId, ", ", false)
         } else {
-            return expenseDao.getExpensesForDebtDraft(", ")
+            return expenseDao.getExpensesForDebtDraft(", ", false)
+        }
+    }
+
+    fun getAllExpensesForDebtExpertMode(debtId: Int): LiveData<List<Expense>> {
+        if (debtId != -1) {
+            return expenseDao.getExpensesForDebt(debtId, ", ", true)
+        } else {
+            return expenseDao.getExpensesForDebtDraft(", ", true)
         }
     }
 
@@ -92,8 +100,12 @@ class ExpenseRepository {
         }
     }
 
-    fun getExpensesSumForDebt(debtId: Int): LiveData<Double> {
-        return expenseDao.getExpensesSumForDebt(debtId)
+    fun deleteAllExpensesForDebtAndSimpleMode(debtId: Int): Completable {
+        return expenseDao.deleteExpensesForDebtAndSimpleMode(debtId)
+    }
+
+    fun getExpensesSumForDebtAndExpertMode(debtId: Int): LiveData<Double> {
+        return expenseDao.getExpensesSumForDebtAndExpertMode(debtId)
     }
 
 
