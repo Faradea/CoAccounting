@@ -302,7 +302,9 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
         }
 
         if (currentDebt.value != null && !currentDebt.value!!.expertModeIsEnabled) {
-            saveExpenseFromSimpleMode()
+            deleteAllExpensesAndSaveNewOneForSimpleMode()
+        } else {
+            debtRepository.checkDebtCorrectness(currentDebt.value!!)
         }
     }
 
@@ -338,13 +340,40 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
         }
     }
 
+    private fun deleteAllExpensesAndSaveNewOneForSimpleMode() {
+
+        if (currentDebt.value == null) return
+        compositeDisposable.add(
+                expenseRepository.deleteAllExpensesForDebt(currentDebt.value!!.uid)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe({
+                            Log.d("All expenses are deleted from debt")
+                            expenseForSimpleMode.value = null
+                            saveExpenseFromSimpleMode()
+                        }, { error ->
+                            Log.d("Error deleting expenses for debt before saving simple mode, $error")
+                        })
+        )
+    }
+
     private fun saveExpenseFromSimpleMode() {
         Log.d("Saving expense for simple mode, expense = ${expenseForSimpleMode.value}, selectedContactsList size = ${selectedContactsForSimpleExpense.value?.size}")
 
         if (expenseForSimpleMode.value == null || expenseForSimpleMode.value!!.uid  == -1) {
 
-            if (selectedContactsForSimpleExpense.value == null) return
-            if (selectedContactsForSimpleExpense.value!!.isEmpty()) return
+            if (selectedContactsForSimpleExpense.value == null) {
+                if (currentDebt.value != null) {
+                    debtRepository.checkDebtCorrectness(currentDebt.value!!)
+                }
+                return
+            }
+            if (selectedContactsForSimpleExpense.value!!.isEmpty()) {
+                if (currentDebt.value != null) {
+                    debtRepository.checkDebtCorrectness(currentDebt.value!!)
+                }
+                return
+            }
 
             val expense = Expense()
             compositeDisposable.add(
@@ -393,7 +422,7 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe ({
-                    Log.d("All expenses are deleted for debt")
+                    Log.d("All expenses are deleted for debt, selectedContactsForSimpleExpense.value?.isEmpty() = ${selectedContactsForSimpleExpense.value?.isEmpty()}")
                 }, {
                     Log.d("Error deleting expenses for debt, $it")
                     toastMessage.postValue("DB error")
@@ -441,7 +470,7 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
     }
 
     private fun addReceiversWithAmountForExpense(expense: Expense) {
-        Log.d("Adding receivers with amount for expense, $expense, selectedContactList size = ${selectedContactsForSimpleExpense.value?.size}")
+        Log.d("Adding receivers with amount for expenseId = ${expense.uid}, expense = $expense, selectedContactList size = ${selectedContactsForSimpleExpense.value?.size}")
 
         val receiversWithAmountList = mutableListOf<ReceiverWithAmountForDB>()
 
@@ -454,6 +483,7 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
             receiverWithAmount.contactId = contact.uid
             receiverWithAmount.amount = ((currentDebt.value?.spentAmount ?: 0.0) / selectedContactsForSimpleExpense.value!!.size)
             receiversWithAmountList.add(receiverWithAmount)
+            Log.d("receiverWithAmount: expenseId = ${receiverWithAmount.expenseId}, debtId = ${receiverWithAmount.debtId}, contactId = ${receiverWithAmount.contactId}")
         }
 
 
@@ -464,6 +494,7 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe ({
                             Log.d("Receivers list is added, total was ${receiversWithAmountList.size}")
+                            debtRepository.checkDebtCorrectness(currentDebt.value!!)
                         }, {
                             Log.d("Error adding receivers list, $it")
                         })

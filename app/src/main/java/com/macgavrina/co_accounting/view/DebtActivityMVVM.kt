@@ -208,8 +208,8 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
             override fun onTextChanged(s: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 if (s != null) {
                     if (s.isNotEmpty()) {
-                        val newValue = s.toString().replace(",", ".").toDouble()
-                        viewModel.debtSpentAmountIsChanged(newValue)
+                        val newValue = s.toString().replace(",", ".").toDoubleOrNull()
+                        viewModel.debtSpentAmountIsChanged(newValue ?: 0.0)
                     } else {
                         viewModel.debtSpentAmountIsChanged(0.0)
                     }

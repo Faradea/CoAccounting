@@ -64,7 +64,6 @@ class DebtRepository {
                                         .subscribeOn(Schedulers.io())
                                         .subscribe({
                                             Log.d("Debt is updated, debt = $debt")
-                                            checkDebtCorrectness(debt)
                                         }, { error ->
                                             Log.d("Error updating debt, $error")
                                         })
@@ -97,7 +96,7 @@ class DebtRepository {
                 })
     }
 
-    private fun checkDebtCorrectness(debt: Debt) {
+    fun checkDebtCorrectness(debt: Debt) {
 
         Log.d("Checking debt correctness")
         ExpenseRepository().getExpensesTotalAmountForDebt(debt.uid)
