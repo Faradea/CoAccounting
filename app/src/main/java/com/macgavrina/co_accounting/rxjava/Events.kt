@@ -88,4 +88,6 @@ object Events {
 
     class OnClickCheckboxCurrency(val currencyId: Int, val isChecked: Boolean)
 
+    class DefaultTripIsCreated
+
 }

@@ -5,9 +5,11 @@ import androidx.room.RoomDatabase
 import androidx.room.Database
 import androidx.room.Room
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.repositories.CurrencyRepository
 import com.macgavrina.co_accounting.repositories.TripRepository
+import com.macgavrina.co_accounting.rxjava.Events
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
@@ -68,6 +70,7 @@ abstract class AppDatabase : RoomDatabase() {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe ({
                         Log.d("Default trip is created")
+                        MainApplication.bus.send(Events.DefaultTripIsCreated())
                     }, {
                         Log.d("Error creating default trip, $it")
                     })

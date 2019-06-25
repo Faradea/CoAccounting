@@ -36,6 +36,8 @@ class DebtsFragmentMVVM: Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
+        Log.d("DebtsFragment onActivityCreated")
+
         viewModel = ViewModelProviders.of(this).get(DebtsViewModel::class.java)
 
         hideProgress()
@@ -120,6 +122,8 @@ class DebtsFragmentMVVM: Fragment() {
     }
 
     private fun setTripsList(tripsList: List<Trip>) {
+
+        Log.d("Setting trips list...")
 
         debts_fragment_trip_autocompletetv.setOnClickListener {
             debts_fragment_trip_autocompletetv.forceFiltering()

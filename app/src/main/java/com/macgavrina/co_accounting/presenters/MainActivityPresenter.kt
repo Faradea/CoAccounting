@@ -135,6 +135,10 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
                                 Log.d("Catch Events.OnClickTripList event")
                                 getView()?.displayAddTripFragment(`object`.tripId)
                             }
+                            is Events.DefaultTripIsCreated -> {
+                                Log.d("Catch Events.DefaultTripIsCreated event")
+                                getView()?.gotoDebtsAsInitialScreen()
+                            }
 //                            is Events.ContactCannotBeDisableForTrip -> {
 //                                Log.d("Catch Events.ContactCannotBeDisableForTrip event")
 //                                getView()?.displayAlert("Contact can't be disabled for trip until it used for debts", "Contact can't be disabled for trip")
@@ -176,6 +180,23 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
 
     override fun viewIsReady() {
         UserProvider().loadUser(this)
+    }
+
+    override fun viewIsCreated() {
+        super.viewIsCreated()
+        TripRepository().getAllRx()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ tripsList ->
+                    if (!tripsList.isNullOrEmpty()) {
+                        Log.d("Go to debts as initial screen")
+                        getView()?.gotoDebtsAsInitialScreen()
+                    } else {
+                        Log.d("Trip view is empty")
+                    }
+                }, {error ->
+                    Log.d("Error getting trips from DB, $error")
+                })
     }
 
     override fun headerIsClicked() {

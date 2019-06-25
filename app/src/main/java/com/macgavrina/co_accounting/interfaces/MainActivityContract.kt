@@ -51,6 +51,7 @@ interface MainActivityContract {
         fun displayAlert(text: String, title: String)
 
         fun displayCalculationsFragment()
+        fun gotoDebtsAsInitialScreen()
     }
 
     interface Presenter:BasePresenterContract<View> {

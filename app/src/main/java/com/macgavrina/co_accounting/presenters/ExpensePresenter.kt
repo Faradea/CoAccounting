@@ -3,6 +3,7 @@ package com.macgavrina.co_accounting.presenters
 import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.interfaces.AddReceiverInAddDebtContract
 import com.macgavrina.co_accounting.logging.Log
+import com.macgavrina.co_accounting.repositories.ExpenseRepository
 import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.room.Expense
 import com.macgavrina.co_accounting.room.ReceiverWithAmountForDB
@@ -121,7 +122,6 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
                                         Log.d("Receivers with amount are received from DB, size = ${receiversWithAmountList.size}")
                                         this@ExpensePresenter.receiversWithAmountList = receiversWithAmountList as MutableList<ReceiverWithAmountForDB>
                                         receiversWithAmountListIsLoaded = true
-                                        updateReceiverWithAmountListWithDataFromDB()
                                     }
 
                                     override fun onError(e: Throwable) {
@@ -144,7 +144,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
     }
 
     override fun amountIsEdited(newAmount: Double) {
-        Log.d("Amount is edited, new value = $newAmount")
+        Log.d("Amount is edited, new value = $newAmount, selectedContactsList size = ${selectedContactsList.size}")
         if (selectedContactsList.isNotEmpty()) {
             amountPerPerson = newAmount/selectedContactsList.size
             getView()?.initializeSelectedReceiversList(selectedContactsList, amountPerPerson)
@@ -153,7 +153,8 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
     }
 
     override fun viewIsReady() {
-        getAndDisplayAllContacts()
+        getAndDisplayAllSelectedContacts()
+        getAndDisplayAllNotSelectedContacts()
         getView()?.hideDeleteButton()
     }
 
@@ -328,61 +329,71 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
         deleteCurrentExpense()
     }
 
-    private fun updateReceiverWithAmountListWithDataFromDB() {
+//    private fun updateReceiverWithAmountListWithDataFromDB() {
+//
+//        if (receiversWithAmountListIsLoaded && contactsListIsLoaded) {
+//
+//            receiversWithAmountList.forEach { receiversWithAmount ->
+//
+//                val contactId = receiversWithAmount.contactId
+//                val contact: Contact? = contactsListToIdMap!![contactId.toString()]
+//                if (contact != null) {
+//                    selectedContactsList.add(contact!!)
+//                    notSelectedContactsList.remove(contact)
+//                }
+//            }
+//
+//            amountPerPerson = (getView()?.getAmount() ?:0.0) / selectedContactsList.size
+//
+//            getView()?.initializeNotSelectedReceiversList(notSelectedContactsList)
+//            getView()?.initializeSelectedReceiversList(selectedContactsList, amountPerPerson)
+//
+//        }
+//
+//        ExpenseRepository().getSelectedContactsForExpenseRx(expenseId)
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe ({ selectedContactsList ->
+//                    Log.d("Selected contacts list is received from DB")
+//                    selectedContactsForSimpleExpense.value = selectedContactsList
+//                }, {error ->
+//                    Log.d("Error getting selected contact list from DB, error = $error")
+//                })
+//    }
 
-        if (receiversWithAmountListIsLoaded && contactsListIsLoaded) {
-
-            receiversWithAmountList.forEach { receiversWithAmount ->
-
-                val contactId = receiversWithAmount.contactId
-                val contact: Contact? = contactsListToIdMap!![contactId.toString()]
-                if (contact != null) {
-                    selectedContactsList.add(contact!!)
-                    notSelectedContactsList.remove(contact)
-                }
-            }
-
-            amountPerPerson = (getView()?.getAmount() ?:0.0) / selectedContactsList.size
-
-            getView()?.initializeNotSelectedReceiversList(notSelectedContactsList)
-            getView()?.initializeSelectedReceiversList(selectedContactsList, amountPerPerson)
-
-        }
-    }
-
-    private fun getAndDisplayAllContacts() {
-
-        Log.d("Getting all contacts from DB...")
-        MainApplication.db.contactDAO().getActiveContactsForCurrentTripRx()
+    private fun getAndDisplayAllSelectedContacts() {
+        if (expenseId == null) return
+        ExpenseRepository().getSelectedContactsForExpenseRx(expenseId!!)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(object : DisposableMaybeObserver<List<com.macgavrina.co_accounting.room.Contact>>() {
-                    override fun onSuccess(contactsList: List<com.macgavrina.co_accounting.room.Contact>) {
-                        Log.d("Contacts are received, size = ${contactsList.size}")
-                        this@ExpensePresenter.contactsList = contactsList
-                        amountPerPerson = 0.0
-                        notSelectedContactsList.clear()
-                        selectedContactsList.clear()
-
-                        contactsListToIdMap = mutableMapOf()
-                        contactsList.forEach { contact ->
-                            contactsListToIdMap!![contact.uid.toString()] = contact
-                            notSelectedContactsList.add(contact)
-                        }
-                        getView()?.initializeNotSelectedReceiversList(contactsList)
-
-                        contactsListIsLoaded = true
-                        updateReceiverWithAmountListWithDataFromDB()
+                .subscribe ({ selectedContactsList ->
+                    Log.d("Selected contacts list is received from DB")
+                    this.selectedContactsList.clear()
+                    this.selectedContactsList.addAll(selectedContactsList)
+                    if (selectedContactsList.isNotEmpty()) {
+                        amountPerPerson = (expense?.totalAmount ?:0.0) / selectedContactsList.size
+                        getView()?.initializeSelectedReceiversList(selectedContactsList, amountPerPerson)
                     }
-
-                    override fun onError(e: Throwable) {
-                        Log.d("Error receiving contacts, $e")
-                    }
-
-                    override fun onComplete() {
-                        Log.d("No contacts in DB")
-                    }
+                }, {error ->
+                    Log.d("Error getting selected contact list from DB, error = $error")
                 })
+    }
+
+    private fun getAndDisplayAllNotSelectedContacts() {
+
+        Log.d("Getting all contacts from DB...")
+        if (expenseId == null) return
+        ExpenseRepository().getNotSelectedContactsForExpenseRx(expenseId!!)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ notSelectedContacts ->
+                    this.notSelectedContactsList.clear()
+                    this.notSelectedContactsList.addAll(notSelectedContacts)
+                    getView()?.initializeNotSelectedReceiversList(notSelectedContactsList)
+                }, {error ->
+                    Log.d("Error getting not selected contacts from DB. $error")
+                })
+
     }
 
     private fun deleteCurrentExpense() {

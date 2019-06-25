@@ -18,6 +18,7 @@ import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.nav_header_main.view.*
 import android.content.Intent
 import com.google.android.material.snackbar.Snackbar
+import com.macgavrina.co_accounting.logging.Log
 import kotlinx.android.synthetic.main.content_main.*
 
 
@@ -55,9 +56,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         nav_view.setNavigationItemSelectedListener(this)
 
         presenter.viewIsCreated()
-
-        nav_view.menu.getItem(1).isChecked = true
-        presenter.gotoDebts(true)
     }
 
     override fun onResume() {
@@ -114,6 +112,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 presenter.gotoContactsEvent()
             }
             R.id.nav_debts -> {
+                Log.d("Debts is selected in navigation menu")
                 presenter.gotoDebts(false)
             }
             R.id.nav_events -> {
@@ -133,11 +132,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         presenter.detachView()
     }
 
+    override fun gotoDebtsAsInitialScreen() {
+        Log.d("Go to debts as initial screen")
+        nav_view.menu.getItem(1).isChecked = true
+        presenter.gotoDebts(true)
+    }
+
     override fun updateLoginText(login: String) {
         nav_view.getHeaderView(0).nav_header_main_tv.text = login
     }
 
     override fun displayProfileFragment() {
+        title = resources.getString(R.string.app_name)
         val supportFragmentManager = supportFragmentManager
         supportFragmentManager.beginTransaction()
                 .add(R.id.content_main_constraint_layout, ProfileFragment())
@@ -146,6 +152,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun displayContactsFragment() {
+        title = resources.getString(R.string.contacts_actionbar_title)
         clearStack()
         val supportFragmentManager = supportFragmentManager
         supportFragmentManager.beginTransaction()
@@ -155,6 +162,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun displayTripsFragment() {
+        title = resources.getString(R.string.trips_actionbar_title)
         clearStack()
         val supportFragmentManager = supportFragmentManager
         supportFragmentManager.beginTransaction()
@@ -164,6 +172,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun displayCalculationsFragment() {
+        title = resources.getString(R.string.calculations_actionbar_title)
         clearStack()
         val supportFragmentManager = supportFragmentManager
         supportFragmentManager.beginTransaction()
@@ -173,6 +182,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun displayRegisterFragment(enteredLogin: String?) {
+        title = resources.getString(R.string.app_name)
         val supportFragmentManager = supportFragmentManager
         val registerFragment = RegisterFragment()
         val bundle = Bundle()
@@ -197,6 +207,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 //    }
 
     override fun displayDebtsFragment(isInitial: Boolean) {
+        title = resources.getString(R.string.debts_actionbar_title)
         clearStack()
 
         debtFragmentIsDisplayed = true
@@ -232,7 +243,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun displayLoginFragment(enteredLogin: String?) {
-
+        title = resources.getString(R.string.app_name)
         clearStack()
 
         val loginFragment = LoginFragment()

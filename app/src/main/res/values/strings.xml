@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">in-debt</string>
+    <string name="app_name">InDebt</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">…</string>
@@ -17,4 +17,9 @@
     <string name="title_activity_expense">Expense</string>
     <string name="open_navigation_menu_tv"><u>navigation menu</u></string>
     <string name="edit_currencies_for_trip">(<u>edit</u>)</string>
+
+    <string name="contacts_actionbar_title">Contacts</string>
+    <string name="trips_actionbar_title">Trips</string>
+    <string name="calculations_actionbar_title">Calculations</string>
+    <string name="debts_actionbar_title">Debts</string>
 </resources>
