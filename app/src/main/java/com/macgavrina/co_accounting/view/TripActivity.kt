@@ -3,6 +3,7 @@ package com.macgavrina.co_accounting.view
 import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.icu.util.Calendar
 import android.os.Build
@@ -47,6 +48,7 @@ class TripActivity : AppCompatActivity() {
     private lateinit var viewModel: TripViewModel
     private var startDatePickerDialog: DatePickerDialog? = null
     private var endDatePickerDialog: DatePickerDialog? = null
+    private var alertDialog: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -163,8 +165,7 @@ class TripActivity : AppCompatActivity() {
 
         trip_fragment_delete_fab.setOnClickListener { view ->
             if (viewModel.isTripCanBeDeleted()) {
-                viewModel.deleteTrip()
-                finishSelf()
+                showAlertBeforeDelete("Delete trip?")
             } else {
                 displayAlertDialog("The only one trip can't be deleted")
             }
@@ -411,6 +412,22 @@ class TripActivity : AppCompatActivity() {
 
         } else {
             TODO("VERSION.SDK_INT < N")
+        }
+    }
+
+    private fun showAlertBeforeDelete(alertText: String) {
+        if (alertDialog == null || alertDialog?.isShowing == false) {
+            val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
+            alertDialogBuilder.setMessage(alertText)
+            alertDialogBuilder.setPositiveButton("Delete") { _, _ ->
+                viewModel.deleteTrip()
+                finishSelf()
+            }
+            alertDialogBuilder.setNegativeButton("Cancel") { _: DialogInterface, _: Int ->
+                alertDialog?.dismiss()
+            }
+            alertDialog = alertDialogBuilder.create()
+            alertDialog?.show()
         }
     }
 

@@ -3,6 +3,7 @@ package com.macgavrina.co_accounting.view
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable
@@ -182,12 +183,11 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
     private fun setOnClickListeners() {
         debt_fragment_delete_fab.setOnClickListener { view ->
             Log.d("Delete button is pressed")
-            viewModel.deleteDebt()
-            finishSelf()
+            showAlertBeforeDelete("Delete debt?")
         }
 
         debt_fragment_clear_fab.setOnClickListener { view ->
-            viewModel.clearDebtDraft()
+            showAlertBeforeClearDraft("Clear debt draft?")
         }
 
         add_debt_fragment_date_et.setOnClickListener { view ->
@@ -478,7 +478,6 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
         if (alertDialog == null || alertDialog?.isShowing == false) {
             val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
             alertDialogBuilder.setMessage(alertText)
-                    .setTitle("Alert")
             alertDialogBuilder.setPositiveButton("Ok") { _, _ ->
                 //ToDo NEW открывать вкладку contacts после этого
                 finishSelf()
@@ -492,10 +491,40 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
         if (alertDialog == null || alertDialog?.isShowing == false) {
             val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
             alertDialogBuilder.setMessage(alertText)
-                    .setTitle("Alert")
             alertDialogBuilder.setPositiveButton("Ok") { _, _ ->
                 //ToDo NEW открывать вкладку currencies после этого
                 finishSelf()
+            }
+            alertDialog = alertDialogBuilder.create()
+            alertDialog?.show()
+        }
+    }
+
+    private fun showAlertBeforeDelete(alertText: String) {
+        if (alertDialog == null || alertDialog?.isShowing == false) {
+            val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
+            alertDialogBuilder.setMessage(alertText)
+            alertDialogBuilder.setPositiveButton("Delete") { _, _ ->
+                viewModel.deleteDebt()
+                finishSelf()
+            }
+            alertDialogBuilder.setNegativeButton("Cancel") { _: DialogInterface, _: Int ->
+                alertDialog?.dismiss()
+            }
+            alertDialog = alertDialogBuilder.create()
+            alertDialog?.show()
+        }
+    }
+
+    private fun showAlertBeforeClearDraft(alertText: String) {
+        if (alertDialog == null || alertDialog?.isShowing == false) {
+            val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
+            alertDialogBuilder.setMessage(alertText)
+            alertDialogBuilder.setPositiveButton("Clear") { _, _ ->
+                viewModel.clearDebtDraft()
+            }
+            alertDialogBuilder.setNegativeButton("Cancel") { _: DialogInterface, _: Int ->
+                alertDialog?.dismiss()
             }
             alertDialog = alertDialogBuilder.create()
             alertDialog?.show()

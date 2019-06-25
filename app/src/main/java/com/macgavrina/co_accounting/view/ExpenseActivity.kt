@@ -1,6 +1,7 @@
 package com.macgavrina.co_accounting.view
 
 import android.content.Context
+import android.content.DialogInterface
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -66,7 +67,7 @@ class ExpenseActivity : AppCompatActivity(), AddReceiverInAddDebtContract.View, 
         add_receiver_dialog_fragment_amount_et.addTextChangedListener(this)
 
         add_receiver_dialog_fragment_delete_fab.setOnClickListener { _ ->
-            presenter.deleteButtonIsPressed()
+            showAlertBeforeDelete("Delete expense?")
         }
 
         viewManagerForNotSelected = LinearLayoutManager(MainApplication.applicationContext())
@@ -195,6 +196,22 @@ class ExpenseActivity : AppCompatActivity(), AddReceiverInAddDebtContract.View, 
                     .setTitle("Alert")
             alertDialogBuilder.setPositiveButton("Ok") { _, _ ->
                 finishSelf()
+            }
+            alertDialog = alertDialogBuilder.create()
+            alertDialog?.show()
+        }
+    }
+
+    private fun showAlertBeforeDelete(alertText: String) {
+        if (alertDialog == null || alertDialog?.isShowing == false) {
+            val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
+            alertDialogBuilder.setMessage(alertText)
+            alertDialogBuilder.setPositiveButton("Delete") { _, _ ->
+                presenter.deleteButtonIsPressed()
+                finishSelf()
+            }
+            alertDialogBuilder.setNegativeButton("Cancel") { _: DialogInterface, _: Int ->
+                alertDialog?.dismiss()
             }
             alertDialog = alertDialogBuilder.create()
             alertDialog?.show()

@@ -1,6 +1,7 @@
 package com.macgavrina.co_accounting.view
 
 import android.content.Context
+import android.content.DialogInterface
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -26,6 +27,7 @@ class ContactActivity : AppCompatActivity() {
     private lateinit var viewModel: ContactsViewModel
     private var contactId: Int = -1
     private var contact: Contact? = null
+    private var alertDialog: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,9 +66,8 @@ class ContactActivity : AppCompatActivity() {
 
         contact_fragment_delete_fab.setOnClickListener { view ->
             if (contact != null) {
-                viewModel.safeDeleteContact(contact!!)
+                showAlertBeforeDelete("Delete contact?", contact!!)
             }
-            finishSelf()
         }
 
 //        contact_fragment_email_et.addTextChangedListener(object : TextWatcher {
@@ -195,5 +196,21 @@ class ContactActivity : AppCompatActivity() {
 //        val dialog = builder.create()
 //        dialog.show()
 //    }
+
+    private fun showAlertBeforeDelete(alertText: String, contact: Contact) {
+        if (alertDialog == null || alertDialog?.isShowing == false) {
+            val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
+            alertDialogBuilder.setMessage(alertText)
+            alertDialogBuilder.setPositiveButton("Delete") { _, _ ->
+                viewModel.safeDeleteContact(contact)
+                finishSelf()
+            }
+            alertDialogBuilder.setNegativeButton("Cancel") { _: DialogInterface, _: Int ->
+                alertDialog?.dismiss()
+            }
+            alertDialog = alertDialogBuilder.create()
+            alertDialog?.show()
+        }
+    }
 
 }
