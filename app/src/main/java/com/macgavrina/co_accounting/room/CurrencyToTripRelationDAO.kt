@@ -24,8 +24,14 @@ interface CurrencyToTripRelationDAO {
     @Query("SELECT COUNT (*) FROM currency")
     fun getAllCurrenciesListSize(): Int
 
+    @Query("SELECT * FROM currency")
+    fun getAllCurrencies(): Single<List<Currency>>
+
     @Insert
     fun insertCurrency(currency: Currency)
+
+    @Insert
+    fun insertCurrencyWithIdReturned(currency: Currency): Long
 
     @Insert
     fun addCurrencyToTripRelation(currencyToTripRelation: CurrencyToTripRelation)

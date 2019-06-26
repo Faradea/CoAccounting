@@ -104,10 +104,6 @@ class ContactRepository {
         TripRepository().getCurrentTrip()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .subscribe ({ maybeTrip ->
-                    maybeTrip
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribeOn(Schedulers.io())
                             .subscribe ({ trip ->
                                 if (isChecked) {
                                     Completable.fromAction {
@@ -135,9 +131,6 @@ class ContactRepository {
                             }, {error ->
                                 Log.d("Error getting current trip from DB, $error")
                             })
-                }, {error ->
-                    Log.d("Error getting current trip from DB, $error")
-                })
     }
 
 //    fun getTripsAmount(): Observable<Int> {

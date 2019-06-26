@@ -10,6 +10,7 @@ import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.repositories.CurrencyRepository
 import com.macgavrina.co_accounting.repositories.TripRepository
 import com.macgavrina.co_accounting.rxjava.Events
+import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
@@ -53,10 +54,7 @@ abstract class AppDatabase : RoomDatabase() {
 
 
         private fun initializeDataInDB() {
-
             createDefaultTrip()
-
-            initializeCurrenciesList()
         }
 
         private fun createDefaultTrip() {
@@ -71,28 +69,72 @@ abstract class AppDatabase : RoomDatabase() {
                     .subscribe ({
                         Log.d("Default trip is created")
                         MainApplication.bus.send(Events.DefaultTripIsCreated())
+
+                        TripRepository().getCurrentTrip()
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe({trip ->
+                                    initializeCurrenciesList(trip.uid)
+                                }, {error ->
+                                    Log.d("Error getting default trip, $error")
+                                })
                     }, {
                         Log.d("Error creating default trip, $it")
                     })
         }
 
-        private fun initializeCurrenciesList() {
+        private fun initializeCurrenciesList(tripId: Int) {
             Log.d("Initializing currencies list")
 
             val rurCurrency = Currency()
             rurCurrency.name = "RUR"
             rurCurrency.symbol = "\u20BD"
-            CurrencyRepository().insertCurrency(rurCurrency)
+                CurrencyRepository().insertCurrencyWithIdReturned(rurCurrency)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({ currencyId ->
+                        addCurrencyToTripRelation(currencyId.toInt(), tripId)
+                    }, {
+                        Log.d("Error adding RUR currency")
+                    })
 
             val eurCurrency = Currency()
             eurCurrency.name = "EUR"
             eurCurrency.symbol = "€"
-            CurrencyRepository().insertCurrency(eurCurrency)
+            CurrencyRepository().insertCurrencyWithIdReturned(eurCurrency)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({ currencyId ->
+                        addCurrencyToTripRelation(currencyId.toInt(), tripId)
+                    }, {
+                        Log.d("Error adding RUR currency")
+                    })
+
 
             val usdCurrency = Currency()
             usdCurrency.name = "USD"
             usdCurrency.symbol = "$"
-            CurrencyRepository().insertCurrency(usdCurrency)
+            CurrencyRepository().insertCurrencyWithIdReturned(usdCurrency)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({ currencyId ->
+                        addCurrencyToTripRelation(currencyId.toInt(), tripId)
+                    }, {
+                        Log.d("Error adding RUR currency")
+                    })
+        }
+
+        private fun addCurrencyToTripRelation(currencyId: Int, tripId: Int) {
+            Completable.fromAction {
+                CurrencyRepository().enableCurrencyForTrip(currencyId, tripId)
+            }
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe ({
+                        Log.d("Currency (id = $currencyId) to trip (id = $tripId) relation is added")
+                    }, {error ->
+                        Log.d("Error enabling currency for trip, $error")
+                    })
         }
     }
 }

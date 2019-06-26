@@ -5,6 +5,7 @@ import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.*
 import io.reactivex.Completable
+import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -21,6 +22,9 @@ class CurrencyRepository {
         return currencyToTripRelationDAO.getAllCurrenciesWithUsedForTripMarker(tripId)
     }
 
+    fun getAllRx(): Single<List<Currency>> {
+        return currencyToTripRelationDAO.getAllCurrencies()
+    }
     fun getAllCurrenciesForTripLiveData(tripId: Int): LiveData<List<Currency>> {
         return currencyToTripRelationDAO.getAllCurrenciesWithUsedForTripMarkerLiveData(tripId)
     }
@@ -44,6 +48,12 @@ class CurrencyRepository {
                 }, { error ->
                     Log.d("Error adding currency into DB, $error")
                 })
+    }
+
+    fun insertCurrencyWithIdReturned(currency: Currency): Single<Long> {
+        return Single.fromCallable {
+            currencyToTripRelationDAO.insertCurrencyWithIdReturned(currency)
+        }
     }
 
     fun enableCurrencyForTrip(currencyId: Int, tripId: Int) {

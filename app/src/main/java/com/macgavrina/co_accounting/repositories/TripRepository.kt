@@ -30,8 +30,8 @@ class TripRepository {
         return Observable.fromCallable { tripDao.getLastTripId("active") }
     }
 
-    fun getCurrentTrip(): Observable<Maybe<Trip>> {
-        return Observable.fromCallable { tripDao.getLastTripByIsCurrentValue(true, "active") }
+    fun getCurrentTrip(): Maybe<Trip> {
+        return tripDao.getLastTripByIsCurrentValue(true, "active")
     }
 
     fun getCurrentTripLiveData(): LiveData<Trip> {
