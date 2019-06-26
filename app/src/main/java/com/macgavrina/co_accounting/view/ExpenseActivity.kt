@@ -189,13 +189,11 @@ class ExpenseActivity : AppCompatActivity(), AddReceiverInAddDebtContract.View, 
         onBackPressed()
     }
 
-    override fun showAlertAndFinishSelf(alertText: String) {
+    override fun showAlert(alertText: String) {
         if (alertDialog == null || alertDialog?.isShowing == false) {
             val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
             alertDialogBuilder.setMessage(alertText)
-                    .setTitle("Alert")
             alertDialogBuilder.setPositiveButton("Ok") { _, _ ->
-                finishSelf()
             }
             alertDialog = alertDialogBuilder.create()
             alertDialog?.show()
@@ -218,16 +216,16 @@ class ExpenseActivity : AppCompatActivity(), AddReceiverInAddDebtContract.View, 
         }
     }
 
-    override fun showAlertAndFinishSelfWithCallback(alertText: String) {
-        if (alertDialog == null || alertDialog?.isShowing == false) {
-            val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
-            alertDialogBuilder.setMessage(alertText)
-                    .setTitle("Alert")
-            alertDialogBuilder.setPositiveButton("Ok") { _, _ ->
-                presenter.userHasReadAlertAboutDeletingExpense()
-            }
-            alertDialog = alertDialogBuilder.create()
-            alertDialog?.show()
-        }
-    }
+//    override fun showAlertAndFinishSelfWithCallback(alertText: String) {
+//        if (alertDialog == null || alertDialog?.isShowing == false) {
+//            val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
+//            alertDialogBuilder.setMessage(alertText)
+//                    .setTitle("Alert")
+//            alertDialogBuilder.setPositiveButton("Ok") { _, _ ->
+//                presenter.userHasReadAlertAboutDeletingExpense()
+//            }
+//            alertDialog = alertDialogBuilder.create()
+//            alertDialog?.show()
+//        }
+//    }
 }

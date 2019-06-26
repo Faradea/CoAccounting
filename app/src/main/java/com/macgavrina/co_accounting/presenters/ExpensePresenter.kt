@@ -94,10 +94,10 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
 
     override fun expenseIdIsReceivedFromMainActivity(expenseId: Int) {
 
-        if (expenseId == -1) return
-
         Log.d("ExpenseId is received from MainActivity, = $expenseId, getting expense data from DB...")
         this.expenseId = expenseId
+
+        if (expenseId == -1) return
 
         MainApplication.db.expenseDAO().getExpenseByIds(expenseId)
                 .subscribeOn(Schedulers.io())
@@ -191,7 +191,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
         if (expense == null) {
 
             if (selectedContactsList.isEmpty()) {
-                getView()?.showAlertAndFinishSelf("Selected contacts list is empty, expense won't be saved")
+                getView()?.showAlert("Selected contacts list is empty, expense can't be saved")
                 return
             }
             expense = Expense()
@@ -259,7 +259,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
 
         } else {
             if (selectedContactsList.isEmpty()) {
-                getView()?.showAlertAndFinishSelfWithCallback("Selected contacts list is empty, expense will be deleted")
+                getView()?.showAlert("Selected contacts list is empty, expense can't be saved")
                 return
             }
             expense!!.totalAmount = MoneyFormatter.justRound(getView()?.getAmount() ?: 0.0)
@@ -381,12 +381,13 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
 
     private fun getAndDisplayAllNotSelectedContacts() {
 
-        Log.d("Getting all contacts from DB...")
+        Log.d("Getting all contacts from DB, expenseId = $expenseId")
         if (expenseId == null) return
         ExpenseRepository().getNotSelectedContactsForExpenseRx(expenseId!!)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ notSelectedContacts ->
+                    Log.d("Not selected contacts are received from DB, size = ${notSelectedContacts.size}")
                     this.notSelectedContactsList.clear()
                     this.notSelectedContactsList.addAll(notSelectedContacts)
                     getView()?.initializeNotSelectedReceiversList(notSelectedContactsList)
