@@ -27,7 +27,8 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
 
     private var currentDebt: MutableLiveData<Debt> = MutableLiveData()
     private var currenciesList: LiveData<List<Currency>> = CurrencyRepository().getAllActiveCurrenciesWithLastUsedMarkerForCurrentTrip()
-    private var contactsList = contactsRepository.getAllActiveContactsForCurrentTrip()
+    private var contactsListForCurrentTrip = contactsRepository.getAllActiveContactsForCurrentTrip()
+    private var contactsListForAllTripsCount = contactsRepository.getAllContactsCount()
     private var expensesListForSimpleMode: LiveData<List<Expense>>? = null
     private var expensesListForExpertMode: LiveData<List<Expense>>? = null
     private var debtDate: String = ""
@@ -42,6 +43,7 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
     private var debtSpentAmountForSimpleExpense: MutableLiveData<Double> = MutableLiveData()
 
     init {
+
     }
 
     override fun onCleared() {
@@ -213,7 +215,11 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
     }
 
     fun getAllActiveContactsForCurrentTrip(): LiveData<List<Contact>> {
-        return contactsList
+        return contactsListForCurrentTrip
+    }
+
+    fun getAllContactsCount(): LiveData<Int> {
+        return contactsListForAllTripsCount
     }
 
     fun getAllActiveCurrenciesWithLastUsedMarkerForCurrentTrip(): LiveData<List<Currency>> {

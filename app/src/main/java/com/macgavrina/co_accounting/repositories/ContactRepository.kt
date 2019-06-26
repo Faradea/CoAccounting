@@ -19,16 +19,21 @@ import java.util.*
 class ContactRepository {
 
     private var contactDao: ContactDAO = MainApplication.db.contactDAO()
-
     private var allContactsForCurrentTrip: LiveData<List<Contact>>
+    private var allContactsCount: LiveData<Int>
 
     init {
         allContactsForCurrentTrip = contactDao.getContactsForCurrentTrip()
+        allContactsCount = contactDao.getAllActiveContactsCountLiveData()
     }
 
     fun getAllContactsForCurrentTrip(): LiveData<List<Contact>> {
         Log.d("getAllContactsForCurrentTrip, allContactsForCurrentTrip.value.size = ${allContactsForCurrentTrip.value?.size}")
         return allContactsForCurrentTrip
+    }
+
+    fun getAllContactsCount(): LiveData<Int> {
+        return allContactsCount
     }
 
     fun getAllActiveContactsForTrip(tripId: Int): Single<List<Contact>> {

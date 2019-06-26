@@ -12,6 +12,10 @@ interface ContactDAO {
     @Query("SELECT * FROM contact WHERE status IN (:status)")
     fun getAll(status: String): Maybe<List<Contact>>
 
+    //@Query("SELECT COUNT(*) FROM contact WHERE status = \"active\"")
+    @Query("SELECT COUNT(*) FROM contact")
+    fun getAllActiveContactsCountLiveData(): LiveData<Int>
+
     @Query("SELECT * FROM contact WHERE uid IN (:contactId)")
     fun getContactByIds(contactId: String): LiveData<Contact>
 

@@ -26,6 +26,8 @@ import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.*
 import com.macgavrina.co_accounting.room.Currency
 import com.macgavrina.co_accounting.support.DateFormatter
+import com.macgavrina.co_accounting.support.GO_TO_CONTACTS_RESULT_CODE
+import com.macgavrina.co_accounting.support.GO_TO_CURRENT_TRIP_RESULT_CODE
 import com.macgavrina.co_accounting.support.MoneyFormatter
 import com.macgavrina.co_accounting.viewmodel.DebtViewModel
 import com.macgavrina.co_accounting.viewmodel.EXPENSE_ID_KEY
@@ -54,6 +56,8 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
 
     private var expensesListSize: Int = -1
     private var expensesList = mutableListOf<Expense>()
+
+    private var allContactsForAllTripsCount: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -126,6 +130,11 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
                     if (debt != null) {
                         displayDebtData(debt)
                     }
+                })
+
+        viewModel.getAllContactsCount().observe(this,
+                Observer<Int> { allcontactsCount ->
+                    this.allContactsForAllTripsCount = allcontactsCount
                 })
 
 
@@ -478,9 +487,23 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
         if (alertDialog == null || alertDialog?.isShowing == false) {
             val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
             alertDialogBuilder.setMessage(alertText)
-            alertDialogBuilder.setPositiveButton("Ok") { _, _ ->
-                //ToDo NEW открывать вкладку contacts после этого
-                finishSelf()
+            alertDialogBuilder.setPositiveButton("Go to contacts") { _, _ ->
+                Log.d("Setting result code to $GO_TO_CONTACTS_RESULT_CODE and finishing self")
+                setResult(GO_TO_CONTACTS_RESULT_CODE)
+                finish()
+            }
+            alertDialog = alertDialogBuilder.create()
+            alertDialog?.show()
+        }
+    }
+
+    private fun showAlertAndGoToTrip(alertText: String) {
+        if (alertDialog == null || alertDialog?.isShowing == false) {
+            val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
+            alertDialogBuilder.setMessage(alertText)
+            alertDialogBuilder.setPositiveButton("Go to trip") { _, _ ->
+                setResult(GO_TO_CURRENT_TRIP_RESULT_CODE)
+                finish()
             }
             alertDialog = alertDialogBuilder.create()
             alertDialog?.show()
@@ -540,8 +563,12 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
 
     private fun displayContactsList(contactsList: List<Contact>) {
 
-        if (contactsList.isEmpty()) {
-            showAlertAndGoToContacts("Please add at least one contact first")
+        if (contactsList.isEmpty() && viewModel.getCurrentDebt().value?.status == "draft") {
+            if (allContactsForAllTripsCount != 0) {
+                showAlertAndGoToTrip("Please choose contacts for the trip first")
+            } else {
+                showAlertAndGoToContacts("Please add at least one contact first")
+            }
         }
 
         friendsList = arrayOfNulls<String>(contactsList.size)

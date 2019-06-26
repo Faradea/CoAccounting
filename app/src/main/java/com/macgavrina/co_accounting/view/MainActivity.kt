@@ -19,6 +19,12 @@ import kotlinx.android.synthetic.main.nav_header_main.view.*
 import android.content.Intent
 import com.google.android.material.snackbar.Snackbar
 import com.macgavrina.co_accounting.logging.Log
+import com.macgavrina.co_accounting.repositories.TripRepository
+import com.macgavrina.co_accounting.support.ADD_CONTACT_REQUEST_CODE
+import com.macgavrina.co_accounting.support.GO_TO_CONTACTS_RESULT_CODE
+import com.macgavrina.co_accounting.support.GO_TO_CURRENT_TRIP_RESULT_CODE
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.content_main.*
 
 
@@ -80,6 +86,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (!debtFragmentIsDisplayed) {
             debtFragmentIsDisplayed = true
             nav_view.menu.getItem(1).isChecked = true
+            title = resources.getString(R.string.debts_actionbar_title)
         }
 
         super.onBackPressed()
@@ -132,6 +139,30 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         presenter.detachView()
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        Log.d("onActivityResult, requestCode = $requestCode, resultCode = $resultCode")
+        super.onActivityResult(requestCode, resultCode, data)
+
+        when (requestCode) {
+            ADD_CONTACT_REQUEST_CODE -> {
+                if (resultCode == GO_TO_CONTACTS_RESULT_CODE) {
+                    Log.d("Go to contacts from main activity")
+                    displayContactsFragment()
+                }
+                if (resultCode == GO_TO_CURRENT_TRIP_RESULT_CODE) {
+                    Log.d("Go to current trip from main activity")
+                    TripRepository().getCurrentTrip()
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe({trip ->
+                                displayTripFragment(trip.uid)
+                            }, {error ->
+                                Log.d("Error getting current trip from DB, $error")
+                            })
+                }
+            }
+        }
+    }
     override fun gotoDebtsAsInitialScreen() {
         Log.d("Go to debts as initial screen")
         nav_view.menu.getItem(1).isChecked = true
@@ -332,6 +363,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         startActivity(intent)
     }
 
+    private fun displayTripFragment(tripId: Int) {
+        isBackPressed = false
+
+        val intent = Intent()
+        intent.action = "com.macgavrina.indebt.TRIP"
+        intent.putExtra("tripId", tripId)
+        startActivity(intent)
+    }
+
     override fun displayAddDebtFragment(debtId: String?) {
 
         isBackPressed = false
@@ -357,7 +397,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         } else {
             intent.putExtra("debtId", debtId?.toInt())
         }
-        startActivity(intent)
+        startActivityForResult(intent, ADD_CONTACT_REQUEST_CODE)
     }
 
     override fun displayAddReceiverInAddDebtFragment(debtId: Int, expenseId: Int?) {
