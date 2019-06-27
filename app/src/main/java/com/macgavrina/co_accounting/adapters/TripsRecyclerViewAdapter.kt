@@ -70,10 +70,10 @@ class TripsRecyclerViewAdapter(private var tripsViewModel: TripsViewModel) :
 
         var datesText = ""
 
-        if (item.startdate != null) {
+        if (item.startdate != 0L) {
             datesText = DateFormatter().formatDateFromTimestamp(item.startdate!!)
 
-            if (item.enddate != null) {
+            if (item.enddate != 0L) {
                 datesText = "$datesText - ${DateFormatter().formatDateFromTimestamp(item.enddate!!)}"
             }
         }

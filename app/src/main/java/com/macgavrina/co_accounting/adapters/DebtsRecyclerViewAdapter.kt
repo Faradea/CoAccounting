@@ -73,7 +73,7 @@ class DebtsRecyclerViewAdapter:
             holder.amount.text = "${MoneyFormatter.formatAmountForReadOnlyText(item.spentAmount)} ${item.currencySymbol}"
         }
 
-        if (item.datetime != null && item.datetime!!.isNotEmpty()) {
+        if (item.datetime != null && item.datetime != 0L) {
             holder.datetime.text = DateFormatter().formatDateFromTimestamp(item.datetime!!.toLong())
         } else {
             holder.datetime.text = ""

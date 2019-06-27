@@ -220,11 +220,11 @@ class TripActivity : AppCompatActivity() {
     private fun displayTrip(trip: Trip) {
         trip_fragment_title_et.setText(trip.title)
 
-        if (trip.startdate != null) {
+        if (trip.startdate != 0L) {
             trip_fragment_startdate_et.setText(DateFormatter().formatDateFromTimestamp(trip.startdate!!))
         }
 
-        if (trip.enddate != null) {
+        if (trip.enddate != 0L) {
             trip_fragment_enddate_et.setText(DateFormatter().formatDateFromTimestamp(trip.enddate!!))
         }
 

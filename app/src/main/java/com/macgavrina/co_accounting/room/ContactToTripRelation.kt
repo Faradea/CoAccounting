@@ -12,17 +12,11 @@ import androidx.room.PrimaryKey
 class ContactToTripRelation(contactId: Int, tripId: Int) {
 
     @PrimaryKey(autoGenerate = true)
-    public var uid: Int = 0
-        set
-        get
+    var uid: Int = 0
 
     @ColumnInfo(name = "tripId")
-    public var tripId: Int? = tripId
-        set
-        get
+    var tripId: Int = tripId
 
     @ColumnInfo(name = "contactId")
-    public var contactId: Int? = contactId
-        set
-        get
+    var contactId: Int = contactId
 }

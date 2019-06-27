@@ -197,7 +197,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
             expense = Expense()
             expense!!.totalAmount = getView()?.getAmount() ?: 0.0
             expense!!.comment = getView()?.getComment() ?: ""
-            expense!!.debtId = debtId
+            expense!!.debtId = debtId ?: -1
             expense!!.isForExpertMode = true
 
             Log.d("Adding new expense to DB, expense = $expense")
@@ -223,7 +223,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
                                     .subscribe(object : DisposableMaybeObserver<Int>() {
                                         override fun onSuccess(uid: Int) {
                                             receiversWithAmountList?.forEach { receiversWithAmount ->
-                                                receiversWithAmount.expenseId = uid.toString()
+                                                receiversWithAmount.expenseId = uid
                                                 receiversWithAmount.amount = MoneyFormatter.justRound(receiversWithAmount.amount)
                                             }
 
@@ -264,7 +264,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
             }
             expense!!.totalAmount = MoneyFormatter.justRound(getView()?.getAmount() ?: 0.0)
             expense!!.comment = getView()?.getComment() ?: ""
-            expense!!.debtId = debtId
+            expense!!.debtId = debtId ?: -1
             expense!!.isForExpertMode = true
 
             Log.d("Updating existing expense in DB, $expense")
@@ -290,7 +290,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
                                     .subscribe ({ numberOfDeleteRows ->
                                         Log.d("Old receivers with amount are deleted, number = $numberOfDeleteRows")
                                         receiversWithAmountList?.forEach { receiversWithAmount ->
-                                            receiversWithAmount.expenseId = expense?.uid.toString()
+                                            receiversWithAmount.expenseId = expense?.uid ?: -1
                                             receiversWithAmount.amount = MoneyFormatter.justRound(receiversWithAmount.amount)
                                         }
 

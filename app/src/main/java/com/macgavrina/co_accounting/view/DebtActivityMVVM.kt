@@ -345,9 +345,9 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
 
         setAmount(debt.spentAmount)
 
-        if (debt.datetime != null) {
-            setDate(DateFormatter().formatDateFromTimestamp(debt.datetime!!.toLong()))
-            setTime(DateFormatter().formatTimeFromTimestamp(debt.datetime!!.toLong()))
+        if (debt.datetime != 0L) {
+            setDate(DateFormatter().formatDateFromTimestamp(debt.datetime))
+            setTime(DateFormatter().formatTimeFromTimestamp(debt.datetime))
         }
 
         if (debt.comment != null) {

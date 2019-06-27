@@ -237,7 +237,7 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
         if (currentDebt.value == null) return
 
         val tempDebt = currentDebt.value!!
-        tempDebt.datetime = System.currentTimeMillis().toString()
+        tempDebt.datetime = System.currentTimeMillis()
         tempDebt.spentAmount = 0.0
         tempDebt.comment = ""
         tempDebt.senderId = -1
@@ -292,17 +292,17 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
 
     fun doneButton() {
         Log.d("Saving debt, ${currentDebt.value}")
-        saveCurrentDateWithStatus("active")
+        saveCurrentDebtWithStatus("active")
     }
 
     fun onBackPressed() {
         Log.d("Saving draft, ${currentDebt.value}")
         if (currentDebt.value?.status != "active") {
-            saveCurrentDateWithStatus("draft")
+            saveCurrentDebtWithStatus("draft")
         }
     }
 
-    private fun saveCurrentDateWithStatus(debtStatus: String) {
+    private fun saveCurrentDebtWithStatus(debtStatus: String) {
         if (currentDebt.value != null) {
             if (currentDebt.value!!.currencyId == -1) {
                 defineDefaultCurrencyForTrip()
@@ -338,14 +338,14 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
             if (debtTime.isEmpty()) {
                 val formattedDate = DateFormatter().getTimestampFromFormattedDate(debtDate)
                 if (formattedDate != null) {
-                    currentDebt.value?.datetime = formattedDate.toString()
+                    currentDebt.value?.datetime = formattedDate
                 }
             } else {
                 val formattedDateTime = DateFormatter().getTimestampFromFormattedDateTime(
                         "$debtDate $debtTime")
                 Log.d("formattedDateTime = $debtDate $debtTime, timestamp = $formattedDateTime")
                 if (formattedDateTime != null) {
-                    currentDebt.value?.datetime = formattedDateTime.toString()
+                    currentDebt.value?.datetime = formattedDateTime
                 }
             }
         }
@@ -400,6 +400,7 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
             }
 
             val expense = Expense()
+            expense.debtId = currentDebt.value?.uid ?: -1
             compositeDisposable.add(
                     expenseRepository.insertNewExpense(expense)
                             .subscribeOn(Schedulers.io())
@@ -502,8 +503,8 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
 
         selectedContactsForSimpleExpense.value?.forEach { contact ->
             val receiverWithAmount = ReceiverWithAmountForDB()
-            receiverWithAmount.expenseId = expense.uid.toString()
-            receiverWithAmount.debtId = expense.debtId.toString()
+            receiverWithAmount.expenseId = expense.uid
+            receiverWithAmount.debtId = expense.debtId
             receiverWithAmount.contactId = contact.uid
             receiverWithAmount.amount = ((currentDebt.value?.spentAmount ?: 0.0) / selectedContactsForSimpleExpense.value!!.size)
             receiversWithAmountList.add(receiverWithAmount)

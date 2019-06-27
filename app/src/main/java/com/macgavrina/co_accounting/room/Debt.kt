@@ -8,59 +8,36 @@ import androidx.room.PrimaryKey
 class Debt {
 
     @PrimaryKey(autoGenerate = true)
-    public var uid: Int = 0
-        set
-        get
+    var uid: Int = 0
 
     @ColumnInfo(name = "tripId")
-    public var tripId: Int? = null
-        set
-        get
+    var tripId: Int = -1
 
-    //ToDo REFACT add to indexes
     @ColumnInfo(name = "senderId")
-    public var senderId: Int = -1
-        set
-        get
+    var senderId: Int = -1
 
     @ColumnInfo(name = "spentAmount")
-    public var spentAmount: Double = 0.0
-        set
-        get
+    var spentAmount: Double = 0.0
 
     @ColumnInfo(name = "datetime")
-    public var datetime: String? = null
-        set
-        get
+    var datetime: Long = 0
 
     @ColumnInfo(name = "comment")
-    public var comment: String? = null
-        set
-        get
+    var comment: String = ""
 
     @ColumnInfo(name = "status")
-    public var status: String? = null
-        set
-        get
+    var status: String = "active"
 
     @ColumnInfo(name = "currencyId")
-    public var currencyId: Int = -1
-        set
-        get
+    var currencyId: Int = -1
 
-    public var currencySymbol: String? = null
-        set
-        get
+    var currencySymbol: String = ""
 
     @ColumnInfo(name = "expertModeIsEnabled")
-    public var expertModeIsEnabled: Boolean = false
-        set
-        get
+    var expertModeIsEnabled: Boolean = false
 
     @ColumnInfo(name = "isCorrect")
-    public var isCorrect: Boolean = false
-        set
-        get
+    var isCorrect: Boolean = false
 
     override fun toString(): String {
         return "uid = $uid, tripId = $tripId, senderId = $senderId, spentAmount = $spentAmount, datetime = $datetime, comment = $comment, status = $status, currencyId = $currencyId, expertModeIsEnabled = $expertModeIsEnabled, isCorrect = $isCorrect"

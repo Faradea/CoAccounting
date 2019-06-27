@@ -13,41 +13,23 @@ import androidx.room.PrimaryKey
 class Expense {
 
     @PrimaryKey(autoGenerate = true)
-    public var uid: Int = 0
-        set
-        get
+    var uid: Int = 0
 
     @ColumnInfo(name = "debtId")
-    public var debtId: Int? = null
-        set
-        get
-
-    //ToDo Delete (use comment)
-    @ColumnInfo(name = "expenseName")
-    public var expenseName: String? = null
-        set
-        get
-
-    public var receiversList: String? = null
-        set
-        get
+    var debtId: Int = -1
 
     @ColumnInfo(name = "totalAmount")
-    public var totalAmount: Double = 0.0
-        set
-        get
+    var totalAmount: Double = 0.0
 
     @ColumnInfo(name = "comment")
-    public var comment: String = ""
-        set
-        get
+    var comment: String = ""
 
     @ColumnInfo(name = "isForExpertMode")
-    public var isForExpertMode: Boolean = false
-        set
-        get
+    var isForExpertMode: Boolean = false
+
+    var receiversList: String = ""
 
     override fun toString(): String {
-        return "debtId = $debtId, expenseName = $expenseName, receiversList = $receiversList, totalAmount = $totalAmount, isForExpertMode = $isForExpertMode"
+        return "debtId = $debtId, comment = $comment, totalAmount = $totalAmount, isForExpertMode = $isForExpertMode"
     }
 }

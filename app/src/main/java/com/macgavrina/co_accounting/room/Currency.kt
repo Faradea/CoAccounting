@@ -8,19 +8,19 @@ import androidx.room.PrimaryKey
 class Currency {
 
     @PrimaryKey(autoGenerate = true)
-    public var uid: Int = 0
+    var uid: Int = 0
 
     @ColumnInfo(name = "name")
-    public var name: String? = null
+    var name: String = ""
 
     @ColumnInfo(name = "symbol")
-    public var symbol: String? = null
+    var symbol: String = ""
 
-    public var activeTripId: Int = -1
+    var activeTripId: Int = -1
 
-    public var lastUsedCurrencyId: Int = -1
+    var lastUsedCurrencyId: Int = -1
 
-    public var isActiveForCurrentTrip: Boolean = false
+    var isActiveForCurrentTrip: Boolean = false
 
     override fun toString(): String {
         return "uid = $uid, name = $name, symbol = $symbol, activeTripId = $activeTripId, lastUsedCurrencyId = $lastUsedCurrencyId, isActiveForCurrentTrip = $isActiveForCurrentTrip"

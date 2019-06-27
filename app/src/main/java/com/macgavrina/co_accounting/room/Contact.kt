@@ -10,31 +10,16 @@ import androidx.room.TypeConverters
 @Entity
 class Contact {
     @PrimaryKey(autoGenerate = true)
-    public var uid: Int = 0
-    set
-    get
+    var uid: Int = 0
 
     @ColumnInfo(name = "email")
-    public var email: String? = null
-    set
-    get
+    var email: String = ""
 
     @ColumnInfo(name = "alias")
-    public var alias: String? = null
-    set
-    get
-
-    @ColumnInfo(name = "friendId")
-    public var friendId: String? = null
-    set
-    get
+    var alias: String = ""
 
     @ColumnInfo(name = "status")
-    public var status: String? = "active"
-        set
-        get
+    var status: String = "active"
 
-    public var isActiveForCurrentTrip: Boolean = false
-        set
-        get
+    var isActiveForCurrentTrip: Boolean = false
 }

@@ -11,29 +11,17 @@ import androidx.room.*
 class ReceiverWithAmountForDB {
 
     @PrimaryKey(autoGenerate = true)
-    public var uid: Int = 0
-        set
-        get
+    var uid: Int = 0
 
-
-    //ToDo REFACT Add to indexes
     @ColumnInfo(name = "contactId")
-    public var contactId: Int = -1
-        set
-        get
+    var contactId: Int = -1
 
     @ColumnInfo(name = "amount")
-    public var amount: Double = 0.0
-        set
-        get
+    var amount: Double = 0.0
 
     @ColumnInfo(name = "expenseId")
-    public var expenseId: String? = null
-        set
-        get
+    var expenseId: Int = -1
 
     @ColumnInfo(name = "debtId")
-    public var debtId: String? = null
-        set
-        get
+    var debtId: Int = -1
 }

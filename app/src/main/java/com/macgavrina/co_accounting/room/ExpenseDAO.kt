@@ -17,7 +17,7 @@ interface ExpenseDAO {
     @Query("SELECT uid FROM expense ORDER BY uid DESC LIMIT 1")
     fun getLastExpenseId(): Maybe<Int>
 
-    @Query("SELECT expense.uid, expense.debtId, expense.comment, expense.expenseName, group_concat(contact.alias, :separator) as receiversList, expense.totalAmount, expense.isForExpertMode FROM expense LEFT JOIN receiverwithamountfordb ON receiverwithamountfordb.expenseId = expense.uid INNER JOIN contact ON receiverwithamountfordb.contactId = contact.uid WHERE expense.debtId IN (:debtId) AND expense.isForExpertMode = :isExpertMode GROUP BY receiverwithamountfordb.expenseId ORDER BY expense.uid")
+    @Query("SELECT expense.uid, expense.debtId, expense.comment, group_concat(contact.alias, :separator) as receiversList, expense.totalAmount, expense.isForExpertMode FROM expense LEFT JOIN receiverwithamountfordb ON receiverwithamountfordb.expenseId = expense.uid INNER JOIN contact ON receiverwithamountfordb.contactId = contact.uid WHERE expense.debtId IN (:debtId) AND expense.isForExpertMode = :isExpertMode GROUP BY receiverwithamountfordb.expenseId ORDER BY expense.uid")
     fun getExpensesForDebt(debtId: Int, separator: String, isExpertMode: Boolean): LiveData<List<Expense>>
 
     @Query("SELECT contact.* " +
@@ -53,7 +53,7 @@ interface ExpenseDAO {
     fun getNotSelectedContactsForExpenseIdRx(expenseId: Int): Single<List<Contact>>
 
 
-    @Query("SELECT expense.uid, expense.debtId, expense.comment, expense.isForExpertMode, expense.expenseName, group_concat(contact.alias, :separator) as receiversList, expense.totalAmount " +
+    @Query("SELECT expense.uid, expense.debtId, expense.comment, expense.isForExpertMode, group_concat(contact.alias, :separator) as receiversList, expense.totalAmount " +
             "FROM expense LEFT JOIN receiverwithamountfordb ON receiverwithamountfordb.expenseId = expense.uid " +
             "INNER JOIN contact ON receiverwithamountfordb.contactId = contact.uid " +
             "INNER JOIN debt ON Expense.debtId = debt.uid " +
@@ -80,7 +80,7 @@ interface ExpenseDAO {
     @Update
     fun updateExpense(expense: Expense)
 
-    @Query("SELECT expense.uid, expense.debtId, expense.isForExpertMode, expense.comment, expense.expenseName, group_concat(contact.alias, \", \") as receiversList, expense.totalAmount FROM expense LEFT JOIN receiverwithamountfordb ON receiverwithamountfordb.expenseId = expense.uid INNER JOIN contact ON receiverwithamountfordb.contactId = contact.uid WHERE expense.uid IN (:expenseId) GROUP BY receiverwithamountfordb.expenseId")
+    @Query("SELECT expense.uid, expense.debtId, expense.isForExpertMode, expense.comment, group_concat(contact.alias, \", \") as receiversList, expense.totalAmount FROM expense LEFT JOIN receiverwithamountfordb ON receiverwithamountfordb.expenseId = expense.uid INNER JOIN contact ON receiverwithamountfordb.contactId = contact.uid WHERE expense.uid IN (:expenseId) GROUP BY receiverwithamountfordb.expenseId")
     fun getExpenseByIds(expenseId: Int): Maybe<Expense>
 
     @Query("select SUM(totalAmount) from expense where debtId = :debtId AND isForExpertMode = 1")

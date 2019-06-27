@@ -177,11 +177,11 @@ class TripViewModel(application: Application) : AndroidViewModel(MainApplication
     }
 
     fun startdateIsChanged(newValue: String) {
-        currentTrip.value?.startdate = DateFormatter().getTimestampFromFormattedDate(newValue)
+        currentTrip.value?.startdate = DateFormatter().getTimestampFromFormattedDate(newValue) ?: 0L
     }
 
     fun enddateIsChanged(newValue: String) {
-        currentTrip.value?.enddate = DateFormatter().getTimestampFromFormattedDate(newValue)
+        currentTrip.value?.enddate = DateFormatter().getTimestampFromFormattedDate(newValue) ?: 0L
     }
 
     fun onSelectedContactClick(contact: Contact) {

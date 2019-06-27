@@ -9,37 +9,25 @@ import androidx.room.TypeConverters
 //@TypeConverters(ListTypeConverter::class)
 class Trip {
     @PrimaryKey(autoGenerate = true)
-    public var uid: Int = 0
-        set
-        get
+    var uid: Int = 0
 
     @ColumnInfo(name = "title")
-    public var title: String? = null
-        set
-        get
+    var title: String = ""
 
     @ColumnInfo(name = "startdate")
-    public var startdate: Long? = null
-        set
-        get
+    var startdate: Long = 0
 
     @ColumnInfo(name = "enddate")
-    public var enddate: Long? = null
-        set
-        get
+    var enddate: Long = 0
 
     @ColumnInfo(name = "isCurrent")
-    public var isCurrent: Boolean = false
-        set
-        get
+    var isCurrent: Boolean = false
 
     @ColumnInfo(name = "status")
-    public var status: String? = "active"
-        set
-        get
+    var status: String = "active"
 
     @ColumnInfo(name = "lastUsedCurrencyId")
-    public var lastUsedCurrencyId: Int? = null
+    var lastUsedCurrencyId: Int = -1
 
 
     override fun toString(): String {
