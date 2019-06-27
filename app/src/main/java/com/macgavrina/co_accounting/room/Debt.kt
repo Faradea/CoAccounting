@@ -13,9 +13,6 @@ class Debt {
     @ColumnInfo(name = "tripId")
     var tripId: Int = -1
 
-    @ColumnInfo(name = "senderId")
-    var senderId: Int = -1
-
     @ColumnInfo(name = "spentAmount")
     var spentAmount: Double = 0.0
 
@@ -40,6 +37,6 @@ class Debt {
     var isCorrect: Boolean = false
 
     override fun toString(): String {
-        return "uid = $uid, tripId = $tripId, senderId = $senderId, spentAmount = $spentAmount, datetime = $datetime, comment = $comment, status = $status, currencyId = $currencyId, expertModeIsEnabled = $expertModeIsEnabled, isCorrect = $isCorrect"
+        return "uid = $uid, tripId = $tripId, spentAmount = $spentAmount, datetime = $datetime, comment = $comment, status = $status, currencyId = $currencyId, expertModeIsEnabled = $expertModeIsEnabled, isCorrect = $isCorrect"
     }
 }
