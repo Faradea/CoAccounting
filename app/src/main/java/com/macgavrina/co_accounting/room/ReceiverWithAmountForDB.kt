@@ -1,6 +1,7 @@
 package com.macgavrina.co_accounting.room
 
 import androidx.room.*
+import kotlin.math.exp
 
 
 @Entity(foreignKeys = arrayOf(ForeignKey(entity = Expense::class,
@@ -24,4 +25,8 @@ class ReceiverWithAmountForDB {
 
     @ColumnInfo(name = "debtId")
     var debtId: Int = -1
+
+    override fun toString(): String {
+        return "ReceiverWithAmount: uid = $uid, contactId = $contactId, amount = $amount, expenseId = $expenseId, debtId = $debtId"
+    }
 }

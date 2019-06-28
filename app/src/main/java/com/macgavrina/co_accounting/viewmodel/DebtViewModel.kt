@@ -542,7 +542,7 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
             receiverWithAmount.contactId = contact.uid
             receiverWithAmount.amount = ((currentDebt.value?.spentAmount ?: 0.0) / selectedContactsForSimpleExpense.value!!.size)
             receiversWithAmountList.add(receiverWithAmount)
-            Log.d("receiverWithAmount: expenseId = ${receiverWithAmount.expenseId}, debtId = ${receiverWithAmount.debtId}, contactId = ${receiverWithAmount.contactId}")
+            Log.d("receiverWithAmount: $receiverWithAmount")
         }
 
 

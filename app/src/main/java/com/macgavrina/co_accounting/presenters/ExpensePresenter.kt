@@ -225,6 +225,8 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
                                             receiversWithAmountList?.forEach { receiversWithAmount ->
                                                 receiversWithAmount.expenseId = uid
                                                 receiversWithAmount.amount = MoneyFormatter.justRound(receiversWithAmount.amount)
+                                                receiversWithAmount.debtId = debtId ?: -1
+                                                Log.d("receiverWithAmount = $receiversWithAmount")
                                             }
 
                                             Log.d("Saving receiverWithAmountList for expenseId = $uid")
@@ -292,6 +294,8 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
                                         receiversWithAmountList?.forEach { receiversWithAmount ->
                                             receiversWithAmount.expenseId = expense?.uid ?: -1
                                             receiversWithAmount.amount = MoneyFormatter.justRound(receiversWithAmount.amount)
+                                            receiversWithAmount.debtId = debtId ?: -1
+                                            Log.d("receiverWithAmount = $receiversWithAmount")
                                         }
 
                                         Log.d("Adding new list, size = ${receiversWithAmountList.size}")
