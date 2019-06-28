@@ -272,6 +272,7 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
             override fun onTextChanged(s: CharSequence, start: Int,
                                        before: Int, count: Int) {
                 viewModel.dateIsChanged(s.toString())
+                //add_debt_fragment_time_et.setText("00:00")
             }
         })
 
@@ -346,8 +347,8 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
         setAmount(debt.spentAmount)
 
         if (debt.datetime != 0L) {
-            setDate(DateFormatter().formatDateFromTimestamp(debt.datetime))
             setTime(DateFormatter().formatTimeFromTimestamp(debt.datetime))
+            setDate(DateFormatter().formatDateFromTimestamp(debt.datetime))
         }
 
         if (debt.comment != null) {
@@ -372,6 +373,7 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
     }
 
     private fun setTime(time: String) {
+        Log.d("Setting time = $time")
         add_debt_fragment_time_et.setText(time)
     }
 
@@ -556,6 +558,7 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
 
     private fun doneButtonIsPressed() {
         Log.d("Done button is pressed")
+        viewModel.timeIsChanged(add_debt_fragment_time_et.text.toString())
         hideKeyboard()
         viewModel.doneButton()
         finishSelf()

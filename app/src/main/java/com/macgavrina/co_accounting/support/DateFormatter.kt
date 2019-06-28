@@ -29,7 +29,6 @@ class DateFormatter() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             val vv = SimpleDateFormat("HH:mm").format(timestamp)
-            Log.d("formatting time from timestamp, timestamp = $timestamp, time = $vv")
             return vv
         } else {
             TODO("VERSION.SDK_INT < N")

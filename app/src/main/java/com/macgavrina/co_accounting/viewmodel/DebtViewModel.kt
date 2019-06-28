@@ -303,6 +303,8 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
     }
 
     private fun saveCurrentDebtWithStatus(debtStatus: String) {
+
+        Log.d("Saving current debt (${currentDebt.value} with status = $debtStatus")
         if (currentDebt.value != null) {
             if (currentDebt.value!!.currencyId == -1) {
                 defineDefaultCurrencyForTrip()
