@@ -2,6 +2,7 @@ package com.macgavrina.co_accounting.room
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Single
 
@@ -16,10 +17,14 @@ interface DebtDAO {
     @Query("select debt.*, currency.symbol as currencySymbol from debt INNER JOIN trip ON Debt.tripId = Trip.uid AND Trip.isCurrent = 1 AND Debt.status = \"active\" INNER JOIN currency ON debt.currencyId = currency.uid")
     fun getDebtsForCurrentTrip(): LiveData<List<Debt>>
 
-    @Query("SELECT * FROM debt WHERE uid IN (:debtId)")
+    @Query("select debt.*, SenderWithAmount.contactId as senderId FROM debt " +
+            "LEFT JOIN SenderWithAmount ON SenderWithAmount.debtId = debt.uid " +
+            "WHERE debt.uid = :debtId")
     fun getDebtByIds(debtId: Int): LiveData<Debt>
 
-    @Query("SELECT * FROM debt WHERE uid IN (:debtId)")
+    @Query("select debt.*, SenderWithAmount.contactId as senderId FROM debt " +
+            "LEFT JOIN SenderWithAmount ON SenderWithAmount.debtId = debt.uid " +
+            "WHERE debt.uid = :debtId")
     fun getDebtByIdRx(debtId: Int): Maybe<Debt>
 
     @Query("select (debtAmount - expensesAmount) FROM " +
@@ -31,18 +36,23 @@ interface DebtDAO {
             ")")
     fun getDebtRemains(debtId: Int): Maybe<Double>
 
-    @Query("SELECT * FROM debt WHERE status = \"draft\"")
+    @Query("select debt.*, SenderWithAmount.contactId as senderId FROM debt " +
+            "LEFT JOIN SenderWithAmount ON SenderWithAmount.debtId = debt.uid " +
+            "WHERE status = \"draft\"")
     fun getDebtDraft(): LiveData<Debt>
 
-    @Query("SELECT * FROM debt WHERE status = \"draft\"")
+    @Query("select debt.*, SenderWithAmount.contactId as senderId FROM debt " +
+            "LEFT JOIN SenderWithAmount ON SenderWithAmount.debtId = debt.uid " +
+            "WHERE status = \"draft\"")
     fun getDebtDraftRx(): Maybe<Debt>
 
-    //ToDo REFACT use count instead of Select all
-    @Query ("SELECT * FROM debt WHERE senderId IN (:contactId) AND status IN (:contactStatus)")
-    fun checkDebtsForContact(contactId: String, contactStatus: String): Maybe<List<Debt>>
+    @Query ("select COUNT(*) from SenderWithAmount " +
+            "LEFT JOIN debt ON debt.uid = SenderWithAmount.debtId " +
+            "WHERE SenderWithAmount.contactId = :contactId")
+    fun checkDebtsForContact(contactId: String): Maybe<Int>
 
-    @Query ("SELECT debt.* FROM debt INNER JOIN trip ON debt.tripId = trip.uid WHERE debt.senderId IN (:contactId) AND debt.status IN (:contactStatus) AND trip.isCurrent = 1 AND trip.status = \"active\"")
-    fun checkDebtsForContactAndCurrentTrip(contactId: String, contactStatus: String): Maybe<List<Debt>>
+//    @Query ("SELECT debt.* FROM debt INNER JOIN trip ON debt.tripId = trip.uid WHERE debt.senderId IN (:contactId) AND debt.status IN (:contactStatus) AND trip.isCurrent = 1 AND trip.status = \"active\"")
+//    fun checkDebtsForContactAndCurrentTrip(contactId: String, contactStatus: String): Maybe<List<Debt>>
 
     @Insert
     fun insertDebt(debt: Debt)
@@ -74,9 +84,10 @@ interface DebtDAO {
 //    GROUP BY ReceiverWithAmountForDB.contactId, Debt.currencyId)
 //    GROUP BY contactAlias, currencyId
     @Query("SELECT alias as contactAlias, contactId, SUM(amount) as totalAmount, currencySymbol " +
-            "FROM (select Contact.alias, Debt.senderId as contactId, Debt.spentAmount as amount, " +
+            "FROM (select Contact.alias, SenderWithAmount.contactId as contactId, Debt.spentAmount as amount, " +
             "currency.uid as currencyId, currency.symbol as currencySymbol from Debt " +
-            "            INNER JOIN Contact ON Contact.uid = Debt.senderId " +
+            "            INNER JOIN SenderWithAmount ON debt.uid = SenderWithAmount.debtId " +
+            "            INNER JOIN Contact ON Contact.uid = SenderWithAmount.contactId " +
             "            INNER JOIN trip ON Debt.tripId = Trip.uid " +
             " INNER JOIN currency ON Debt.currencyId = Currency.uid " +
             "            WHERE Trip.isCurrent = 1 AND trip.status = \"active\" AND debt.status = \"active\" AND debt.isCorrect = 1 " +
@@ -92,4 +103,10 @@ interface DebtDAO {
             "            GROUP BY ReceiverWithAmountForDB.contactId, Debt.currencyId) " +
             "            GROUP BY contactId, currencyId")
     fun getAllCalculationsForCurrentTrip(): LiveData<List<Calculation>>
+
+    @Query("DELETE FROM SenderWithAmount WHERE debtId = :debtId")
+    fun deleteAllSendersWithAmountForDebt(debtId: Int): Completable
+
+    @Insert
+    fun addSenderWithAmountForDebt(senderWithAmount: SenderWithAmount): Completable
 }

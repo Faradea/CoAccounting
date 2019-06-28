@@ -101,100 +101,36 @@ class ContactsViewModel(application: Application) : AndroidViewModel(MainApplica
 //                })
     }
 
-    private fun updateContactsListForTrip(contactId: String, checked: Boolean) {
-
-        Log.d("updateContactsListForTrip, contactId = $contactId, checked = $checked")
-
-        repository.setIsContactCheckedForCurrentTrip(contactId, checked)
-
-        if (!checked) {
-            checkDebtsAndExpensesForContact(contactId)
-        }
-    }
-
-    private fun checkDebtsAndExpensesForContact(contactId: String) {
-
-        MainApplication.db.debtDAO().checkDebtsForContactAndCurrentTrip(contactId, "active")
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(object : DisposableMaybeObserver<List<Debt>>() {
-                    override fun onComplete() {
-                    }
-
-                    override fun onSuccess(list: List<Debt>) {
-                        if (list.isEmpty()) {
-
-                            Log.d("Contact isn't used as sender in debts, checking if he is present in expenses...")
-                            MainApplication.db.receiverWithAmountForDBDAO().checkReceiverWithAmountForContactAndCurrentTrip(contactId)
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe(object : SingleObserver<Int> {
-                                        override fun onSubscribe(d: Disposable) {
-                                        }
-
-                                        override fun onSuccess(count: Int) {
-                                            if (count == 0) {
-                                                Log.d("Contacts hasn't been used in debts and expenses, delete it...")
-                                            } else {
-                                                toastMessage.value = "Contact is used in debts and can't be deactivated"
-                                                ContactRepository().setIsContactCheckedForCurrentTrip(contactId, true)
-                                            }
-                                        }
-
-                                        override fun onError(e: Throwable) {
-                                            Log.d("Error getting receivers with amount from DB, $e")
-                                            ContactRepository().setIsContactCheckedForCurrentTrip(contactId, true)
-                                        }
-
-                                    })
-                        } else {
-                            toastMessage.value = "Contact is used in debts and can't be deactivated"
-                            ContactRepository().setIsContactCheckedForCurrentTrip(contactId, true)
-                        }
-                    }
-
-                    override fun onError(e: Throwable) {
-                        Log.d("Error getting debts for contact from db, $e")
-                        ContactRepository().setIsContactCheckedForCurrentTrip(contactId, true)
-                    }
-                })
-
-    }
-
     fun safeDeleteContact(contact: Contact) {
-        MainApplication.db.debtDAO().checkDebtsForContact(contact.uid.toString(), "active")
+        compositeDisposable.add(
+                MainApplication.db.debtDAO().checkDebtsForContact(contact.uid.toString())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(object : DisposableMaybeObserver<List<Debt>>() {
-                    override fun onComplete() {
+                .subscribe({ usedInDebtCount ->
+                    if (usedInDebtCount == 0) {
+                        Log.d("Contact isn't used as sender in debts, checking if he is present in expenses...")
+                        checkIfContactIsUsedForExpenses(contact)
+                    } else {
+                        toastMessage.value = "Contact can't be deleted until it presents in debts"
+                    }
+                }, { error ->
+                    Log.d("Error getting debts count for contact, $error")
+                })
+        )
+    }
+
+    private fun checkIfContactIsUsedForExpenses(contact: Contact) {
+        MainApplication.db.receiverWithAmountForDBDAO().checkReceiverWithAmountForContact(contact.uid.toString())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : SingleObserver<Int> {
+                    override fun onSubscribe(d: Disposable) {
                     }
 
-                    override fun onSuccess(list: List<Debt>) {
-                        if (list.isEmpty()) {
-
-                            Log.d("Contact isn't used as sender in debts, checking if he is present in expenses...")
-                            MainApplication.db.receiverWithAmountForDBDAO().checkReceiverWithAmountForContact(contact.uid.toString())
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe(object : SingleObserver<Int> {
-                                        override fun onSubscribe(d: Disposable) {
-                                        }
-
-                                        override fun onSuccess(count: Int) {
-                                            if (count == 0) {
-                                                Log.d("Contacts hasn't been used in debts and expenses, delete ir...")
-                                                deleteContact(contact)
-                                            } else {
-                                                toastMessage.value = "Contact can't be deleted until it presents in debts"
-                                                //getView()?.displayAlert("Contact can't be deleted until it presents in debts", "Contact can't be deleted")
-                                            }
-                                        }
-
-                                        override fun onError(e: Throwable) {
-                                            Log.d("Error getting receivers with amount from DB, $e")
-                                        }
-
-                                    })
+                    override fun onSuccess(count: Int) {
+                        if (count == 0) {
+                            Log.d("Contacts hasn't been used in debts and expenses, delete ir...")
+                            deleteContact(contact)
                         } else {
                             toastMessage.value = "Contact can't be deleted until it presents in debts"
                             //getView()?.displayAlert("Contact can't be deleted until it presents in debts", "Contact can't be deleted")
@@ -202,8 +138,9 @@ class ContactsViewModel(application: Application) : AndroidViewModel(MainApplica
                     }
 
                     override fun onError(e: Throwable) {
-                        Log.d("Error getting debts for contact from db, $e")
+                        Log.d("Error getting receivers with amount from DB, $e")
                     }
+
                 })
     }
 

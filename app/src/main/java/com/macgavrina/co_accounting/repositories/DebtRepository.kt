@@ -6,6 +6,7 @@ import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.ContactToTripRelation
 import com.macgavrina.co_accounting.room.Debt
 import com.macgavrina.co_accounting.room.DebtDAO
+import com.macgavrina.co_accounting.room.SenderWithAmount
 import com.macgavrina.co_accounting.support.MoneyFormatter
 import io.reactivex.Completable
 import io.reactivex.Maybe
@@ -115,6 +116,14 @@ class DebtRepository {
                         updateDebtInDB(debt)
                     }
                 })
+    }
+
+    fun deleteAllSendersWithAmountForDebt(debtId: Int): Completable {
+        return debtDao.deleteAllSendersWithAmountForDebt(debtId)
+    }
+
+    fun addSenderWithAmountForDebt(senderWithAmount: SenderWithAmount): Completable {
+        return debtDao.addSenderWithAmountForDebt(senderWithAmount)
     }
 
 }

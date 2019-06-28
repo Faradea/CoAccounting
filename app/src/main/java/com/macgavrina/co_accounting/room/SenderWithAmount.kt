@@ -5,11 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
-@Entity(foreignKeys = arrayOf(ForeignKey(entity = Expense::class,
-        parentColumns = arrayOf("uid"),
-        childColumns = arrayOf("expenseId"),
-        onDelete = ForeignKey.CASCADE)))
-
+@Entity
 class SenderWithAmount {
 
     @PrimaryKey(autoGenerate = true)
@@ -23,4 +19,8 @@ class SenderWithAmount {
 
     @ColumnInfo(name = "debtId")
     var debtId: Int = -1
+
+    override fun toString(): String {
+        return "SenderWithAmount: contactId = $contactId, amount = $amount, debtId = $debtId"
+    }
 }

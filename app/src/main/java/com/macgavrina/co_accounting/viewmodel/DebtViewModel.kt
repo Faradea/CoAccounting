@@ -310,6 +310,12 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
             currentDebt.value?.status = debtStatus
             debtRepository.updateDebtInDB(currentDebt.value!!)
 
+            val senderWithAmount = SenderWithAmount()
+            senderWithAmount.amount = currentDebt.value!!.spentAmount
+            senderWithAmount.contactId = currentDebt.value!!.senderId
+            senderWithAmount.debtId = currentDebt.value!!.uid
+
+            deleteAllSendersWithAmountForDebtAndAddNewOne(currentDebt.value!!.uid, senderWithAmount)
 
             if (!currentDebt.value!!.expertModeIsEnabled) {
                 deleteAllExpensesAndSaveNewOneForSimpleMode()
@@ -317,6 +323,34 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
                 deleteAllExpensesForSimpleMode(currentDebt.value!!.uid)
             }
         }
+    }
+
+    private fun deleteAllSendersWithAmountForDebtAndAddNewOne(debtId: Int, senderWithAmount: SenderWithAmount) {
+        compositeDisposable.add(
+                debtRepository.deleteAllSendersWithAmountForDebt(debtId)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe({
+                            Log.d("All senders with amount for debt are deleted")
+                            saveSenderWithAmountForDebt(senderWithAmount)
+                        }, {error ->
+                            Log.d("Error deleting senders with amount for debt, $error")
+                        })
+        )
+    }
+
+    private fun saveSenderWithAmountForDebt(senderWithAmount: SenderWithAmount) {
+        Log.d("Adding senderWithAmount for debt, $senderWithAmount")
+        compositeDisposable.add(
+                debtRepository.addSenderWithAmountForDebt(senderWithAmount)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe({
+                            Log.d("SenderWithAmount ($senderWithAmount) is saved for debt")
+                        }, {error ->
+                            Log.d("Error adding sender with amount for debt, $error")
+                        })
+        )
     }
 
     private fun deleteAllExpensesForSimpleMode(debtId: Int) {
