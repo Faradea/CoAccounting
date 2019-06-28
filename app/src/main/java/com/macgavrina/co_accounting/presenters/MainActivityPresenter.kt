@@ -179,7 +179,7 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
     }
 
     override fun viewIsReady() {
-        UserProvider().loadUser(this)
+        //UserProvider().loadUser(this)
     }
 
     override fun viewIsCreated() {

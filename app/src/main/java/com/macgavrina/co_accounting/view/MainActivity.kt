@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }*/
 
         nav_view.getHeaderView(0).nav_header_main_iv.setOnClickListener {view ->
-            presenter.headerIsClicked()
+            //presenter.headerIsClicked()
         }
 
         val toggle = ActionBarDrawerToggle(
