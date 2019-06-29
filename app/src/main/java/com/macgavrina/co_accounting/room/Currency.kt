@@ -22,6 +22,9 @@ class Currency {
 
     var isActiveForCurrentTrip: Boolean = false
 
+    @ColumnInfo(name = "externalId")
+    var externalId: Int? = null
+
     override fun toString(): String {
         return "uid = $uid, name = $name, symbol = $symbol, activeTripId = $activeTripId, lastUsedCurrencyId = $lastUsedCurrencyId, isActiveForCurrentTrip = $isActiveForCurrentTrip"
     }

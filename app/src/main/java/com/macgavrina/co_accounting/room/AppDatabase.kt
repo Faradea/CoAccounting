@@ -15,7 +15,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
 
-@Database(entities = arrayOf(Contact::class, Debt::class, ReceiverWithAmountForDB::class, Expense::class, Trip::class, ContactToTripRelation::class, Currency::class, CurrencyToTripRelation::class, SenderWithAmount::class), version = AppDatabase.DATABASE_VERSION)
+@Database(entities = arrayOf(Contact::class, Debt::class, ReceiverWithAmountForDB::class, Expense::class, Trip::class, ContactToTripRelation::class, Currency::class, CurrencyToTripRelation::class, SenderWithAmount::class, SyncEvent::class), version = AppDatabase.DATABASE_VERSION)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun contactDAO(): ContactDAO
     abstract fun debtDAO(): DebtDAO

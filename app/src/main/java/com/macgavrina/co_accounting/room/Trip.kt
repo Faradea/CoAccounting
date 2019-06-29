@@ -29,6 +29,12 @@ class Trip {
     @ColumnInfo(name = "lastUsedCurrencyId")
     var lastUsedCurrencyId: Int = -1
 
+    @ColumnInfo(name = "creatorUserId")
+    var creatorUserId: String? = null
+
+    @ColumnInfo(name = "externalId")
+    var externalId: Int? = null
+
 
     override fun toString(): String {
         return "uid = $uid, title = $title, startdate = $startdate, enddate = $enddate, isCurrent = $isCurrent, status = $status"

@@ -20,6 +20,9 @@ class SenderWithAmount {
     @ColumnInfo(name = "debtId")
     var debtId: Int = -1
 
+    @ColumnInfo(name = "externalId")
+    var externalId: Int? = null
+
     override fun toString(): String {
         return "SenderWithAmount: contactId = $contactId, amount = $amount, debtId = $debtId"
     }

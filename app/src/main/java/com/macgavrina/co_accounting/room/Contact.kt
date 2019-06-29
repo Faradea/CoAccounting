@@ -21,5 +21,11 @@ class Contact {
     @ColumnInfo(name = "status")
     var status: String = "active"
 
+    @ColumnInfo(name = "creatorUserId")
+    var creatorUserId: String? = null
+
+    @ColumnInfo(name = "externalId")
+    var externalId: Int? = null
+
     var isActiveForCurrentTrip: Boolean = false
 }

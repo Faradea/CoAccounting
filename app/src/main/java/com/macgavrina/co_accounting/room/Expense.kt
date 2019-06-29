@@ -29,6 +29,12 @@ class Expense {
 
     var receiversList: String = ""
 
+    @ColumnInfo(name = "creatorUserId")
+    var creatorUserId: String? = null
+
+    @ColumnInfo(name = "externalId")
+    var externalId: Int? = null
+
     override fun toString(): String {
         return "debtId = $debtId, comment = $comment, totalAmount = $totalAmount, isForExpertMode = $isForExpertMode"
     }

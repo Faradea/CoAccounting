@@ -19,4 +19,7 @@ class ContactToTripRelation(contactId: Int, tripId: Int) {
 
     @ColumnInfo(name = "contactId")
     var contactId: Int = contactId
+
+    @ColumnInfo(name = "externalId")
+    var externalId: Int? = null
 }

@@ -19,4 +19,7 @@ class CurrencyToTripRelation(currencyId: Int, tripId: Int) {
 
     @ColumnInfo(name = "currencyId")
     var currencyId: Int = currencyId
+
+    @ColumnInfo(name = "externalId")
+    var externalId: Int? = null
 }

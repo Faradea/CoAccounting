@@ -36,7 +36,13 @@ class Debt {
     @ColumnInfo(name = "isCorrect")
     var isCorrect: Boolean = false
 
+    @ColumnInfo(name = "creatorUserId")
+    var creatorUserId: String? = null
+
     var senderId: Int = -1
+
+    @ColumnInfo(name = "externalId")
+    var externalId: Int? = null
 
     override fun toString(): String {
         return "uid = $uid, tripId = $tripId, spentAmount = $spentAmount, datetime = $datetime, comment = $comment, status = $status, currencyId = $currencyId, expertModeIsEnabled = $expertModeIsEnabled, isCorrect = $isCorrect"

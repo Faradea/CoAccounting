@@ -26,6 +26,9 @@ class ReceiverWithAmountForDB {
     @ColumnInfo(name = "debtId")
     var debtId: Int = -1
 
+    @ColumnInfo(name = "externalId")
+    var externalId: Int? = null
+
     override fun toString(): String {
         return "ReceiverWithAmount: uid = $uid, contactId = $contactId, amount = $amount, expenseId = $expenseId, debtId = $debtId"
     }
