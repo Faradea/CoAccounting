@@ -7,6 +7,9 @@ import com.macgavrina.co_accounting.MainApplication
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.Trip
 import com.macgavrina.co_accounting.room.TripDAO
+import com.macgavrina.co_accounting.support.STATUS_ACTIVE
+import com.macgavrina.co_accounting.support.STATUS_DELETED
+import com.macgavrina.co_accounting.support.STATUS_DRAFT
 import io.reactivex.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -18,24 +21,24 @@ class TripRepository {
     private var tripDao: TripDAO = MainApplication.db.tripDAO()
 
     fun getAll(): LiveData<List<Trip>> {
-        return tripDao.getAll("active")
+        return tripDao.getAll(STATUS_ACTIVE)
     }
 
     fun getAllRx(): Single<List<Trip>> {
-        return tripDao.getAllRx("active")
+        return tripDao.getAllRx(STATUS_ACTIVE)
     }
 
     fun getLastActiveTripId(): Observable<Maybe<Int>> {
         Log.d("getting last active trip id....")
-        return Observable.fromCallable { tripDao.getLastTripId("active") }
+        return Observable.fromCallable { tripDao.getLastTripId(STATUS_ACTIVE) }
     }
 
     fun getCurrentTrip(): Maybe<Trip> {
-        return tripDao.getLastTripByIsCurrentValue(true, "active")
+        return tripDao.getLastTripByIsCurrentValue(true, STATUS_ACTIVE)
     }
 
     fun getCurrentTripLiveData(): LiveData<Trip> {
-        return tripDao.getLastTripByIsCurrentValueLiveData(true, "active")
+        return tripDao.getLastTripByIsCurrentValueLiveData(true, STATUS_ACTIVE)
     }
 
     fun getActiveTripsAmount(): Observable<Int> {
@@ -43,7 +46,7 @@ class TripRepository {
     }
 
     fun restoreDeletedTrip(trip: Trip): Completable {
-        trip.status = "active"
+        trip.status = STATUS_ACTIVE
         return Completable.fromAction {
             tripDao.updateTrip(trip)
         }
@@ -59,11 +62,11 @@ class TripRepository {
     }
 
     fun getLastTripByIsCurrentValue(isCurrent: Boolean): Observable<Maybe<Trip>> {
-        return Observable.fromCallable { tripDao.getLastTripByIsCurrentValue(isCurrent, "active") }
+        return Observable.fromCallable { tripDao.getLastTripByIsCurrentValue(isCurrent, STATUS_ACTIVE) }
     }
 
     fun getLastTripByIsCurrentValueExceptChosenTrip(isCurrent: Boolean, exceptTripId: String): Observable<Maybe<Trip>> {
-        return Observable.fromCallable { tripDao.getLastTripByIsCurrentValueExceptChosenTrip(isCurrent, "active", exceptTripId) }
+        return Observable.fromCallable { tripDao.getLastTripByIsCurrentValueExceptChosenTrip(isCurrent, STATUS_ACTIVE, exceptTripId) }
     }
 
     fun insertTrip(trip: Trip): Completable {
@@ -78,7 +81,7 @@ class TripRepository {
 
     fun deleteTrip(trip: Trip): Completable {
         return Completable.fromAction {
-            tripDao.deleteTrip(trip.uid.toString(), "deleted")
+            tripDao.deleteTrip(trip.uid.toString(), STATUS_DELETED)
         }
     }
 
@@ -162,7 +165,7 @@ class TripRepository {
 
     fun createTripDraft(): Completable {
         val trip = Trip()
-        trip.status = "draft"
+        trip.status = STATUS_DRAFT
         return Completable.fromAction {
             tripDao.insertTrip(trip)
         }

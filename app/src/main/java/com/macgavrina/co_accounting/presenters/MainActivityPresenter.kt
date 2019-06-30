@@ -13,6 +13,7 @@ import com.macgavrina.co_accounting.room.Expense
 import com.macgavrina.co_accounting.room.Trip
 import com.macgavrina.co_accounting.rxjava.Events
 import com.macgavrina.co_accounting.support.DateFormatter
+import com.macgavrina.co_accounting.support.STATUS_ACTIVE
 import io.reactivex.Completable
 import io.reactivex.CompletableObserver
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -238,7 +239,7 @@ class MainActivityPresenter:BasePresenter<MainActivityContract.View>(), MainActi
         Log.d("Undo delete contact button is pressed, updating contact status...")
         if (lastDeletedContact == null) return
 
-        lastDeletedContact!!.status = "active"
+        lastDeletedContact!!.status = STATUS_ACTIVE
         Completable.fromAction(object : Action {
             @Throws(Exception::class)
             override fun run() {

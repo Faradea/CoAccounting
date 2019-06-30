@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
-
+import com.macgavrina.co_accounting.support.STATUS_ACTIVE
 
 
 @Entity
@@ -19,7 +19,7 @@ class Contact {
     var alias: String = ""
 
     @ColumnInfo(name = "status")
-    var status: String = "active"
+    var status: Int = STATUS_ACTIVE
 
     @ColumnInfo(name = "creatorUserId")
     var creatorUserId: String? = null

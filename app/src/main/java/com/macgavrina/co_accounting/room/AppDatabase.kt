@@ -10,6 +10,7 @@ import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.repositories.CurrencyRepository
 import com.macgavrina.co_accounting.repositories.TripRepository
 import com.macgavrina.co_accounting.rxjava.Events
+import com.macgavrina.co_accounting.support.STATUS_ACTIVE
 import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -60,7 +61,6 @@ abstract class AppDatabase : RoomDatabase() {
         private fun createDefaultTrip() {
             val newTrip = Trip()
             newTrip.title = "Unsorted"
-            newTrip.status = "active"
             newTrip.isCurrent = true
 
             TripRepository().insertTrip(newTrip)

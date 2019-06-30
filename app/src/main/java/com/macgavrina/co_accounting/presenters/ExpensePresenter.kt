@@ -403,7 +403,7 @@ class ExpensePresenter: BasePresenter<AddReceiverInAddDebtContract.View>(), AddR
 
     private fun deleteCurrentExpense() {
         Completable.fromAction {
-            MainApplication.db.expenseDAO().deleteExpense(expense!!)
+            MainApplication.db.expenseDAO().deleteExpense(expense!!.uid)
         }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

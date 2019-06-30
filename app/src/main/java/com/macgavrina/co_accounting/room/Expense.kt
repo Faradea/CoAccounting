@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import com.macgavrina.co_accounting.support.STATUS_ACTIVE
 
 @Entity(foreignKeys = arrayOf(ForeignKey(entity = Debt::class,
         parentColumns = arrayOf("uid"),
@@ -34,6 +35,9 @@ class Expense {
 
     @ColumnInfo(name = "externalId")
     var externalId: Int? = null
+
+    @ColumnInfo(name = "status")
+    var status: Int = STATUS_ACTIVE
 
     override fun toString(): String {
         return "debtId = $debtId, comment = $comment, totalAmount = $totalAmount, isForExpertMode = $isForExpertMode"

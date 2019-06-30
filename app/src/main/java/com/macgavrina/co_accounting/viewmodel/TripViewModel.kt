@@ -13,6 +13,7 @@ import com.macgavrina.co_accounting.room.Contact
 import com.macgavrina.co_accounting.room.Currency
 import com.macgavrina.co_accounting.room.Trip
 import com.macgavrina.co_accounting.support.DateFormatter
+import com.macgavrina.co_accounting.support.STATUS_ACTIVE
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -156,7 +157,7 @@ class TripViewModel(application: Application) : AndroidViewModel(MainApplication
 
         if (currentTrip.value == null) return
 
-        currentTrip.value?.status = "active"
+        currentTrip.value?.status = STATUS_ACTIVE
 
         Log.d("Saving trip, newValue = ${currentTrip.value}")
         compositeDisposable.add(TripRepository().updateTrip(currentTrip.value!!)

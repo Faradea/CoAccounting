@@ -25,10 +25,7 @@ import com.macgavrina.co_accounting.adapters.DebtCurrenciesRecyclerViewAdapter
 import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.room.*
 import com.macgavrina.co_accounting.room.Currency
-import com.macgavrina.co_accounting.support.DateFormatter
-import com.macgavrina.co_accounting.support.GO_TO_CONTACTS_RESULT_CODE
-import com.macgavrina.co_accounting.support.GO_TO_CURRENT_TRIP_RESULT_CODE
-import com.macgavrina.co_accounting.support.MoneyFormatter
+import com.macgavrina.co_accounting.support.*
 import com.macgavrina.co_accounting.viewmodel.DebtViewModel
 import com.macgavrina.co_accounting.viewmodel.EXPENSE_ID_KEY
 import kotlinx.android.synthetic.main.add_debt_fragment.*
@@ -183,7 +180,7 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
                 })
 
 
-        viewModel.getSenderForCurrentTrip().observe(this,
+        viewModel.getSenderForCurrentDebt().observe(this,
                 Observer { contact ->
                     add_debt_fragment_sender_autocompletetv.setText(contact.alias)
                 })
@@ -355,7 +352,7 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
             setComment(debt.comment!!)
         }
 
-        if (debt.status == "draft") {
+        if (debt.status == STATUS_DRAFT) {
             hideDeleteButton()
             showClearButton()
         } else {
@@ -566,7 +563,7 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
 
     private fun displayContactsList(contactsList: List<Contact>) {
 
-        if (contactsList.isEmpty() && viewModel.getCurrentDebt().value?.status == "draft") {
+        if (contactsList.isEmpty() && viewModel.getCurrentDebt().value?.status == STATUS_DRAFT) {
             if (allContactsForAllTripsCount != 0) {
                 showAlertAndGoToTrip("Please choose contacts for the trip first")
             } else {

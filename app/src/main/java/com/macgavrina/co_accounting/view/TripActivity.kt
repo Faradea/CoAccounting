@@ -32,6 +32,7 @@ import com.macgavrina.co_accounting.room.Currency
 import com.macgavrina.co_accounting.room.Debt
 import com.macgavrina.co_accounting.room.Trip
 import com.macgavrina.co_accounting.support.DateFormatter
+import com.macgavrina.co_accounting.support.STATUS_DRAFT
 import com.macgavrina.co_accounting.viewmodel.TripViewModel
 import com.macgavrina.co_accounting.viewmodel.TripsViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -228,7 +229,7 @@ class TripActivity : AppCompatActivity() {
             trip_fragment_enddate_et.setText(DateFormatter().formatDateFromTimestamp(trip.enddate!!))
         }
 
-        if (trip.status == "draft") {
+        if (trip.status == STATUS_DRAFT) {
             hideDeleteButton()
         } else {
             showDeleteButton()

@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
+import com.macgavrina.co_accounting.support.STATUS_ACTIVE
 
 @Entity
 //@TypeConverters(ListTypeConverter::class)
@@ -24,7 +25,7 @@ class Trip {
     var isCurrent: Boolean = false
 
     @ColumnInfo(name = "status")
-    var status: String = "active"
+    var status: Int = STATUS_ACTIVE
 
     @ColumnInfo(name = "lastUsedCurrencyId")
     var lastUsedCurrencyId: Int = -1

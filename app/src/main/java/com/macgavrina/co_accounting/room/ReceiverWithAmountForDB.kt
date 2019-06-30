@@ -1,6 +1,7 @@
 package com.macgavrina.co_accounting.room
 
 import androidx.room.*
+import com.macgavrina.co_accounting.support.STATUS_ACTIVE
 import kotlin.math.exp
 
 
@@ -28,6 +29,9 @@ class ReceiverWithAmountForDB {
 
     @ColumnInfo(name = "externalId")
     var externalId: Int? = null
+
+    @ColumnInfo(name = "status")
+    var status: Int = STATUS_ACTIVE
 
     override fun toString(): String {
         return "ReceiverWithAmount: uid = $uid, contactId = $contactId, amount = $amount, expenseId = $expenseId, debtId = $debtId"

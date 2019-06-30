@@ -3,6 +3,7 @@ package com.macgavrina.co_accounting.room
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.macgavrina.co_accounting.support.STATUS_ACTIVE
 
 @Entity
 class Debt {
@@ -23,7 +24,7 @@ class Debt {
     var comment: String = ""
 
     @ColumnInfo(name = "status")
-    var status: String = "active"
+    var status: Int = STATUS_ACTIVE
 
     @ColumnInfo(name = "currencyId")
     var currencyId: Int = -1
@@ -45,6 +46,6 @@ class Debt {
     var externalId: Int? = null
 
     override fun toString(): String {
-        return "uid = $uid, tripId = $tripId, spentAmount = $spentAmount, datetime = $datetime, comment = $comment, status = $status, currencyId = $currencyId, expertModeIsEnabled = $expertModeIsEnabled, isCorrect = $isCorrect"
+        return "uid = $uid, tripId = $tripId, spentAmount = $spentAmount, datetime = $datetime, comment = $comment, status = $status, currencyId = $currencyId, expertModeIsEnabled = $expertModeIsEnabled, isCorrect = $isCorrect, senderId = $senderId"
     }
 }

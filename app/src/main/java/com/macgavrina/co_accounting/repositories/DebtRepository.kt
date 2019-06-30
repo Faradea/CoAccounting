@@ -8,6 +8,7 @@ import com.macgavrina.co_accounting.room.Debt
 import com.macgavrina.co_accounting.room.DebtDAO
 import com.macgavrina.co_accounting.room.SenderWithAmount
 import com.macgavrina.co_accounting.support.MoneyFormatter
+import com.macgavrina.co_accounting.support.STATUS_DRAFT
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Single
@@ -71,7 +72,7 @@ class DebtRepository {
 
     fun createDebtDraft(): Completable {
         val debt = Debt()
-        debt.status = "draft"
+        debt.status = STATUS_DRAFT
         return Completable.fromAction {
             debtDao.insertDebt(debt)
         }

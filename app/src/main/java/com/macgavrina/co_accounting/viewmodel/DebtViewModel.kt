@@ -9,6 +9,8 @@ import com.macgavrina.co_accounting.logging.Log
 import com.macgavrina.co_accounting.repositories.*
 import com.macgavrina.co_accounting.room.*
 import com.macgavrina.co_accounting.support.DateFormatter
+import com.macgavrina.co_accounting.support.STATUS_ACTIVE
+import com.macgavrina.co_accounting.support.STATUS_DRAFT
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -34,7 +36,7 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
     private var debtDate: String = ""
     private var debtTime: String = ""
     private var currentTrip = TripRepository().getCurrentTripLiveData()
-    private var senderForCurrentTrip = MutableLiveData<Contact>()
+    private var senderForCurrentDebt = MutableLiveData<Contact>()
     private var expensesSum: LiveData<Double>? = null
 
     private var expenseForSimpleMode: MutableLiveData<Expense> = MutableLiveData()
@@ -79,8 +81,8 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
         return debtSpentAmountForSimpleExpense
     }
 
-    fun getSenderForCurrentTrip(): MutableLiveData<Contact> {
-        return senderForCurrentTrip
+    fun getSenderForCurrentDebt(): MutableLiveData<Contact> {
+        return senderForCurrentDebt
     }
 
     fun getExpensesSum(): LiveData<Double>? {
@@ -175,6 +177,8 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
 
                     expensesSum = expenseRepository.getExpensesSumForDebtAndExpertMode(debt.uid)
                     currentDebt.value = debt
+
+                    initializeSender(debt.senderId)
                 }, { error ->
                     snackbarMessage.value = "Database error"
                     Log.d("Error getting debt draft data from server, error = $error")
@@ -193,7 +197,7 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe ({ sender ->
-                                senderForCurrentTrip.value = sender
+                                senderForCurrentDebt.value = sender
                             }, {error ->
                                 Log.d("Error getting contact data for debt sender, error = $error")
                             })
@@ -292,17 +296,17 @@ class DebtViewModel(application: Application) : AndroidViewModel(MainApplication
 
     fun doneButton() {
         Log.d("Saving debt, ${currentDebt.value}")
-        saveCurrentDebtWithStatus("active")
+        saveCurrentDebtWithStatus(STATUS_ACTIVE)
     }
 
     fun onBackPressed() {
         Log.d("Saving draft, ${currentDebt.value}")
-        if (currentDebt.value?.status != "active") {
-            saveCurrentDebtWithStatus("draft")
+        if (currentDebt.value?.status != STATUS_ACTIVE) {
+            saveCurrentDebtWithStatus(STATUS_DRAFT)
         }
     }
 
-    private fun saveCurrentDebtWithStatus(debtStatus: String) {
+    private fun saveCurrentDebtWithStatus(debtStatus: Int) {
 
         Log.d("Saving current debt (${currentDebt.value} with status = $debtStatus")
         if (currentDebt.value != null) {

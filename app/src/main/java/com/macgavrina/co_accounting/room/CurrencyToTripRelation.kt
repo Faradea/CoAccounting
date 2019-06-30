@@ -4,11 +4,9 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.macgavrina.co_accounting.support.STATUS_ACTIVE
 
-@Entity(
-        indices = [Index(value = arrayOf("currencyId", "tripId"), unique = true)]
-)
-
+@Entity
 class CurrencyToTripRelation(currencyId: Int, tripId: Int) {
 
     @PrimaryKey(autoGenerate = true)
@@ -22,4 +20,7 @@ class CurrencyToTripRelation(currencyId: Int, tripId: Int) {
 
     @ColumnInfo(name = "externalId")
     var externalId: Int? = null
+
+    @ColumnInfo(name = "status")
+    var status: Int = STATUS_ACTIVE
 }
