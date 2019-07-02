@@ -41,12 +41,6 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
     private var timePickerDialog: TimePickerDialog? = null
     private var alertDialog: AlertDialog? = null
 
-    lateinit var contactsIdToNameMap: MutableMap<String, Contact>
-    lateinit var positionToContactIdMap: MutableMap<Int, Contact>
-    lateinit var contactIdToPositionMap: MutableMap<Int, Int>
-    lateinit var friendsList: Array<String?>
-    private var senderId: Int? = null
-
     private var expenseIdForSimpleMode: Int = -1
     private var extendedExpensesFragment: ExtendedExpensesFragment? = null
     private var simpleExpensesFragment: SimpleExpensesFragment? = null
@@ -147,7 +141,7 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
                 })
 
         viewModel.getAllActiveCurrenciesWithLastUsedMarkerForCurrentTrip().observe(this,
-                Observer<List<Currency>> { currenciesList ->
+                Observer<List<Currency>> { currenciesList: List<Currency> ->
 
                     if (currenciesList.isEmpty()) {
                         Log.d("Currencies list is empty, show alert")
@@ -157,19 +151,17 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
 
                     val debt = viewModel.getCurrentDebt().value
                     if (debt != null && debt.currencyId != -1) {
-                        val currenciesListWithSavedForDebtMarker = mutableListOf<Currency>()
-                        currenciesList.forEach { currency ->
-                            currency.isActiveForCurrentTrip = currency.uid == debt.currencyId
-                            currenciesListWithSavedForDebtMarker.add(currency)
+                        val currenciesListWithSavedForDebtMarker: List<Currency> = currenciesList.map {originalCurrency ->
+                            specifyIsActiveForCurrentDebtForCurrency(originalCurrency, debt)
                         }
                         currenciesAdapter.setCurrencies(currenciesListWithSavedForDebtMarker)
                     } else {
                         currenciesAdapter.setCurrencies(currenciesList)
 
-                        if (currenciesList[0].lastUsedCurrencyId < 1) {
-                            viewModel.onCurrencyClick(currenciesList[0].uid)
+                        if (currenciesList.first().lastUsedCurrencyId < 1) {
+                            viewModel.onCurrencyClick(currenciesList.first().uid)
                         } else {
-                            viewModel.onCurrencyClick(currenciesList[0].lastUsedCurrencyId)
+                            viewModel.onCurrencyClick(currenciesList.first().lastUsedCurrencyId)
                         }
                     }
                 })
@@ -235,11 +227,13 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
                 if (s != null) {
                     if (s.isNotEmpty()) {
                         add_debt_fragment_sender_lil.error = null
-                        viewModel.getAllActiveContactsForCurrentTrip().value?.forEach {contact ->
-                            if (contact.alias == s.toString()) {
-                                viewModel.senderIdIsChanged(contact.uid)
-                                return@forEach
-                            }
+
+                        val selectedContact: Contact? = viewModel.getAllActiveContactsForCurrentTrip().value?.find {contact ->
+                            contact.alias == s.toString()
+                        }
+
+                        if (selectedContact != null) {
+                            viewModel.senderIdIsChanged(selectedContact.uid)
                         }
                     }
                 }
@@ -376,19 +370,6 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
 
     private fun setComment(comment: String) {
         add_debt_fragment_comment_et.setText(comment)
-    }
-
-
-    private fun setSender(position: Int?) {
-        if (position == null) {
-            add_debt_fragment_sender_autocompletetv.setText("")
-            return
-        }
-        if (positionToContactIdMap[position] != null && positionToContactIdMap[position]!!.alias != null) {
-            val senderName: String = positionToContactIdMap[position]!!.alias!!
-            add_debt_fragment_sender_autocompletetv.setText(senderName)
-            //add_debt_fragment_sender_spinner.setSelection(position)
-        }
     }
 
     private fun setExpertMode(isEnabled: Boolean) {
@@ -571,23 +552,8 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
             }
         }
 
-        friendsList = arrayOfNulls<String>(contactsList.size)
-        contactsIdToNameMap = mutableMapOf()
-        positionToContactIdMap = mutableMapOf()
-        contactIdToPositionMap = mutableMapOf()
-        var i = 0
-
-        contactsList.forEach { contact ->
-            friendsList[i] = contact.alias.toString()
-
-            contactsIdToNameMap[contact.uid.toString()] = contact
-            positionToContactIdMap[i] = contact
-            contactIdToPositionMap[contact.uid] = i
-            i = i + 1
-        }
-
-
-        setupSenderSpinner(friendsList)
+        val friendsList: List<String> = contactsList.map { contact -> contact.alias }
+        setupSenderSpinner(friendsList.toTypedArray())
     }
 
         private fun setupSenderSpinner(contactsList: Array<String?>) {
@@ -692,6 +658,11 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
         if (supportFragmentManager.findFragmentById(R.id.debt_fragment_container_for_expenses) != null) {
             supportFragmentManager.beginTransaction().remove(supportFragmentManager.findFragmentById(R.id.debt_fragment_container_for_expenses)!!).commit()
         }
+    }
+
+    private fun specifyIsActiveForCurrentDebtForCurrency(currency: Currency, debt: Debt): Currency {
+        currency.isActiveForCurrentTrip = (currency.uid == debt.currencyId)
+        return currency
     }
 
 }
