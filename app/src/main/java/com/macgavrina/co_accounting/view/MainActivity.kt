@@ -40,6 +40,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
+        //Crash app to test Crashlytics
+//        var nullInt: Int? = null
+//        nullInt!!
+
         presenter = MainActivityPresenter()
         presenter.attachView(this)
 
