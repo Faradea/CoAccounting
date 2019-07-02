@@ -26,7 +26,7 @@ import kotlinx.android.synthetic.main.currency_fragment.*
 class CurrencyActivity : AppCompatActivity() {
 
     private lateinit var viewModel: CurrenciesViewModel
-    private var tripId: Int? = null
+    private var tripId: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,19 +47,26 @@ class CurrencyActivity : AppCompatActivity() {
             }
         })
 
+        viewModel.currencyCantBeDisabledForTrip.observe(this, Observer { currencyId ->
+            Log.d("currencyCantBeDisabledForTrip singleLiveEvent, currencyId = $currencyId")
+            if (currencyId != null) {
+                Log.d("Currency with id = $currencyId can't be enabled for trip, so set checked to true")
+            }
+        })
+
         //ToDo REFACT Использовать фрагмент вместо activity и this.viewLifecycleOwner вместо this для всех observe
 
         val extras = intent.extras
         if (extras?.getInt("tripId") != -1) {
-            tripId = extras?.getInt("tripId")
+            tripId = extras?.getInt("tripId") ?: -1
         }
 
-        if (tripId != null) {
-            viewModel.getAllCurrenciesForTrip(tripId!!).observe(this,
+        viewModel.tripIdIsReceivedFromMainActivity(tripId)
+
+        viewModel.getAllCurrenciesForTrip()?.observe(this,
                     Observer<List<Currency>> { currenciesList ->
                         adapter.setCurrencies(currenciesList)
                     })
-        }
 
 //            if (tripId != null && tripId != -1) {
 //                viewModel.getAllCurrenciesForTrip(tripId!!).observe(this, Observer<List<Currency>> {
