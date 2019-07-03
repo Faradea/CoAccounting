@@ -370,7 +370,7 @@ class TripActivity : AppCompatActivity() {
             }
 
         } else {
-            TODO("VERSION.SDK_INT < N")
+            //ToDo("VERSION.SDK_INT < N")
         }
     }
 
@@ -412,7 +412,7 @@ class TripActivity : AppCompatActivity() {
             }
 
         } else {
-            TODO("VERSION.SDK_INT < N")
+            //ToDo("VERSION.SDK_INT < N")
         }
     }
 

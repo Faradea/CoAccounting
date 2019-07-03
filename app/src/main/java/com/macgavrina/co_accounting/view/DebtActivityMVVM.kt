@@ -459,7 +459,7 @@ class DebtActivityMVVM : AppCompatActivity(), DebtCurrenciesRecyclerViewAdapter.
             }
 
         } else {
-            TODO("VERSION.SDK_INT < N")
+            //ToDO("VERSION.SDK_INT < N")
         }
     }
 
